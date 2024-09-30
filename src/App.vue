@@ -1,13 +1,12 @@
-<script setup>
-// import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-
-  <router-view/>
-
+  <TheHeader/>
+  <TheView/>
 
 </template>
+<script setup>
+  import TheHeader from './layouts/TheHeader.vue';
+  import TheView from './layouts/TheView.vue';
+</script>
 
 <style scoped>
 
