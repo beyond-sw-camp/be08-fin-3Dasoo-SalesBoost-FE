@@ -23,7 +23,7 @@ const routes = [
         name: 'Signup',
         component: SignUpView
     },
- 
+
     {
         path: "/calendar",
         name: 'Calendar',
