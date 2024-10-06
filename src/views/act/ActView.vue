@@ -86,11 +86,9 @@
 import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-import UiParentCard from './UiParentCard.vue';
 
 export default {
   components: {
-    UiParentCard
   },
   setup() {
     const router = useRouter();

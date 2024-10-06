@@ -144,7 +144,6 @@ export default defineComponent({
 				console.error(e);
 			}
 		},
-	},
 		async fetchTodos() {
 			try {
 				const response = await axios.get('http://localhost:8080/api/todos');
@@ -196,8 +195,8 @@ export default defineComponent({
 			}
 		},
 		closeModal() {
-	this.AddModal = false;
-	this.selectedOption = null;
+			this.AddModal = false;
+			this.selectedOption = null;
 			this.clearForm();
 			this.selectedOption = null;
 		},
