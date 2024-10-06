@@ -3,6 +3,7 @@ import MainView from '../views/main/MainView.vue';
 import LoginView from '../views/auth/LoginView.vue';
 import SignUpView from '../views/auth/SignUpView.vue';
 import CalendarView from '../views/calendar/CalendarView.vue';
+import ActView from '../views/act/ActView.vue';
 import NotFoundView from '../views/NotFoundView.vue';
 
 
@@ -28,6 +29,12 @@ const routes = [
         path: "/calendar",
         name: 'Calendar',
         component: CalendarView
+    },
+
+    {
+        path: "/act",
+        name: 'Act',
+        component: ActView
     },
 
     { 
