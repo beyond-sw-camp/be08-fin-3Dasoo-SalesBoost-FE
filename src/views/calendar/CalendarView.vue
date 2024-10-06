@@ -144,6 +144,7 @@ export default defineComponent({
 				console.error(e);
 			}
 		},
+	},
 		async fetchTodos() {
 			try {
 				const response = await axios.get('http://localhost:8080/api/todos');
@@ -244,12 +245,12 @@ export default defineComponent({
 	position: relative;
 }
 
-.select-item {
+.select-item{
 	margin-bottom: 20px;
 	width: 200px;
 }
 
-.alert-fixed {
+.alert-fixed{
 	position: fixed;
 	top: 20px;
 	left: 50%;
