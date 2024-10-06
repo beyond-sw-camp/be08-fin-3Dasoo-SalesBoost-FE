@@ -77,6 +77,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import axios from 'axios';
+import './calendar.css'
 
 export default defineComponent({
 	components: {
@@ -121,8 +122,29 @@ export default defineComponent({
 	},
 	created() {
 		this.fetchTodos();
+		this.fetchActs();
 	},
 	methods: {
+		async fetchActs() {
+			try {
+				const response = await axios.get('http://localhost:8080/api/acts');
+				const acts = response.data.result;
+
+				const calendarApi = this.$refs.calendar.getApi();
+				acts.forEach(act => {
+					calendarApi.addEvent({
+						id: act.no,
+						title: act.name,
+						start: act.actDate,
+						allDay: true,
+						classNames: ['act-event'],
+					});
+				});
+			} catch (e) {
+				console.error(e);
+			}
+		},
+	},
 		async fetchTodos() {
 			try {
 				const response = await axios.get('http://localhost:8080/api/todos');
@@ -135,6 +157,7 @@ export default defineComponent({
 						title: todo.title,
 						start: todo.dueDate,
 						allDay: true,
+						classNames: ['todo-event'],
 					});
 				});
 			} catch (e) {
@@ -218,7 +241,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.calendar-container{
+.calendar-container {
 	position: relative;
 }
 
