@@ -2,7 +2,7 @@
 name: "⭕️ Test Template"
 about: 테스트 템플릿
 title: "[Test]"
-labels: ''
+labels: front, test
 assignees: ''
 
 ---

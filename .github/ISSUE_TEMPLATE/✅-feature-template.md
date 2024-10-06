@@ -2,7 +2,7 @@
 name: "✅ Feature Template"
 about: 기능 구현 관련 템플릿
 title: "[Feat] "
-labels: ''
+labels: feat, front
 assignees: ''
 
 ---
