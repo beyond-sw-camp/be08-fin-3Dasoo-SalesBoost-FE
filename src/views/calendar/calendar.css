@@ -1,0 +1,41 @@
+/* 할 일 */
+.todo-event {
+    background-color: #eca4b4;
+    color: white;
+    font-size: 14px;
+    border: none;
+}
+.todo-event:hover {
+    background-color: #cf8394;
+    cursor: pointer;
+    border: none;
+}
+
+/* 영업활동 */
+.act-event {
+    background-color: #76b2d4;
+    color: white;
+    font-size: 14px;
+    border: none;
+}
+.act-event :hover {
+    background-color: #5991b1;
+    cursor: pointer;
+    border: none;
+}
+
+/* 이벤트 제목 스타일 */
+.fc-event-title {
+    font-weight: bold;
+    color: #fff;
+}
+
+/* 이벤트 제목 컨테이너 스타일 */
+.fc-event-title-container {
+    padding: 2px 5px;
+    text-align: center;
+}
+
+.fc-toolbar button:hover {
+    background-color: #2a4887;
+}
