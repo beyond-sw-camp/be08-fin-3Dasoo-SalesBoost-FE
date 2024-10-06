@@ -2,7 +2,7 @@
 name: "\U0001F3A8 Design Template"
 about: UI 등 디자인 관련 템플릿
 title: "[Design] "
-labels: ''
+labels: design, front, style
 assignees: ''
 
 ---
