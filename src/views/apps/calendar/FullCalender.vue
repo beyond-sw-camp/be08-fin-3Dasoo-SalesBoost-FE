@@ -1,0 +1,279 @@
+<script>
+import { defineComponent } from 'vue';
+import FullCalendar from '@fullcalendar/vue3';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import axios from 'axios';
+import TodoModal from '@/components/modal/TodoModal.vue';
+import PlanModal from '@/components/modal/PlanModal.vue';
+import './calendar.css';
+
+const today = new Date();
+
+export default defineComponent({
+  components: {
+    FullCalendar,
+    TodoModal,
+    PlanModal,
+  },
+  data() {
+    return {
+      AddTodoModal: false,
+      AddPlanModal: false,
+      selectedOption: null,
+      items: ['할 일', '영업활동', '일정'],
+      showAlert: false,
+      statusOptions: ['TODO', 'INPROGRESS', 'DONE'],
+      todo: {
+        calendarNo: 1,
+        title: '',
+        todoCls: '',
+        priority: '',
+        dueDate: '',
+        status: '',
+        privateYn: 'Y',
+        content: '',
+      },
+      plan: {
+        calendarNo: 1,
+        title: '',
+        planCls: '',
+        planDate: '',
+        startTime: '',
+        endTime: '',
+        personalYn: 'N',
+        content: '',
+      },
+      calendarOptions: {
+        plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay',
+        },
+        initialView: 'dayGridMonth',
+        editable: true,
+        selectable: false,
+        selectMirror: true,
+        dayMaxEvents: true,
+        weekends: true,
+        select: this.handleDateSelect,
+        eventClick: this.handleEventClick,
+        eventsSet: this.handleEvents,
+      },
+      currentEvents: [],
+    };
+  },
+  created() {
+    this.fetchTodos();
+    this.fetchActs();
+    this.fetchPlans();
+  },
+  methods: {
+    async fetchActs() {
+      try {
+        const response = await axios.get('http://localhost:8080/api/acts');
+        const acts = response.data.result;
+
+        const calendarApi = this.$refs.calendar.getApi();
+        acts.forEach(act => {
+          calendarApi.addEvent({
+            id: act.no,
+            title: act.name,
+            start: act.actDate,
+            allDay: true,
+            classNames: ['act-event'],
+          });
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    async fetchTodos() {
+      try {
+        const response = await axios.get('http://localhost:8080/api/todos');
+        const todos = response.data.result;
+
+        const calendarApi = this.$refs.calendar.getApi();
+        todos.forEach(todo => {
+          calendarApi.addEvent({
+            id: todo.todoNo,
+            title: todo.title,
+            start: todo.dueDate,
+            allDay: true,
+            classNames: ['todo-event'],
+          });
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }, 
+    async fetchPlans() {
+      try {
+        const response = await axios.get('http://localhost:8080/api/plans');
+        const plans = response.data.result;
+        const calendarApi = this.$refs.calendar.getApi();
+        plans.forEach(plan => {
+          calendarApi.addEvent({
+            id: plan.planNo,
+            title: plan.title,
+            date: plan.planDate,
+            allDay: true,
+            classNames: ['plan-event'],
+          });
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    async addTodo() {
+      if (!this.todo.title || !this.todo.todoCls || !this.todo.priority || !this.todo.dueDate || !this.todo.status) {
+        this.showAlert = true;
+        setTimeout(() => {
+          this.showAlert = false;
+        }, 2000);
+        return;
+      }
+
+      this.showAlert = false;
+      const setPrivateYn = {
+        ...this.todo,
+        privateYn: this.todo.privateYn ? 'Y' : 'N',
+      };
+      try {
+        const response = await axios.post('http://localhost:8080/api/todos', setPrivateYn);
+        const createdTodo = response.data.result;
+        const calendarApi = this.$refs.calendar.getApi();
+        calendarApi.addEvent({
+          id: createdTodo.todoNo,
+          title: createdTodo.title,
+          start: createdTodo.dueDate,
+          allDay: true,
+        });
+        this.closeTodoModal();
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    async addPlan() {
+      if (!this.plan.planCls || !this.plan.planDate) {
+        this.showAlert = true;
+        setTimeout(() => {
+          this.showAlert = false;
+        }, 2000);
+        return;
+      }
+      this.showAlert = false;
+      
+      const setPersonalYn = {
+        ...this.plan,
+        personalYn: this.plan.personalYn ? 'Y' : 'N',
+      };
+      try {
+        const response = await axios.post('http://localhost:8080/api/plans', setPersonalYn);
+        const createdPlan = response.data.result;
+        const calendarApi = this.$refs.calendar.getApi();
+        calendarApi.addEvent({
+          id: createdPlan.planNo,
+          title: createdPlan.title,
+          date: createdPlan.planDate,
+          allDay: true,
+        });
+        this.closePlanModal();
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    closeTodoModal() {
+      this.AddTodoModal = false;
+      this.selectedOption = null
+      this.clearTodoForm();
+    },
+    closePlanModal() {
+      this.AddPlanModal = false;
+      this.selectedOption = null
+      this.clearPlanForm();
+    },
+    clearTodoForm() {
+      this.todo = {
+        calendarNo: 1,
+        title: '',
+        todoCls: '',
+        priority: '',
+        dueDate: '',
+        status: '',
+        privateYn: 'N',
+        content: '',
+      };
+    },
+    handleDateSelect(selectInfo) {
+      this.AddTodoModal = true;
+      this.AddPlanModal = true;
+      this.todo.dueDate = selectInfo.startStr;
+      this.plan.planDate = selectInfo.startStr;
+    },
+    handleEventClick(clickInfo) {
+      this.updateModalShow = true;
+    },
+    handleEvents(events) {
+      this.currentEvents = events;
+    },
+  },
+  watch: {
+    selectedOption(value) {
+      if (value === '할 일') {
+        this.AddTodoModal = true;
+      } else if (value === '영업활동') {
+        this.$router.push('/apps/act');
+      } else if (value === '일정') {
+        this.AddPlanModal = true;
+      }
+    },
+  },
+});
+
+</script>
+
+<template>
+  <div class='demo-app'>
+    <div class='demo-app-main'>
+        <v-select
+        v-model="selectedOption"
+        :items="items"
+        label="Select"
+        hide-details
+        outlined
+        class="select-item"
+      ></v-select>
+
+      <FullCalendar ref="calendar" class='demo-app-calendar rounded-md':options="calendarOptions">
+        <template v-slot:eventContent="arg">
+          <div class="text-subtitle-1 pa-1 text-truncate">{{ arg.event.title }}</div>
+        </template>
+      </FullCalendar>
+
+      <TodoModal v-model="AddTodoModal" :todo="todo" :statusOptions="statusOptions" @close="closeTodoModal" @add="addTodo" />
+      <PlanModal v-model="AddPlanModal" :plan="plan" :statusOptions="statusOptions" @close="closePlanModal" @add="addPlan" />
+
+    </div>
+  </div>
+</template>
+<style>
+
+.calendar-container {
+  position: relative;
+}
+
+.select-item {
+  margin-bottom: 20px;
+  width: 200px;
+}
+
+.alert-fixed {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 10;
+}
+</style>
