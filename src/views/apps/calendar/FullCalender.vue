@@ -9,8 +9,6 @@ import TodoModal from '@/components/modal/TodoModal.vue';
 import PlanModal from '@/components/modal/PlanModal.vue';
 import './calendar.css';
 
-const today = new Date();
-
 export default defineComponent({
   components: {
     FullCalendar,
@@ -118,8 +116,9 @@ export default defineComponent({
           calendarApi.addEvent({
             id: plan.planNo,
             title: plan.title,
-            date: plan.planDate,
-            allDay: true,
+            start: plan.planDate + 'T' + plan.startTime,
+            end: plan.planDate + 'T' + plan.endTime,
+            allDay: false,
             classNames: ['plan-event'],
           });
         });
@@ -156,8 +155,8 @@ export default defineComponent({
         console.error(e);
       }
     },
-    async addPlan() {
-      if (!this.plan.planCls || !this.plan.planDate) {
+    async addPlan(plan) {
+      if (!plan.planCls || !plan.planDate) {
         this.showAlert = true;
         setTimeout(() => {
           this.showAlert = false;
@@ -165,10 +164,10 @@ export default defineComponent({
         return;
       }
       this.showAlert = false;
-      
+    
       const setPersonalYn = {
-        ...this.plan,
-        personalYn: this.plan.personalYn ? 'Y' : 'N',
+        ...plan,
+        personalYn: plan.personalYn ? 'Y' : 'N',
       };
       try {
         const response = await axios.post('http://localhost:8080/api/plans', setPersonalYn);
@@ -177,23 +176,27 @@ export default defineComponent({
         calendarApi.addEvent({
           id: createdPlan.planNo,
           title: createdPlan.title,
-          date: createdPlan.planDate,
-          allDay: true,
+          start: createdPlan.planDate + 'T' + createdPlan.startTime,
+          end: createdPlan.planDate + 'T' + createdPlan.endTime,
+          allDay: false,
+          classNames: ['plan-event'],
         });
-        this.closePlanModal();
-      } catch (e) {
-        console.error(e);
-      }
-    },
+      this.closePlanModal();
+    } catch (e) {
+      console.error(e);
+    }
+  },
     closeTodoModal() {
       this.AddTodoModal = false;
-      this.selectedOption = null
+      this.selectedOption = null;
       this.clearTodoForm();
     },
     closePlanModal() {
       this.AddPlanModal = false;
-      this.selectedOption = null
-      this.clearPlanForm();
+      this.selectedOption = null;
+      setTimeout(() => {
+        this.clearPlanForm();
+      }, 300);
     },
     clearTodoForm() {
       this.todo = {
@@ -207,6 +210,19 @@ export default defineComponent({
         content: '',
       };
     },
+    clearPlanForm() {
+    this.plan = {
+        calendarNo: 1,
+        title: '',
+        planCls: '',
+        planDate: '',
+        startTime: '',
+        endTime: '',
+        personalYn: 'N',
+        content: '',
+      };
+    },
+
     handleDateSelect(selectInfo) {
       this.AddTodoModal = true;
       this.AddPlanModal = true;
