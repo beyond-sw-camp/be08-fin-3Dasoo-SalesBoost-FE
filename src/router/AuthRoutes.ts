@@ -27,6 +27,11 @@ const AuthRoutes = {
             component: () => import('@/views/authentication/BoxedRegister.vue')
         },
         {
+            name: 'SignUp',
+            path: '/auth/signup',
+            component: () => import('@/views/authentication/SignUp.vue')
+        },
+        {
             name: 'Side Forgot Password',
             path: '/auth/forgot-password',
             component: () => import('@/views/authentication/SideForgotPassword.vue')
