@@ -12,7 +12,7 @@ import LoginForm from '@/components/auth/LoginForm.vue';
                         <v-card-item class="pa-sm-8">
                             <LoginForm/>
                             <h6 class="text-h6 text-medium-emphasis d-flex justify-center align-center mt-3">
-                               계정이 없는경우 회원가입 진행
+                               계정이 없는경우 
                                 <v-btn class="pl-0 text-primary text-body-1 opacity-1 pl-2" height="auto" to="/auth/signup" variant="plain"
                                     >회원가입</v-btn
                                 >

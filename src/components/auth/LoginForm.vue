@@ -48,19 +48,23 @@ const loginApi=async()=>{
             console.log(res);
             if(res.data.code==200){
                 alert("로그인을 완료했습니다.");
-                const result = res.data;
-                console.log(result);
-                localStorage.setItem('user', JSON.stringify(result));
+                const result = res.data.result;
+               // console.log(result);
+                saveLocalStorage(result);
                 router.push("/");  
             }else{
              //   console.log(res.data.message);
                 alert(res.data.message);
             }
         })
-
     }catch(err) {
         console.log(err);
     }
+}
+const saveLocalStorage=(result:any)=>{
+        localStorage.setItem('user', JSON.stringify(result.name));
+        localStorage.setItem('email', JSON.stringify(result.email));
+        localStorage.setItem('token', JSON.stringify(result.accessToken));
 }
 </script>
 
