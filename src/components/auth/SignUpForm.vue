@@ -20,7 +20,7 @@ const confirmPasswordRules = ref([
     (v: string) => !!v || '비밀번호확인을 입력해주세요',
     (v: string) => (v===password.value) || '비밀번호를 다시 확인해주세요'
 ]);
-const emailRules = ref([(v: string) => !!v || '이메일을 입력해주세요', (v: string) => /.+@.+\..+/.test(v) || '이메일 형식을 지켜주세요']);
+const emailRules = ref([(v: string) => !!v || '이메일을 입력해주세요', (v: string) => /.+@.+\..+/.test(v) || '이메일 형식으로 입력해주세요']);
 const name = ref('');
 const nameRules = ref([
     (v: string) => !!v || '이름을 입력해주세요',
@@ -50,7 +50,7 @@ const signUpApi = async()=>{
             if(res.data.code==200){
                 alert('정상적으로 회원가입이 완료되었습니다.');
                 if(confirm(`사원번호가 발급되었습니다. : ${res.data.result.employeeId}`)){
-                    router.push("/auth/login2");
+                    router.push("/auth/login");
                 }
           //   router.push("/auth/register/success");  
             }else{
@@ -67,7 +67,7 @@ const signUpApi = async()=>{
     </div>
     <v-form ref="form" v-model="valid"  class="mt-5">
         <v-label class="text-subtitle-1 font-weight-medium pb-2">이름</v-label>
-        <VTextField v-model="name" :rules="nameRules" required ></VTextField>
+        <VTextField v-model="name" :rules="nameRules" required placeholder="이름을 입력해주세요" ></VTextField>
         <v-label class="mb-2 font-weight-medium">부서</v-label>
             <v-select
                 v-model="deptName"
@@ -80,11 +80,12 @@ const signUpApi = async()=>{
                 variant="outlined"
             ></v-select>
         <v-label class="text-subtitle-1 font-weight-medium pb-2">이메일</v-label>
-        <VTextField v-model="email" :rules="emailRules" required ></VTextField>
+        <VTextField v-model="email" :rules="emailRules" required placeholder="이메일을 입력해주세요"></VTextField>
         <v-label class="text-subtitle-1 font-weight-medium pb-2">비밀번호</v-label>
         <VTextField
             v-model="password"
             :counter="10"
+            placeholder="비밀번호를 입력해주세요"
             :rules="passwordRules"
             required
             variant="outlined"
@@ -95,6 +96,7 @@ const signUpApi = async()=>{
         <VTextField
             v-model="confirmPassword"
             :counter="10"
+            placeholder="비밀번호를 입력해주세요"
             :rules="confirmPasswordRules"
             required
             variant="outlined"

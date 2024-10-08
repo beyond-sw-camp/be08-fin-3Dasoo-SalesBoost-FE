@@ -8,13 +8,18 @@ const AuthRoutes = {
 
         {
             name: 'Side Login',
-            path: '/auth/login',
+            path: '/auth/login1',
             component: () => import('@/views/authentication/SideLogin.vue')
         },
         {
             name: 'Boxed Login',
             path: '/auth/login2',
             component: () => import('@/views/authentication/BoxedLogin.vue')
+        },
+        {
+            name: 'Login',
+            path: '/auth/login',
+            component: () => import('@/views/authentication/Login.vue')
         },
         {
             name: 'Side Register',
