@@ -3,22 +3,29 @@
 		<v-card>
 			<v-card-title>일정 추가</v-card-title>
 			<v-card-text>
-				<v-form @submit.prevent="submitPlan">
+				<v-form @submit.prevent="submitPlan" lazy-validation>
 					<v-alert v-if="showAlert" type="warning" class="warn-alert">
 						필수 입력 필드를 모두 채워주세요.
 					</v-alert>
 					<v-row>
-						<v-col cols="12" sm="6" md="4">
-							<v-text-field v-model="plan.title" label="제목*" required></v-text-field>
+						<v-col cols="12" sm="6" md="6">
+							<v-text-field v-model="plan.title" label="제목*" 
+							:rules="[v => !!v || '일정명을 입력하세요.']" required></v-text-field>
 						</v-col>
-						<v-col cols="12" sm="6" md="4">
-							<v-text-field v-model="plan.planCls" label="분류*" required></v-text-field>
+						<v-col cols="12" sm="6" md="6">
+							<v-select
+								v-model="planCls"
+								:items="planClsOptions"
+								label="분류*" outlined
+								:rules="[v => !!v || '분류를 선택하세요.']"
+								required
+							></v-select>
 						</v-col>
 						<v-col cols="12">
-							<v-text-field v-model="plan.planDate" label="일자*" type="date" required></v-text-field>
+							<v-text-field v-model="plan.planDate" label="일자*" type="date" 
+							:rules="[v => !!v || '일자를 입력하세요.']" required></v-text-field>
 						</v-col>
-						<v-row>
-							<v-col>
+							<v-col cols="12" sm="6" md="6">
 								<v-select
 									label="시작 시간"
 									v-model="plan.startTime"
@@ -28,7 +35,7 @@
 									required
 								></v-select>
 							</v-col>
-							<v-col>
+							<v-col cols="12" sm="6" md="6">
 								<v-select
 									label="종료 시간"
 									v-model="plan.endTime"
@@ -38,7 +45,6 @@
 									required
 								></v-select>
 							</v-col>
-						</v-row>
 						<v-col cols="12">
 							<v-switch color="primary" v-model="plan.privateYn" label="나만보기 여부"></v-switch>
 						</v-col>
@@ -71,6 +77,8 @@ export default {
 		return {
 			showAlert: false,
       timeOptions: this.generateTimeOptions(), 
+      planClsOptions: ['개인', '전사', '제안', '견적', '계약'],
+      planCls: '',
 		};
 	},
 	methods: {
@@ -86,7 +94,7 @@ export default {
       return options;
     },
     submitPlan() {
-			if (!this.plan.title || !this.plan.planCls || !this.plan.planDate || !this.plan.startTime || !this.plan.endTime) {
+			if (!this.plan.title || !this.planCls || !this.plan.planDate || !this.plan.startTime || !this.plan.endTime) {
 				this.showAlert = true;
 				setTimeout(() => {
 					this.showAlert = false;
@@ -94,10 +102,21 @@ export default {
 				return;
 			}
 			this.showAlert = false;
+      const planClsMapping = {
+        '개인': 'PERSONAL',
+        '전사': 'COMPANY',
+        '제안': 'PROPOSAL',
+        '견적': 'ESTIMATE',
+        '계약': 'CONTRACT'
+      };
+
+      this.plan.planCls = planClsMapping[this.planCls];
       this.$emit('add', this.plan);
-      this.closeModal();
-		},
+			this.closeModal();
+			},
+
 		closeModal() {
+			this.planCls=null;
 			this.$emit('close');
 		},
 	},
