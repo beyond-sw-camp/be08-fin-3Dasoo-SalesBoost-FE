@@ -1,4 +1,10 @@
 <template>
+    <div>
+      <v-alert v-if="showSuccessAlert" type="success" variant="tonal" class="success-alert">
+        <h5 class="text-h6 text-capitalize">Success</h5>
+        <div>{{ alertMessage }}</div>
+      </v-alert>
+    </div>
     <v-row justify="end">
       <v-col cols="12" lg="12" offset-md="1">
           <v-label class="mb-2 font-weight-medium">영업기회</v-label>
@@ -92,6 +98,10 @@ export default {
     const valid = ref(false);
     const form = ref(null);
     const loading = ref(false);
+    const showAlert = ref(false);  // 경고 알림 상태
+    const showSuccessAlert = ref(false);  // 성공 알림 상태
+    const alertMessage = ref('');  // 알림 메시지
+    const alertType = ref('');  // 알림 타입
     const act = ref({
       leadNo: 1, 
       name: '',
@@ -166,12 +176,17 @@ export default {
 
 
           if (response.data.code === 200 || response.data.code === 201) {
-            alert("저장이 완료되었습니다.");
+            alertMessage.value = '저장이 완료되었습니다.';
+            alertType.value = 'success';
+            showSuccessAlert.value = true;
             setTimeout(() => {
+              showSuccessAlert.value = false;
+              console.log('showSuccessAlert:', showSuccessAlert.value);
               resetForm();
               router.push('/apps/calendar');
-            }, 1000);
+            }, 5000);
           }
+          console.log('showSuccessAlert:', showSuccessAlert.value);
 
         } catch (error) {
           console.error("등록 실패:", error);
@@ -190,6 +205,9 @@ export default {
       actStatusOptions,
       timeOptions,
       loading,
+      showSuccessAlert,
+      alertMessage,
+      alertType,
       submitForm
     };
   }
@@ -197,11 +215,20 @@ export default {
 </script>
 
 <style scoped>
+
 .form-container {
   position: absolute;
   right: 0;
   width: 80%;
   padding: 20px;
   border-radius: 8px;
+}
+
+.success-alert {
+  position: fixed;
+  top: 10%;
+  right: 20px;
+  z-index: 999;
+  width: 300px; 
 }
 </style>
