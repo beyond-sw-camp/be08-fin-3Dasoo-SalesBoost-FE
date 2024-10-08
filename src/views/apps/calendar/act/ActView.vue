@@ -2,7 +2,7 @@
     <v-row justify="end">
       <v-col cols="12" lg="12" offset-md="1">
           <v-label class="mb-2 font-weight-medium">영업기회</v-label>
-          <v-form ref="form" v-model="valid" lazy-validation>
+          <v-form ref="form" v-model="valid" @submit.prevent="submitForm">
             <v-text-field
               v-model="act.leadNo"
               outlined
@@ -47,29 +47,35 @@
             <v-row>
               <v-col>
                 <v-label class="mb-2 font-weight-medium">시작 시간</v-label>
-                <v-text-field 
-                  v-model="act.startTime" required
+                <v-select 
+                  v-model="act.startTime" 
+                  :items="timeOptions"
+                  required
                   :rules="[v => !!v || '시작 시간을 선택하세요.']"
-                  variant="outlined" placeholder="hh:mm"  type="time" color="primary"></v-text-field>
+                  outlined
+                ></v-select>
               </v-col>
               <v-col>
                 <v-label class="mb-2 font-weight-medium">종료 시간</v-label>
-                <v-text-field 
-                  v-model="act.endTime" required
+                <v-select 
+                  v-model="act.endTime" 
+                  :items="timeOptions"
+                  required
                   :rules="[v => !!v || '종료 시간을 선택하세요.']"
-                  variant="outlined" placeholder="hh:mm"  type="time" color="primary"></v-text-field>
+                  outlined
+                ></v-select>
               </v-col>
             </v-row>
 
-                <v-col cols="12" md="3" sm="6">
-                  <v-label class="mb-2 font-weight-medium">완료 여부</v-label>
-                    <v-switch v-model="act.completeYn" hide-details color="primary" inset></v-switch>
-                </v-col>
+            <v-col cols="12" md="3" sm="6">
+              <v-label class="mb-2 font-weight-medium">완료 여부</v-label>
+                <v-switch v-model="act.completeYn" hide-details color="primary" inset></v-switch>
+            </v-col>
 
             <v-textarea label="계획내용" v-model="act.planContent" outlined></v-textarea>
             <v-textarea label="활동내용" v-model="act.actContent" outlined></v-textarea>
 
-            <v-btn color="primary" @click="submitForm">저장</v-btn>
+            <v-btn :loading="loading" color="primary" type="submit">저장</v-btn>
           </v-form>
       </v-col>
     </v-row>
@@ -81,15 +87,13 @@ import axios from 'axios';
 import { useRouter } from 'vue-router';
 
 export default {
-  components: {
-  },
   setup() {
     const router = useRouter();
-
     const valid = ref(false);
     const form = ref(null);
+    const loading = ref(false);
     const act = ref({
-      leadNo: 1, // 영업기회(하드코딩)
+      leadNo: 1, 
       name: '',
       cls: '',
       purpose: '',
@@ -101,19 +105,29 @@ export default {
       actContent: ''
     });
 
-    const actStatusOptions = ref([
-      "MEETING",
-      "PRODUCT_INTRO",
-      "NEGOTIATION",
-      "CONTRACT",
-      "ESITIMATE",
-      "PROPOSAL"
-    ]);
+    const actStatusMapping = {
+      '고객 미팅': 'MEETING',
+      '제품 소개': 'PRODUCT_INTRO',
+      '협상': 'NEGOTIATION',
+      '계약': 'CONTRACT',
+      '견적': 'ESTIMATE',
+      '제안': 'PROPOSAL'
+    };
+    const actStatusOptions = ref(Object.keys(actStatusMapping));
 
-    const timeOptions = ref([
-      "09:00", "10:00", "11:00", "12:00", "13:00",
-      "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"
-    ]);
+    const generateTimeOptions = () => {
+      const options = [];
+      for (let hour = 0; hour < 24; hour++) {
+        for (let minute = 0; minute < 60; minute += 30) {
+          const paddedHour = hour.toString().padStart(2, '0');
+          const paddedMinute = minute.toString().padStart(2, '0');
+          options.push(`${paddedHour}:${paddedMinute}`);
+        }
+      }
+      return options;
+    };
+
+    const timeOptions = ref(generateTimeOptions());
 
     const resetForm = () => {
       act.value = {
@@ -128,17 +142,17 @@ export default {
         planContent: '',
         actContent: ''
       };
+      valid.value = false;
     };
 
     const submitForm = async () => {
-
-
-      if (form.value.validate()) {
+      if (form.value && form.value.validate()) {
+        loading.value = true;
         try {
           const response = await axios.post('http://localhost:8080/api/acts', {
             leadNo: act.value.leadNo,
             name: act.value.name,
-            cls: act.value.cls,
+            cls: actStatusMapping[act.value.cls],
             purpose: act.value.purpose,
             actDate: act.value.actDate,
             startTime: act.value.startTime,
@@ -148,14 +162,21 @@ export default {
             actContent: act.value.actContent,
             calendarNo: 1, // TODO: 유저 캘린더 번호로 설정 필요
           });
-          // console.log("등록 성공:", response.data);
+          console.log(response); // 응답 객체 출력
 
-          resetForm();
 
-          router.push('/apps/calendar');
+          if (response.data.code === 200 || response.data.code === 201) {
+            alert("저장이 완료되었습니다.");
+            setTimeout(() => {
+              resetForm();
+              router.push('/apps/calendar');
+            }, 1000);
+          }
 
         } catch (error) {
           console.error("등록 실패:", error);
+        } finally {
+          loading.value = false;
         }
       } else {
         alert("필수 입력 필드를 확인해주세요.");
@@ -168,6 +189,7 @@ export default {
       act,
       actStatusOptions,
       timeOptions,
+      loading,
       submitForm
     };
   }
