@@ -181,7 +181,6 @@ export default defineComponent({
           allDay: false,
           classNames: ['plan-event'],
         });
-      calendarApi.rerenderEvents(); 
       this.closePlanModal();
     } catch (e) {
       console.error(e);
@@ -195,7 +194,9 @@ export default defineComponent({
     closePlanModal() {
       this.AddPlanModal = false;
       this.selectedOption = null;
-      this.clearPlanForm();
+      setTimeout(() => {
+        this.clearPlanForm();
+      }, 300);
     },
     clearTodoForm() {
       this.todo = {
