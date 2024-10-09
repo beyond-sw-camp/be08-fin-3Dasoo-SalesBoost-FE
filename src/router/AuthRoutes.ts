@@ -8,13 +8,18 @@ const AuthRoutes = {
 
         {
             name: 'Side Login',
-            path: '/auth/login',
+            path: '/auth/login1',
             component: () => import('@/views/authentication/SideLogin.vue')
         },
         {
             name: 'Boxed Login',
             path: '/auth/login2',
             component: () => import('@/views/authentication/BoxedLogin.vue')
+        },
+        {
+            name: 'Login',
+            path: '/auth/login',
+            component: () => import('@/views/authentication/Login.vue')
         },
         {
             name: 'Side Register',
@@ -25,6 +30,11 @@ const AuthRoutes = {
             name: 'Boxed Register',
             path: '/auth/register2',
             component: () => import('@/views/authentication/BoxedRegister.vue')
+        },
+        {
+            name: 'SignUp',
+            path: '/auth/signup',
+            component: () => import('@/views/authentication/SignUp.vue')
         },
         {
             name: 'Side Forgot Password',
