@@ -79,8 +79,9 @@ export default defineComponent({
           calendarApi.addEvent({
             id: act.no,
             title: act.name,
-            start: act.actDate,
-            allDay: true,
+            start: act.actDate + 'T' + act.startTime,
+            end: act.actDate + 'T' + act.endTime,
+            allDay: false,
             classNames: ['act-event'],
           });
         });
