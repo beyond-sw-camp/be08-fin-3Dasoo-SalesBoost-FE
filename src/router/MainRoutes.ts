@@ -353,6 +353,11 @@ const MainRoutes = {
             path: '/forms/editor',
             component: () => import('@/views/forms/plugins/editor/Editor.vue')
         },
+            {
+                name: 'ProposalList',
+                path: '/proposals',
+                component: () => import('@/components/proposal/ProposalList.vue'),
+            },
         {
             name: 'Gallery Lightbox',
             path: '/pages/gallery-lightbox',
