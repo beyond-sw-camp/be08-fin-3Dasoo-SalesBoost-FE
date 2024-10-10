@@ -444,6 +444,17 @@ const sidebarItem: menu[] = [
         icon: EditCircleIcon,
         to: '/forms/editor'
     },
+    // {
+    //     title: 'Proposal List',
+    //     icon: FilesIcon,
+    //     to: '/proposals'
+    // },
+
+    {
+        title: '제안',
+        icon: FilesIcon,
+        to: '/proposals'
+    },
 
     { header: 'Widgets' },
     {
