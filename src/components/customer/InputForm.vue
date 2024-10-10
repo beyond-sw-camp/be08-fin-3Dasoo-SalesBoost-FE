@@ -67,6 +67,6 @@ const grade = ref(['S등급', 'A등급','B등급','C등급','D등급']);
     </v-row>
     <div class="d-flex gap-3 mt-5 justify-content flex-column flex-wrap flex-xl-nowrap flex-sm-row fill-height"> 
             <v-btn color="primary" variant="outlined">등록</v-btn>
-            <v-btn color="info" variant="outlined">목록</v-btn>
+            <v-btn color="info" variant="outlined" to="/sales/customer">목록</v-btn>
     </div>   
 </template>

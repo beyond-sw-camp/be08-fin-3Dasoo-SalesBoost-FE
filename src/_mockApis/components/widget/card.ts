@@ -190,7 +190,22 @@ const profileCards: profileCard[] = [
         title: 'Charles Nunez',
         subtitle: 'Environmental Specialist',
         avatar: user3
-    }
+    },
+    {
+        title: 'Andrew Grant',
+        subtitle: 'Technology Director',
+        avatar: user1
+    },
+    // {
+    //     title: 'Leo Pratt',
+    //     subtitle: 'Telecom Analyst',
+    //     avatar: user2
+    // },
+    // {
+    //     title: 'Charles Nunez',
+    //     subtitle: 'Environmental Specialist',
+    //     avatar: user3
+    // }
 ];
 
 /*--Upcomming Activity Cards--*/

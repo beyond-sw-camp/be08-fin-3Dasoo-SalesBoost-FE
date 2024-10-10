@@ -1,50 +1,58 @@
-<script setup lang="ts">
-import { ref } from 'vue';
-// common components
-import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
-import UiParentCard from '@/components/shared/UiParentCard.vue';
-import UiChildCard from '@/components/shared/UiChildCard.vue';
+<template>
+    <div class="container">
+        
+        <div class="filter_container">
+            <FilterCard/>
+            
+        </div>
+    
+        <div class="customer_container">
+            <div class="header">
+                <div class="result_count">(검색결과: X건)</div>   
+                <v-btn variant="tonal" color="primary" to="/sales/customer-add">고객 추가</v-btn>
+            </div>
+         
+            <hr  class="divider"></hr>
+                <CustomerCard/>
+        </div>
+    </div>
+</template>
 
-//Components
-import BasicLayout from '@/components/forms/form-vertical/BasicLayout.vue';
-import BasicWithIcons from '@/components/forms/form-vertical/BasicWithIcons.vue';
-import FormSeprator from '@/components/forms/form-vertical/FormSeprator.vue';
-import Collapsible from '@/components/forms/form-vertical/Collapsible.vue';
-import PersonalInfoTab from '@/components/forms/form-vertical/PersonalInfoTab.vue';
-import AccountDetailsTab from '@/components/forms/form-vertical/AccountDetailsTab.vue';
-import SocialLinksTab from '@/components/forms/form-vertical/SocialLinksTab.vue';
-import OutlinedButtons from '@/components/forms/form-elements/button/OutlinedButtons.vue';
-import CustomerAddCard from '@/components/customer/CustomerAddCard.vue';
-import InputForm from '@/components/customer/InputForm.vue';
+<script setup>
+import CustomerCard from '@/components/customer/CustomerCard.vue';
+import FilterCard from '@/components/customer/FilterCard.vue';
 
-/*tab*/
-const tab = ref(null);
-
-// theme breadcrumb
-const page = ref({ title: '고객등록' });
-// const breadcrumbs = ref([
-//     {
-//         text: 'Dashboard',
-//         disabled: false,
-//         href: '#'
-//     },
-//     {
-//         text: 'Vertical Form',
-//         disabled: true,
-//         href: '#'
-//     }
-// ]);
 </script>
 
-<template>
-   <!-- <BaseBreadcrumb :title="page.title" :breadcrumbs="breadcrumbs"></BaseBreadcrumb> -->
-   <v-row>
-        
-        <CustomerAddCard title="고객 등록">
-             <InputForm/>
-      
-    
-        </CustomerAddCard>        
-                            
-   </v-row>           
-</template>
+<style lang="scss" scoped>
+.header {
+    font-size: 12px;
+    margin:15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.container {
+   
+    display: flex;
+    flex-direction: row;
+    // background-color: yellow;
+}
+
+.filter_container {
+    background-color: white;
+    margin-right: 30px;
+    width: 25%;
+}
+
+.customer_container {
+    background-color: white;
+    width: 80%;
+}
+.divider{
+    border-color:red;
+    margin-left:15px;
+    margin-right: 15px;
+}
+
+</style>

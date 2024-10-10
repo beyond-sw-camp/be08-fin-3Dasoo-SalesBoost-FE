@@ -447,9 +447,21 @@ const MainRoutes = {
           // -------- 추가 by kuk329 ------------
 
         {
+            name: "CustomerAdd",
+            path: "/sales/customer-add",
+            component: () => import("@/views/apps/customer/CustomerAdd.vue"),
+          },
+
+          {
             name: "Customer",
             path: "/sales/customer",
             component: () => import("@/views/apps/customer/Customer.vue"),
+          },
+
+          { // 고객 조회 및 수정
+            name: "CustomerDetail",
+            path: "/sales/customer-detail",
+            component: () => import("@/views/apps/customer/CustomerDetail.vue"),
           },
     ]
 };
