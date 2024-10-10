@@ -1,7 +1,7 @@
 <template>
 	<v-dialog :model-value="AddPlanModal" @update:model-value="$emit('update:AddPlanModal', $event)" persistent max-width="500px">
 		<v-card>
-			<v-card-title>일정 추가</v-card-title>
+			<v-card-title>일정</v-card-title>
 			<v-card-text>
 				<v-form @submit.prevent="submitPlan" lazy-validation>
 					<v-alert v-if="showAlert" type="warning" class="warn-alert">

@@ -1,7 +1,7 @@
 <template>
 	<v-dialog :model-value="AddTodoModal" @update:model-value="$emit('update:AddTodoModal', $event)" persistent max-width="500px">
 		<v-card>
-			<v-card-title>할 일 추가</v-card-title>
+			<v-card-title>할 일</v-card-title>
 			<v-card-text>
 				<v-form @submit.prevent="addTodo">
 					<v-row>

@@ -18,7 +18,7 @@
     font-size: 14px;
     border: none;
 }
-.act-event :hover {
+.act-event:hover {
     background-color: #5991b1;
     cursor: pointer;
     border: none;
@@ -31,7 +31,7 @@
     font-size: 14px;
     border: none;
 }
-.plan-event :hover {
+.plan-event:hover {
     background-color: #60c0a0;
     cursor: pointer;
     border: none;

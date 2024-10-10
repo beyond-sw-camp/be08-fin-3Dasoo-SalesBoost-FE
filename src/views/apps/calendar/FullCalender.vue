@@ -230,8 +230,61 @@ export default defineComponent({
       this.todo.dueDate = selectInfo.startStr;
       this.plan.planDate = selectInfo.startStr;
     },
-    handleEventClick(clickInfo) {
-      this.updateModalShow = true;
+    async handleEventClick(clickInfo) {
+      const eventId = clickInfo.event.id;    
+      const eventClassNames = clickInfo.event.classNames;
+
+      if (eventClassNames.includes('plan-event')) {
+        this.AddPlanModal = true;
+        try {        
+          const response = await axios.get(`http://localhost:8080/api/plans/${eventId}`);        
+          const planDetails = response.data.result;
+          this.plan = {          
+            calendarNo: planDetails.calendarNo,          
+            title: planDetails.title,          
+            planCls: planDetails.planCls,
+            planDate: planDetails.planDate,          
+            startTime: planDetails.startTime,          
+            endTime: planDetails.endTime,         
+            personalYn: planDetails.personalYn,           
+            content: planDetails.content,        
+          };
+          this.DetailPlanShow = false;
+        } catch (e) {        
+            console.error(e);      
+          }
+      } 
+      else if (eventClassNames.includes('todo-event')) {
+        this.AddTodoModal = true;
+        try {        
+          const response = await axios.get(`http://localhost:8080/api/todos/${eventId}`);
+          const todoDetails = response.data.result;
+
+          this.todo = {          
+            calendarNo: todoDetails.calendarNo,
+            title: todoDetails.title,
+            todoCls: todoDetails.todoCls,
+            priority: todoDetails.priority,
+            dueDate: todoDetails.dueDate,
+            status: todoDetails.status,
+            privateYn: todoDetails.privateYn,
+            content: todoDetails.content,
+          };
+          this.DetailTodoShow = false;
+        } catch (e) {        
+          console.error(e);      
+        }
+      } 
+      // else if (eventClassNames.includes('act-event')) {
+      //   try {
+      //     await this.$router.push({ 
+      //       path: '/apps/act', 
+      //       query: { eventId: eventId }
+      //     });
+      //   } catch (e) {        
+      //     console.error(e);      
+      //   }
+      // }
     },
     handleEvents(events) {
       this.currentEvents = events;
