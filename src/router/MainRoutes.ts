@@ -443,7 +443,14 @@ const MainRoutes = {
             path: "/icons/tabler",
             component: () => import("@/views/icons/TablerIcons.vue"),
           },
-        
+
+          // -------- 추가 by kuk329 ------------
+
+        {
+            name: "Customer",
+            path: "/sales/customer",
+            component: () => import("@/views/apps/customer/Customer.vue"),
+          },
     ]
 };
 
