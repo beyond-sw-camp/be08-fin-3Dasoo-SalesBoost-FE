@@ -58,7 +58,10 @@ import {
     PhotoAiIcon,
     SearchIcon,
     SocialIcon,
-    BrandTidalIcon
+    BrandTidalIcon,
+    UsersIcon,
+    ToolIcon,
+    BrandAsanaIcon
 } from 'vue-tabler-icons';
 
 export interface menu {
@@ -78,6 +81,76 @@ export interface menu {
 }
 
 const sidebarItem: menu[] = [
+    { header: 'Sales' },
+    {
+        title: '캘린더',
+        icon: CalendarIcon,
+        to: '/apps/calendar'
+    },
+    {
+        title: '영업기회',
+        // icon: CalendarIcon,
+        to: '/apps/calendar'
+    },
+    {
+        title: '고객',
+        icon: UsersIcon,
+        to: '/sales/contact'
+    },
+    {
+        title: '영업관리',
+        icon: BrandAsanaIcon,
+        to: '/',
+        children: [
+            {
+                title: '잠재고객',
+                icon: CircleDotIcon,
+                to: '/apps/blog/posts'
+            },
+            {
+                title: '제안',
+                icon: CircleDotIcon,
+                to: '/apps/blog/early-black-friday-amazon-deals-cheap-tvs-headphones'
+            },
+            {
+                title: '견적',
+                icon: CircleDotIcon,
+                to: '/apps/blog/early-black-friday-amazon-deals-cheap-tvs-headphones'
+            },
+            {
+                title: '계약',
+                icon: CircleDotIcon,
+                to: '/apps/blog/early-black-friday-amazon-deals-cheap-tvs-headphones'
+            },
+            {
+                title: '매출',
+                icon: CircleDotIcon,
+                to: '/apps/blog/early-black-friday-amazon-deals-cheap-tvs-headphones'
+            }
+        ]
+    },
+    {
+        title: '영업도구',
+        icon: ToolIcon,
+        to: '/',
+        children: [
+            {
+                title: '보고',
+                icon: CircleDotIcon,
+                to: '/apps/blog/posts'
+            },
+            {
+                title: '공지',
+                icon: CircleDotIcon,
+                to: '/apps/blog/early-black-friday-amazon-deals-cheap-tvs-headphones'
+            },
+            {
+                title: '할일',
+                icon: CircleDotIcon,
+                to: '/apps/blog/early-black-friday-amazon-deals-cheap-tvs-headphones'
+            }
+        ]
+    },
     { header: 'Home' },
     {
         title: 'Analytical',
