@@ -50,7 +50,7 @@ import FilterCard from '@/components/customer/FilterCard.vue';
     width: 80%;
 }
 .divider{
-    border-color:red;
+    border-color:rgb(0, 110, 255);
     margin-left:15px;
     margin-right: 15px;
 }
