@@ -8,37 +8,52 @@ const MainRoutes = {
     children: [
         {
             path: '/',
-            redirect: "/dashboards/analytical",
+            redirect: '/sales/main'
+        },
+        {
+            name: 'Main',
+            path: '/sales/main',
+            component: () => import('@/views/sales/Main.vue')
+        },
+        {
+            name: 'SalesContact',
+            path: '/sales/contact',
+            component: () => import('@/views/sales/Contact.vue')
+        },
+        {
+            name: 'SalesNotice',
+            path: '/sales/notice',
+            component: () => import('@/views/sales/Notice.vue')
         },
         {
             name: 'Analytical',
             path: '/dashboards/analytical',
-            component: () => import('@/views/dashboards/analytical/Analytical.vue'),
+            component: () => import('@/views/dashboards/analytical/Analytical.vue')
         },
         {
             name: 'Classic',
             path: '/dashboards/classic',
-            component: () => import('@/views/dashboards/classic/Classic.vue'),
+            component: () => import('@/views/dashboards/classic/Classic.vue')
         },
         {
             name: 'Demographical',
             path: '/dashboards/demographical',
-            component: () => import('@/views/dashboards/demographical/Demographical.vue'),
+            component: () => import('@/views/dashboards/demographical/Demographical.vue')
         },
         {
             name: 'Minimal',
             path: '/dashboards/minimal',
-            component: () => import('@/views/dashboards/minimal/Minimal.vue'),
+            component: () => import('@/views/dashboards/minimal/Minimal.vue')
         },
         {
             name: 'Ecommerce',
             path: '/dashboards/ecommerce',
-            component: () => import('@/views/dashboards/ecommerce/Ecommerce.vue'),
+            component: () => import('@/views/dashboards/ecommerce/Ecommerce.vue')
         },
         {
             name: 'Modern',
             path: '/dashboards/modern',
-            component: () => import('@/views/dashboards/modern/Modern.vue'),
+            component: () => import('@/views/dashboards/modern/Modern.vue')
         },
         {
             name: 'Chats',
@@ -137,7 +152,7 @@ const MainRoutes = {
             path: '/apps/kanban',
             component: () => import('@/views/apps/kanban/Kanban.vue')
         },
-       {
+        {
             name: 'Alert',
             path: '/ui-components/alert',
             component: () => import('@/views/ui-elements/UiAlert.vue')
@@ -302,7 +317,7 @@ const MainRoutes = {
             path: '/forms/form-elements/time-picker',
             component: () => import('@/views/forms/form-elements/VTimePicker.vue')
         },
-       
+
         {
             name: 'Stepper',
             path: '/forms/form-elements/stepper',
@@ -342,7 +357,7 @@ const MainRoutes = {
             name: 'Gallery Lightbox',
             path: '/pages/gallery-lightbox',
             component: () => import('@/views/pages/Gallery-Lightbox/GalleryLightbox.vue')
-        }, 
+        },
         {
             name: 'Treeview',
             path: '/pages/treeview',
@@ -434,16 +449,15 @@ const MainRoutes = {
             component: () => import('@/views/tables/datatables/CrudTable.vue')
         },
         {
-            name: "Material",
-            path: "/icons/material",
-            component: () => import("@/views/icons/MaterialIcons.vue"),
-          },
-          {
-            name: "Tabler",
-            path: "/icons/tabler",
-            component: () => import("@/views/icons/TablerIcons.vue"),
-          },
-        
+            name: 'Material',
+            path: '/icons/material',
+            component: () => import('@/views/icons/MaterialIcons.vue')
+        },
+        {
+            name: 'Tabler',
+            path: '/icons/tabler',
+            component: () => import('@/views/icons/TablerIcons.vue')
+        }
     ]
 };
 
