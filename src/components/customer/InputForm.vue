@@ -25,7 +25,7 @@ const registerAPI = async()=>{
     try{
         axios.post('http://localhost:8080/api/customers',{
             name:customerName.value,
-            company:company.value?email.value:null,
+            company:company.value?company.value:null,
             dept:dept.value? dept.value:null,
             position:dept.value?  position.value:null,
             phone:phone.value? phone.value:null,
