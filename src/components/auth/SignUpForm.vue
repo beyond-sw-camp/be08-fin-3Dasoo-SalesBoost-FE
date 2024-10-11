@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref , computed} from 'vue';
 import axios from 'axios';
-import { router } from '@/router';
+import { useRouter } from 'vue-router';
 
 const valid = ref(false);
 const password = ref('');
@@ -10,6 +10,7 @@ const email = ref('');
 const deptName = ref('부서를 선택해주세요');
 const depts = ref(['영업부','개발부','인사부','총무부','기획부','전산,IT부']);
 
+const router = useRouter();
 
 const passwordRules = ref([
     (v: string) => !!v || '비밀번호를 입력해주세요',

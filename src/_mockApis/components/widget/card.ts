@@ -22,6 +22,12 @@ import user1 from '@/assets/images/profile/user-1.jpg';
 import user2 from '@/assets/images/profile/user-2.jpg';
 import user3 from '@/assets/images/profile/user-3.jpg';
 import user4 from '@/assets/images/profile/user-4.jpg';
+import user5 from '@/assets/images/profile/user-5.jpg';
+import user6 from '@/assets/images/profile/user-6.jpg';
+import user7 from '@/assets/images/profile/user-7.jpg';
+import user8 from '@/assets/images/profile/user-8.jpg';
+import user9 from '@/assets/images/profile/user-9.jpg';
+import user10 from '@/assets/images/profile/user-10.jpg';
 import img1 from '@/assets/images/blog/blog-img1.jpg';
 import img2 from '@/assets/images/blog/blog-img2.jpg';
 import img3 from '@/assets/images/blog/blog-img3.jpg';
@@ -190,7 +196,22 @@ const profileCards: profileCard[] = [
         title: 'Charles Nunez',
         subtitle: 'Environmental Specialist',
         avatar: user3
-    }
+    },
+    {
+        title: 'Andrew Grant',
+        subtitle: 'Technology Director',
+        avatar: user1
+    },
+    // {
+    //     title: 'Leo Pratt',
+    //     subtitle: 'Telecom Analyst',
+    //     avatar: user2
+    // },
+    // {
+    //     title: 'Charles Nunez',
+    //     subtitle: 'Environmental Specialist',
+    //     avatar: user3
+    // }
 ];
 
 /*--Upcomming Activity Cards--*/
