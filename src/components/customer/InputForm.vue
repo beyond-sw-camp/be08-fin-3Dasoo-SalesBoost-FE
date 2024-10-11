@@ -39,7 +39,7 @@ const registerAPI = async()=>{
             console.log(res);
             if(res.data.code==200){
                 alert(res.data.result);
-                router.push("/sales/customer");
+                router.push("/sales/contact");
             }
         })
     }catch(err){
@@ -117,7 +117,7 @@ const registerAPI = async()=>{
     </v-row>
     <div class="d-flex gap-3 mt-5 justify-content flex-column flex-wrap flex-xl-nowrap flex-sm-row fill-height"> 
             <v-btn color="primary" variant="outlined"  @click="registerCustomer">등록</v-btn>
-            <v-btn color="info" variant="outlined" to="/sales/customer">목록</v-btn>
+            <v-btn color="info" variant="outlined" to="/sales/contact">목록</v-btn>
     </div>   
 </template>
 <style scoped>

@@ -15,11 +15,11 @@ const MainRoutes = {
             path: '/sales/main',
             component: () => import('@/views/sales/Main.vue')
         },
-        {
-            name: 'SalesContact',
-            path: '/sales/contact',
-            component: () => import('@/views/sales/Contact.vue')
-        },
+        // {
+        //     name: 'SalesContact',
+        //     path: '/sales/contact',
+        //     component: () => import('@/views/sales/Contact.vue')
+        // },
         {
             name: 'SalesNotice',
             path: '/sales/notice',
@@ -479,7 +479,7 @@ const MainRoutes = {
 
           {
             name: "Customer",
-            path: "/sales/customer",
+            path: "/sales/contact",
             component: () => import("@/views/apps/customer/Customer.vue"),
           },
 
