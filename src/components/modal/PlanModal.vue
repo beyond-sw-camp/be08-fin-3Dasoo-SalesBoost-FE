@@ -1,12 +1,15 @@
 <template>
 	<v-dialog :model-value="AddPlanModal" @update:model-value="$emit('update:AddPlanModal', $event)" persistent max-width="500px">
 		<v-card>
-			<v-card-title>일정 추가</v-card-title>
+			<v-card-title>일정</v-card-title>
 			<v-card-text>
 				<v-form @submit.prevent="submitPlan" lazy-validation>
-					<v-alert v-if="showAlert" type="warning" class="warn-alert">
-						필수 입력 필드를 모두 채워주세요.
-					</v-alert>
+					<div>
+						<v-alert v-if="showAlert" type="warning" variant="tonal" class="warn-alert">
+							<h5 class="text-h6 text-capitalize">warning</h5>
+							<div>{{ alertMessage }}</div>
+						</v-alert>
+					</div>
 					<v-row>
 						<v-col cols="12" sm="6" md="6">
 							<v-text-field v-model="plan.title" label="제목*" 
@@ -96,6 +99,7 @@ export default {
     submitPlan() {
 			if (!this.plan.title || !this.planCls || !this.plan.planDate || !this.plan.startTime || !this.plan.endTime) {
 				this.showAlert = true;
+        this.alertMessage = '필수 필드를 입력해주세요'
 				setTimeout(() => {
 					this.showAlert = false;
 				}, 2000);
@@ -111,6 +115,10 @@ export default {
       };
 
       this.plan.planCls = planClsMapping[this.planCls];
+      this.$emit('show-alert', {
+        message: '저장이 완료되었습니다.',
+        type: 'success',
+      });
       this.$emit('add', this.plan);
 			this.closeModal();
 			},
@@ -125,11 +133,11 @@ export default {
 
 <style scoped>
 .warn-alert {
-  position: fixed;
-  bottom: 10%; 
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 3000;
-  width: 100%;
+	position: fixed;
+	bottom: 10%; 
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 3000;
+	width: 60%;
 }
 </style>

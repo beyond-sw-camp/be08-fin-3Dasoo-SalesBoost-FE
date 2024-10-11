@@ -1,7 +1,11 @@
 <template>
     <div>
-      <v-alert v-if="showSuccessAlert" type="success" variant="tonal" class="success-alert">
+      <v-alert v-if="showSuccessAlert" type="success" variant="tonal" class="alert">
         <h5 class="text-h6 text-capitalize">Success</h5>
+        <div>{{ alertMessage }}</div>
+      </v-alert>
+      <v-alert v-else-if="showAlert" type="warning" variant="tonal" class="alert">
+        <h5 class="text-h6 text-capitalize">Warning</h5>
         <div>{{ alertMessage }}</div>
       </v-alert>
     </div>
@@ -139,24 +143,10 @@ export default {
 
     const timeOptions = ref(generateTimeOptions());
 
-    const resetForm = () => {
-      act.value = {
-        leadNo: 1, 
-        name: '',
-        cls: '',
-        purpose: '',
-        actDate: null,
-        startTime: null,
-        endTime: null,
-        completeYn: false,
-        planContent: '',
-        actContent: ''
-      };
-      valid.value = false;
-    };
-
     const submitForm = async () => {
-      if (form.value && form.value.validate()) {
+      const isValid = form.value && await form.value.validate();
+
+      if (isValid.valid) {
         loading.value = true;
         try {
           const response = await axios.post('http://localhost:8080/api/acts', {
@@ -172,8 +162,6 @@ export default {
             actContent: act.value.actContent,
             calendarNo: 1, // TODO: 유저 캘린더 번호로 설정 필요
           });
-          console.log(response); // 응답 객체 출력
-
 
           if (response.data.code === 200 || response.data.code === 201) {
             alertMessage.value = '저장이 완료되었습니다.';
@@ -181,20 +169,22 @@ export default {
             showSuccessAlert.value = true;
             setTimeout(() => {
               showSuccessAlert.value = false;
-              console.log('showSuccessAlert:', showSuccessAlert.value);
-              resetForm();
               router.push('/apps/calendar');
-            }, 5000);
+            }, 2000);
           }
-          console.log('showSuccessAlert:', showSuccessAlert.value);
-
         } catch (error) {
           console.error("등록 실패:", error);
         } finally {
           loading.value = false;
         }
-      } else {
-        alert("필수 입력 필드를 확인해주세요.");
+      } 
+      else {
+        alertMessage.value = '필수 값을 입력해주세요.';
+        alertType.value = 'warning';
+        showAlert.value = true;
+        setTimeout(() => {
+          showAlert.value = false;
+        }, 2000);
       }
     };
 
@@ -205,6 +195,7 @@ export default {
       actStatusOptions,
       timeOptions,
       loading,
+      showAlert,
       showSuccessAlert,
       alertMessage,
       alertType,
@@ -224,11 +215,10 @@ export default {
   border-radius: 8px;
 }
 
-.success-alert {
+.alert {
   position: fixed;
   top: 10%;
   right: 20px;
   z-index: 999;
-  width: 300px; 
 }
 </style>
