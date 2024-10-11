@@ -13,7 +13,7 @@
             </div>
          
             <hr  class="divider"></hr>
-                <CustomerCard/>
+                <CustomerCard :customers="customers"/>
         </div>
     </div>
 </template>
@@ -21,6 +21,41 @@
 <script setup>
 import CustomerCard from '@/components/customer/CustomerCard.vue';
 import FilterCard from '@/components/customer/FilterCard.vue';
+import axios from 'axios';
+import { onMounted, ref } from 'vue';
+
+const customers = ref([]);
+
+
+onMounted(()=>{
+    fetchCustomers();
+})
+
+const fetchCustomers=async()=>{
+
+    try{
+
+        axios.get('http://localhost:8080/api/customers'
+
+        ).then((res)=>{
+            console.log(res);
+            if(res.data.code==200){
+                console.log(res.data.result);
+                customers.value = {...res.data.result};
+                console.log(`ref 저장 값 :  ${JSON.stringify(res.data.result)}`);
+            }
+        })
+
+    }catch(err){
+
+        console.log(`[ERROR 몌세지] : ${err}`);
+
+    }
+
+
+
+
+}
 
 </script>
 
