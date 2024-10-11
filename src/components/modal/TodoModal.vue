@@ -3,22 +3,28 @@
 		<v-card>
 			<v-card-title>할 일</v-card-title>
 			<v-card-text>
-				<v-form @submit.prevent="addTodo">
+				<v-form @submit.prevent="addTodo" lazy-validation>
+					<div>
+						<v-alert v-if="showAlert" type="warning" variant="tonal" class="warn-alert">
+							<h5 class="text-h6 text-capitalize">warning</h5>
+							<div>{{ alertMessage }}</div>
+						</v-alert>
+					</div>
 					<v-row>
 						<v-col cols="12" sm="6" md="4">
-							<v-text-field v-model="todo.title" label="제목*" required></v-text-field>
+							<v-text-field v-model="todo.title" label="제목*" :rules="[v => !!v || '일정명을 입력하세요.']" required></v-text-field>
 						</v-col>
 						<v-col cols="12" sm="6" md="4">
-							<v-text-field v-model="todo.todoCls" label="분류*" required></v-text-field>
+							<v-text-field v-model="todo.todoCls" label="분류*" :rules="[v => !!v || '분류를 입력하세요.']" required></v-text-field>
 						</v-col>
 						<v-col cols="12" sm="6" md="4">
-							<v-text-field v-model="todo.priority" label="우선순위*" required></v-text-field>
+							<v-select v-model="todo.priority" :items="priorityOptions" label="우선순위*" :rules="[v => !!v || '우선순위를 선택하세요.']" required></v-select>
 						</v-col>
 						<v-col cols="12">
-							<v-text-field v-model="todo.dueDate" label="마감일*" type="date" required></v-text-field>
+							<v-text-field v-model="todo.dueDate" label="마감일*" type="date" :rules="[v => !!v || '마감일을 입력하세요.']" required></v-text-field>
 						</v-col>
 						<v-col cols="12">
-							<v-select v-model="todo.status" :items="statusOptions" label="상태*" required></v-select>
+							<v-select v-model="todo.status" :items="statusOptions" label="상태*" :rules="[v => !!v || '상태를 선택하세요.']" required></v-select>
 						</v-col>
 						<v-col cols="12">
 							<v-switch color="primary" v-model="todo.privateYn" label="나만보기 여부"></v-switch>
@@ -32,8 +38,7 @@
 			</v-card-text>
 			<v-card-actions>
 				<v-spacer></v-spacer>
-				<!-- <v-btn color="error" variant="text" @click="closeTodoModal" flat>Close</v-btn> -->
-				<v-btn color="close" @click="$emit('close')">Close</v-btn>
+				<v-btn color="close" @click="closeModal">Close</v-btn>
 				<v-btn color="success" variant="text" @click="addTodo" flat>Save</v-btn>
 			</v-card-actions>
 		</v-card>
@@ -42,29 +47,55 @@
 
 <script>
 import '@/views/apps/calendar/calendar.css'
+
 export default {
 	props: {
 		AddTodoModal: Boolean,
 		todo: Object,
 		statusOptions: Array,
+		priorityOptions: Array,
+	},
+	data() {
+		return {
+      priorityOptions: ['높음', '중간', '낮음'],
+			showAlert: false,
+			showSuccessAlert: false,
+			alertMessage: '',
+			alertType: '',
+		};
 	},
 	methods: {
-		closeTodoModal() {
-			this.$emit('update:AddTodoModal', false);
-		},
+
 		addTodo() {
-			this.$emit('add');
+      if (!this.todo.title || !this.todo.todoCls || !this.todo.priority || !this.todo.dueDate || !this.todo.status) {
+					this.showAlert = true;
+					this.alertMessage = '필수 필드를 입력해주세요'
+				setTimeout(() => {
+					this.showAlert = false;
+				}, 2000);
+				return;
+			}else{
+					this.$emit('show-alert', {
+						message: '저장이 완료되었습니다.',
+						type: 'success',
+					});
+					this.$emit('add');
+			}
 		},
+		closeModal(){
+				this.$emit('close');
+		}
 	},
 };
 </script>
 <style scoped>
-.toast-alert {
-  position: fixed;
-  bottom: 10%; /* 원하는 위치에 맞게 수정 가능 */
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 3000; /* 모달 위에 뜨도록 높은 값 설정 */
-  width: 100%; /* 필요에 따라 너비 조정 */
+
+.warn-alert {
+	position: fixed;
+	bottom: 10%; 
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 3000;
+	width: 60%;
 }
 </style>
