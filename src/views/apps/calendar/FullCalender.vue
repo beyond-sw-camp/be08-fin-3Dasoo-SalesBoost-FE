@@ -20,9 +20,13 @@ export default defineComponent({
       AddTodoModal: false,
       AddPlanModal: false,
       selectedOption: null,
+      showSuccessAlert: false,
+      alertMessage: '',
+      alertType: '',
       items: ['할 일', '영업활동', '일정'],
       showAlert: false,
       statusOptions: ['TODO', 'INPROGRESS', 'DONE'],
+      priorityOptions: ['높음', '중간', '낮음'],
       todo: {
         calendarNo: 1,
         title: '',
@@ -93,7 +97,6 @@ export default defineComponent({
       try {
         const response = await axios.get('http://localhost:8080/api/todos');
         const todos = response.data.result;
-
         const calendarApi = this.$refs.calendar.getApi();
         todos.forEach(todo => {
           calendarApi.addEvent({
@@ -150,6 +153,7 @@ export default defineComponent({
           title: createdTodo.title,
           start: createdTodo.dueDate,
           allDay: true,
+          classNames: ['todo-event'],
         });
         this.closeTodoModal();
       } catch (e) {
@@ -190,7 +194,9 @@ export default defineComponent({
     closeTodoModal() {
       this.AddTodoModal = false;
       this.selectedOption = null;
-      this.clearTodoForm();
+      setTimeout(() => {
+        this.clearTodoForm();
+      }, 300);
     },
     closePlanModal() {
       this.AddPlanModal = false;
@@ -289,6 +295,16 @@ export default defineComponent({
     handleEvents(events) {
       this.currentEvents = events;
     },
+    handleAlert(alertData) {
+      this.alertMessage = alertData.message;
+      this.alertType = alertData.type;
+      setTimeout(() => {
+        this.showSuccessAlert = true;
+      },500);
+      setTimeout(() => {
+        this.showSuccessAlert = false;
+      }, 3000);
+    }
   },
   watch: {
     selectedOption(value) {
@@ -323,9 +339,13 @@ export default defineComponent({
         </template>
       </FullCalendar>
 
-      <TodoModal v-model="AddTodoModal" :todo="todo" :statusOptions="statusOptions" @close="closeTodoModal" @add="addTodo" />
-      <PlanModal v-model="AddPlanModal" :plan="plan" :statusOptions="statusOptions" @close="closePlanModal" @add="addPlan" />
+      <TodoModal v-model="AddTodoModal" :todo="todo" :priorityOptions="priorityOptions" :statusOptions="statusOptions" @close="closeTodoModal" @add="addTodo" @show-alert="handleAlert"/>
+      <PlanModal v-model="AddPlanModal" :plan="plan" :statusOptions="statusOptions" @close="closePlanModal" @add="addPlan" @show-alert="handleAlert"/>
 
+      <v-alert v-if="showSuccessAlert" type="success" variant="tonal" :class="['alert', alertType]">
+        <h5 class="text-h6 text-capitalize">Success</h5>
+          {{ alertMessage }}
+      </v-alert>
     </div>
   </div>
 </template>
@@ -340,10 +360,23 @@ export default defineComponent({
   width: 200px;
 }
 
-.alert-fixed {
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 10;
+.warn-alert {
+	position: fixed;
+	bottom: 10%; 
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 3000;
+	width: 100%;
+}
+
+.alert {
+  position: fixed;
+  top: 10%;
+  left: 55%;
+  transform: translateX(-50%);
+  z-index: 3000;
+  width: 90%;
+  max-width: 12%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 </style>
