@@ -65,9 +65,7 @@ export default {
 		};
 	},
 	methods: {
-		// closeTodoModal() {
-		// 	this.$emit('update:AddTodoModal', false);
-		// },
+
 		addTodo() {
       if (!this.todo.title || !this.todo.todoCls || !this.todo.priority || !this.todo.dueDate || !this.todo.status) {
 					this.showAlert = true;
