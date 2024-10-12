@@ -148,6 +148,11 @@ const MainRoutes = {
             component: () => import('@/views/apps/contract/ContractView.vue')
         },
         {
+            name: 'Sales',
+            path: '/apps/sales',
+            component: () => import('@/views/apps/sales/SalesView.vue')
+        },
+        {
             name: 'Act',
             path: '/apps/act',
             component: () => import('@/views/apps/calendar/act/FormCustom.vue')

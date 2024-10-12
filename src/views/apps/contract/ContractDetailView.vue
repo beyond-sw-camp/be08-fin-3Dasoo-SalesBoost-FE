@@ -2,7 +2,6 @@
 <script>
 import axios from 'axios';
 import ContractModal from './ContractModal.vue';
-import vuetify from '@/plugins/vuetify';
 
 export default {
     components: { ContractModal },
