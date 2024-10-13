@@ -3,13 +3,14 @@ import { ref,computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { Form } from 'vee-validate';
 import axios from 'axios';
-import { router } from '@/router';
+import { useRouter } from 'vue-router';
 
 const isEmployeeIdLogin = ref(false);
 const valid = ref(false);
 const password = ref('');
 const email = ref('');
 const employeeId = ref('');
+const router = useRouter();
 
 const passwordRules = ref([
     (v: string) => !!v || '비밀번호를 입력해주세요',

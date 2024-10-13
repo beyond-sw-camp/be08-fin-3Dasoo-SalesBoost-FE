@@ -120,12 +120,12 @@ const sidebarItem: menu[] = [
             {
                 title: '계약',
                 icon: CircleDotIcon,
-                to: '/apps/blog/early-black-friday-amazon-deals-cheap-tvs-headphones'
+                to: '/apps/contracts'
             },
             {
                 title: '매출',
                 icon: CircleDotIcon,
-                to: '/apps/blog/early-black-friday-amazon-deals-cheap-tvs-headphones'
+                to: '/apps/sales'
             }
         ]
     },

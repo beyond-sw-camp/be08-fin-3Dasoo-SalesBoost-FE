@@ -15,11 +15,11 @@ const MainRoutes = {
             path: '/sales/main',
             component: () => import('@/views/sales/Main.vue')
         },
-        {
-            name: 'SalesContact',
-            path: '/sales/contact',
-            component: () => import('@/views/sales/Contact.vue')
-        },
+        // {
+        //     name: 'SalesContact',
+        //     path: '/sales/contact',
+        //     component: () => import('@/views/sales/Contact.vue')
+        // },
         {
             name: 'SalesNotice',
             path: '/sales/notice',
@@ -141,6 +141,16 @@ const MainRoutes = {
             name: 'Calendar',
             path: '/apps/calendar',
             component: () => import('@/views/apps/calendar/Calendar.vue')
+        },
+        {
+            name: 'Contract',
+            path: '/apps/contracts',
+            component: () => import('@/views/apps/contract/ContractView.vue')
+        },
+        {
+            name: 'Sales',
+            path: '/apps/sales',
+            component: () => import('@/views/apps/sales/SalesView.vue')
         },
         {
             name: 'Act',
@@ -454,6 +464,36 @@ const MainRoutes = {
             component: () => import('@/views/tables/datatables/CrudTable.vue')
         },
         {
+            name: "Material",
+            path: "/icons/material",
+            component: () => import("@/views/icons/MaterialIcons.vue"),
+          },
+          {
+            name: "Tabler",
+            path: "/icons/tabler",
+            component: () => import("@/views/icons/TablerIcons.vue"),
+          },
+
+          // -------- 추가 by kuk329 ------------
+
+        {
+            name: "CustomerAdd",
+            path: "/sales/customer-add",
+            component: () => import("@/views/apps/customer/CustomerAdd.vue"),
+          },
+
+          {
+            name: "Customer",
+            path: "/sales/contact",
+            component: () => import("@/views/apps/customer/Customer.vue"),
+          },
+
+          { // 고객 조회 및 수정
+            name: "CustomerDetail",
+            path: "/sales/customer-detail",
+            component: () => import("@/views/apps/customer/CustomerDetail.vue"),
+          },
+          {
             name: 'Material',
             path: '/icons/material',
             component: () => import('@/views/icons/MaterialIcons.vue')
