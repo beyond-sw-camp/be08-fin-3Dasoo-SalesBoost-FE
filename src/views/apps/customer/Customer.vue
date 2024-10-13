@@ -8,7 +8,7 @@
     
         <div class="customer_container">
             <div class="header">
-                <div class="result_count">(검색결과: X건)</div>   
+                <div class="result_count">(검색결과: {{ dataSize }}건)</div>   
                 <v-btn variant="tonal" color="primary" to="/sales/customer-add">고객 추가</v-btn>
             </div>
          
@@ -22,34 +22,24 @@
 import CustomerCard from '@/components/customer/CustomerCard.vue';
 import FilterCard from '@/components/customer/FilterCard.vue';
 import axios from 'axios';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const customers = ref([]);
-
+const dataSize = computed(()=> customers.value.length);
 
 onMounted(()=>{
     fetchCustomers();
 })
 
 const fetchCustomers=async()=>{
-
     try{
-
-        axios.get('http://localhost:8080/api/customers'
-
-        ).then((res)=>{
-            console.log(res);
-            if(res.data.code==200){
-                console.log(res.data.result);
-                customers.value = {...res.data.result};
-                console.log(`ref 저장 값 :  ${JSON.stringify(res.data.result)}`);
-            }
-        })
-
+        const res = await axios.get('http://localhost:8080/api/customers');
+        if(res.data.code==200) {
+            console.log(res.data.result);
+            customers.value = res.data.result;
+        }
     }catch(err){
-
         console.log(`[ERROR 몌세지] : ${err}`);
-
     }
 
 
