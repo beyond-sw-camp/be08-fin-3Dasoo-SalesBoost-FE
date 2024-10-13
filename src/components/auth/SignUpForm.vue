@@ -51,7 +51,10 @@ const signUpApi = async()=>{
             if(res.data.code==200){
                 alert('정상적으로 회원가입이 완료되었습니다.');
                 if(confirm(`사원번호 발급 : ${res.data.result.employeeId}`)){
-                    router.push({name:"Login"});
+                    // router.push({name:"Login"});
+                    router.push({
+                    name: "Customer"
+            });
                 }
             }else{
                 alert(res.data.message);

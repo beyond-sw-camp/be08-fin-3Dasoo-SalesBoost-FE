@@ -4,7 +4,7 @@ import { ref } from 'vue';
 
 //Components
 import CustomerAddCard from '@/components/customer/CustomerAddCard.vue';
-import InputForm from '@/components/customer/InputForm.vue';
+import UpdateForm from '@/components/customer/UpdateForm.vue';
 
 /*tab*/
 const tab = ref(null);
@@ -15,8 +15,8 @@ const page = ref({ title: '고객 정보' });
 <template>
    <v-row>
         
-        <CustomerAddCard title="page">
-             <InputForm/>
+        <CustomerAddCard :title=page.title>
+             <UpdateForm/>
         </CustomerAddCard>        
                             
    </v-row>           
