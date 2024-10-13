@@ -11,9 +11,9 @@ import user7 from '@/assets/images/profile/user-7.jpg';
 import user8 from '@/assets/images/profile/user-8.jpg';
 import user9 from '@/assets/images/profile/user-9.jpg';
 import user10 from '@/assets/images/profile/user-10.jpg';
-// import { nextTick } from 'process';
+import { useRouter } from 'vue-router';
 
-// const props = defineProps(['customers']);
+const router = useRouter();
 const props = defineProps({
     customers:{
         type:Array,
@@ -29,6 +29,10 @@ const getRandomImage = () => {
   return avatarImgs[randomIndex];
 };
 
+const goToEditPage = (customerId)=>{
+    router.push({name:"CustomerDetail",params:{id:customerId}});
+
+}
 
 </script>
 
@@ -36,7 +40,7 @@ const getRandomImage = () => {
        <v-col cols="12">
         <v-row class="pt-3">
             <v-col cols="6" md="6" v-for="customer in customers" :key="customer.id" class="column">
-                <v-card elevation="10" class="card text-center" rounded="md">
+                <v-card elevation="10" class="card text-center" rounded="md" @click="goToEditPage(customer.id)">
                     <v-card-item class="card_container">
                         <div class="title_container">
                             <v-avatar size="60" rounded="xl">
@@ -63,8 +67,6 @@ const getRandomImage = () => {
                     <div>{{ customer.phone }} </div>
                     <div>{{ customer.tel }}</div>
                 </div>
-
-
                 </v-card>
 
             </v-col>
