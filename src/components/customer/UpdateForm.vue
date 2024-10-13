@@ -20,13 +20,11 @@ const router = useRouter();
 const route = useRoute();
 
 onMounted(()=>{
-    console.log(route.params.id);
-
-
     getCustomerInfoAPI(route.params.id);
 })
 const updateCustomer = ()=>{
   //  updateCustomerAPI();
+  alert('해당 서비스는 오픈 예정입니다.');
 }
 
 const getCustomerInfoAPI = async(id: string | string[])=>{
@@ -34,14 +32,17 @@ const getCustomerInfoAPI = async(id: string | string[])=>{
         const res = await axios.get(`http://localhost:8080/api/customers/${id}`);
         if(res.data.code==200){
             console.log(res.data.result);
-         //   grade.value = res.data.result.grade;
             const info = res.data.result;
             customerName.value = info.name;
             email.value = info.email;
             phone.value = info.phone;
             position.value = info.position;
             tel.value = info.tel;
-
+            company.value = info.company;
+            grade.value = info.grade;
+            keyman.value = info.keyMan;
+            dept.value = info.dept;
+        
         }
     }catch(err){
         console.log(`[ERROR 몌세지] : ${err}`);
