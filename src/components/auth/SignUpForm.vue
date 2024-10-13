@@ -18,7 +18,7 @@ const passwordRules = ref([
 ]);
 
 const confirmPasswordRules = ref([
-    (v: string) => !!v || '비밀번호확인을 입력해주세요',
+    (v: string) => !!v || '비밀번호 확인칸을 입력해주세요',
     (v: string) => (v===password.value) || '비밀번호를 다시 확인해주세요'
 ]);
 const emailRules = ref([(v: string) => !!v || '이메일을 입력해주세요', (v: string) => /.+@.+\..+/.test(v) || '이메일 형식으로 입력해주세요']);
@@ -50,10 +50,9 @@ const signUpApi = async()=>{
             console.log(res);
             if(res.data.code==200){
                 alert('정상적으로 회원가입이 완료되었습니다.');
-                if(confirm(`사원번호가 발급되었습니다. : ${res.data.result.employeeId}`)){
-                    router.push("/auth/login");
+                if(confirm(`사원번호 발급 : ${res.data.result.employeeId}`)){
+                    router.push({name:"Login"});
                 }
-          //   router.push("/auth/register/success");  
             }else{
                 alert(res.data.message);
             }

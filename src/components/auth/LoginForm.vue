@@ -6,7 +6,6 @@ import axios from 'axios';
 import { useRouter } from 'vue-router';
 
 const isEmployeeIdLogin = ref(false);
-const valid = ref(false);
 const password = ref('');
 const email = ref('');
 const employeeId = ref('');
@@ -26,7 +25,6 @@ const formIsValid = computed(()=>{// 계산된 속성 사용
     }else{
         return email.value && password.value;
     }
-
 })
 
 
@@ -42,8 +40,8 @@ const loginApi=async()=>{
     try{
         axios.post('http://localhost:8080/api/users/login',{
             loginType: isEmployeeIdLogin.value ? 'employeeId':'email', // 로그인 방식 구분
-            email: isEmployeeIdLogin.value ? null : email.value,
-            employeedId : isEmployeeIdLogin.value? employeeId.value : null,
+            email: email.value ? email.value : null,
+            employeeId : employeeId.value? employeeId.value : null,
             password: password.value 
         }).then((res)=>{
             console.log(res);
@@ -52,7 +50,7 @@ const loginApi=async()=>{
                 const result = res.data.result;
                // console.log(result);
                 saveLocalStorage(result);
-                router.push("/");  
+                router.push({name:"Main"});  
             }else{
              //   console.log(res.data.message);
                 alert(res.data.message);
@@ -63,9 +61,9 @@ const loginApi=async()=>{
     }
 }
 const saveLocalStorage=(result:any)=>{
-        localStorage.setItem('user', JSON.stringify(result.name));
-        localStorage.setItem('email', JSON.stringify(result.email));
-        localStorage.setItem('token', JSON.stringify(result.accessToken));
+        localStorage.setItem('loginUserName', JSON.stringify(result.name));
+        localStorage.setItem('loginUserEmail', JSON.stringify(result.email));
+        localStorage.setItem('loginUserToken', JSON.stringify(result.accessToken));
 }
 </script>
 

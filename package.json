@@ -29,6 +29,7 @@
         "pinia": "2.2.2",
         "remixicon": "4.1.0",
         "svgmap": "^2.10.1",
+        "v-mask": "^2.3.0",
         "vee-validate": "4.6.7",
         "vite-plugin-vuetify": "2.0.1",
         "vue": "3.4.38",

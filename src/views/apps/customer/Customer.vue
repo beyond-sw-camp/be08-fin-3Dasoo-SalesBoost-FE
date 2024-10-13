@@ -2,8 +2,7 @@
     <div class="container">
         
         <div class="filter_container">
-            <FilterCard/>
-            
+            <FilterCard/> 
         </div>
     
         <div class="customer_container">
@@ -41,9 +40,6 @@ const fetchCustomers=async()=>{
     }catch(err){
         console.log(`[ERROR 몌세지] : ${err}`);
     }
-
-
-
 
 }
 
