@@ -1,0 +1,74 @@
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+
+export const useCalendarStore = defineStore('calendar', () => {
+  const selectedCategory = ref('');
+  const selectedStatus = ref('all');
+  const selectedCalendarCategory = ref([]);
+
+  const calendarData = ref([]);
+
+  const filteredData = computed(() => {
+    return calendarData.value.filter(item => {
+      const matchCategory = selectedCategory.value ? item.category === selectedCategory.value : true;
+      const matchStatus = selectedStatus.value !== 'all' ? item.status === selectedStatus.value : true;
+      const matchCalendarCategory = selectedCalendarCategory.value.length > 0 
+        ? selectedCalendarCategory.value.includes(item.category)
+        : true;  
+      return matchCategory && matchStatus && matchCalendarCategory;
+    });
+  });
+  
+  function setCategory(category) {
+    selectedCategory.value = category;
+  }
+
+  function setStatus(status) {
+    selectedStatus.value = status;
+  }
+
+  function setCalendarCategory(category) {
+    const index = selectedCalendarCategory.value.indexOf(category);
+    if (index === -1) {
+      selectedCalendarCategory.value.push(category);
+    } else {
+      selectedCalendarCategory.value.splice(index, 1); 
+    }
+  }
+
+  function resetFilters() {
+    selectedCategory.value = '';
+    selectedStatus.value = 'all';
+    selectedCalendarCategory.value = [];
+  }
+
+  function setCalendarData(newData) {
+    const mergedData = [...calendarData.value, ...newData].reduce((acc, curr) => {
+      const index = acc.findIndex(item => 
+        item.category === curr.category && 
+        item.title === curr.title && 
+        item.start === curr.start && 
+        item.end === curr.end
+      );
+      if (index === -1) {
+        acc.push(curr);
+      } else {
+        acc[index] = curr;
+      }
+      return acc;
+    }, []);
+    calendarData.value = mergedData;
+  }
+
+  return {
+    selectedCategory,
+    selectedStatus,
+    selectedCalendarCategory,
+    filteredData,
+    setCategory,
+    setStatus,
+    setCalendarCategory,
+    resetFilters,
+    setCalendarData
+  };
+});
