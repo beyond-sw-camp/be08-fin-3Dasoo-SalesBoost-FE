@@ -6,7 +6,6 @@ import axios from 'axios';
 import { useRouter } from 'vue-router';
 
 const isEmployeeIdLogin = ref(false);
-const valid = ref(false);
 const password = ref('');
 const email = ref('');
 const employeeId = ref('');
@@ -26,7 +25,6 @@ const formIsValid = computed(()=>{// 계산된 속성 사용
     }else{
         return email.value && password.value;
     }
-
 })
 
 
@@ -40,32 +38,28 @@ const login =()=>{
 
 const loginApi=async()=>{
     try{
-        axios.post('http://localhost:8080/api/users/login',{
+        const res = await axios.post('http://localhost:8080/api/users/login',{
             loginType: isEmployeeIdLogin.value ? 'employeeId':'email', // 로그인 방식 구분
-            email: isEmployeeIdLogin.value ? null : email.value,
-            employeedId : isEmployeeIdLogin.value? employeeId.value : null,
+            email: email.value ? email.value : null,
+            employeeId : employeeId.value? employeeId.value : null,
             password: password.value 
-        }).then((res)=>{
-            console.log(res);
-            if(res.data.code==200){
-                alert("로그인을 완료했습니다.");
-                const result = res.data.result;
-               // console.log(result);
-                saveLocalStorage(result);
-                router.push("/");  
-            }else{
-             //   console.log(res.data.message);
-                alert(res.data.message);
-            }
         })
+        if(res.data.code==200){
+            alert("로그인을 완료했습니다.");
+            const result = res.data.result;
+            saveLocalStorage(result);
+            router.push("/");  // 로그인이 성공한 후 페이지 이동
+        
+            console.log('페이지 이동')
+        }
     }catch(err) {
         console.log(err);
     }
 }
 const saveLocalStorage=(result:any)=>{
-        localStorage.setItem('user', JSON.stringify(result.name));
-        localStorage.setItem('email', JSON.stringify(result.email));
-        localStorage.setItem('token', JSON.stringify(result.accessToken));
+        localStorage.setItem('loginUserName', JSON.stringify(result.name));
+        localStorage.setItem('loginUserEmail', JSON.stringify(result.email));
+        localStorage.setItem('loginUserToken', JSON.stringify(result.accessToken));
 }
 </script>
 

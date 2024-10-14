@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import axios from 'axios';
-import { useRouter } from 'vue-router';
+import { useRouter ,useRoute} from 'vue-router';
 import { mask } from 'maska';  
 
 const userName = ref('김은경');
@@ -17,33 +17,35 @@ const grade = ref('');
 const keyman = ref(false);
 
 const router = useRouter();
+const route = useRoute();
 
-const registerCustomer = ()=>{
-    registerAPI();
+onMounted(()=>{
+    getCustomerInfoAPI(route.params.id);
+})
+const updateCustomer = ()=>{
+  //  updateCustomerAPI();
+  alert('해당 서비스는 오픈 예정입니다.');
 }
-const registerAPI = async()=>{
+
+const getCustomerInfoAPI = async(id: string | string[])=>{
     try{
-        const res = await axios.post('http://localhost:8080/api/customers',{
-            name:customerName.value,
-            company:company.value?company.value:null,
-            dept:dept.value? dept.value:null,
-            position:dept.value?  position.value:null,
-            phone:phone.value? phone.value:null,
-            tel: tel.value?  tel.value:null,
-            email:email.value ? email.value:null,
-            grade:grade.value ? grade.value:null,
-            keyman:keyman.value 
-        })
+        const res = await axios.get(`http://localhost:8080/api/customers/${id}`);
         if(res.data.code==200){
-            alert(res.data.result);
-            router.push({
-                name: "Customer"
-            });
+            console.log(res.data.result);
+            const info = res.data.result;
+            customerName.value = info.name;
+            email.value = info.email;
+            phone.value = info.phone;
+            position.value = info.position;
+            tel.value = info.tel;
+            company.value = info.company;
+            grade.value = info.grade;
+            keyman.value = info.keyMan;
+            dept.value = info.dept;
+        
         }
-            
     }catch(err){
         console.log(`[ERROR 몌세지] : ${err}`);
-
     }
 }
 
@@ -135,7 +137,7 @@ onMounted(()=>{
     </v-row>
     <div class="d-flex gap-3 mt-5 justify-content flex-column flex-wrap flex-xl-nowrap flex-sm-row fill-height"> 
             <v-btn color="info" variant="outlined" to="/sales/contact">목록</v-btn>
-            <v-btn color="primary" variant="outlined" @click="registerCustomer" :disabled="!formIsValid">고객 등록</v-btn>
+            <v-btn color="primary" variant="outlined" @click="updateCustomer" :disabled="!formIsValid">고객 정보 수정</v-btn>
     </div>   
 </template>
 <style scoped>

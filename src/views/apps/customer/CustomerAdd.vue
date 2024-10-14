@@ -14,7 +14,6 @@ const page = ref({ title: '고객등록' });
 
 <template>
    <v-row>
-        
         <CustomerAddCard title="고객 등록">
              <InputForm/>
         </CustomerAddCard>        

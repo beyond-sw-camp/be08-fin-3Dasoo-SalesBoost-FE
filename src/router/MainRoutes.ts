@@ -490,8 +490,9 @@ const MainRoutes = {
 
           { // 고객 조회 및 수정
             name: "CustomerDetail",
-            path: "/sales/customer-detail",
+            path: "/sales/customer-detail/:id",
             component: () => import("@/views/apps/customer/CustomerDetail.vue"),
+            props:true
           },
           {
             name: 'Material',
