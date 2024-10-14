@@ -1,54 +1,115 @@
 /* 할 일 */
 .todo-event {
-    background-color: #eca4b4;
-    color: white;
-    font-size: 14px;
-    border: none;
+  background-color: #e8b0a4;
+  color: white;
+  font-size: 14px;
+  border: none;
 }
 .todo-event:hover {
-    background-color: #cf8394;
-    cursor: pointer;
-    border: none;
+  background-color: #d5988b;
+  cursor: pointer;
+  border: none;
 }
 
 /* 영업활동 */
 .act-event {
-    background-color: #76b2d4;
-    color: white;
-    font-size: 14px;
-    border: none;
+  background-color: #f1a1ae;
+  color: white;
+  font-size: 14px;
+  border: none;
 }
 .act-event:hover {
-    background-color: #5991b1;
-    cursor: pointer;
-    border: none;
+  background-color: #df8998;
+  cursor: pointer;
+  border: none;
 }
 
-/* 일정 */
-.plan-event {
-    background-color: #76d4b5;
-    color: white;
-    font-size: 14px;
-    border: none;
+/* 개인 일정 */
+.personal_plan-event {
+  background-color: #f7eaa4;
+  color: #555555;
+  font-size: 14px;
+  border: none;
 }
-.plan-event:hover {
-    background-color: #60c0a0;
-    cursor: pointer;
-    border: none;
+.personal_plan-event:hover {
+  background-color: #ebde8f;
+  color: #555555;
 }
 
-/* 이벤트 제목 스타일 */
+/* 전사 일정 */
+.company_plan-event {
+  background-color: #e5eaac;
+  color: #555555;
+  font-size: 14px;
+  border: none;
+}
+.company_plan-event:hover {
+  background-color: #d8de98; 
+  color: white;
+}
+
+/* 제안 */
+.proposal_plan-event {
+  background-color: #9ed7a9;
+  color: white;
+  font-size: 14px;
+  border: none;
+}
+.proposal_plan-event:hover {
+  background-color: #8fcd9c;
+  cursor: pointer;
+  border: none;
+}
+
+/* 계약 */
+.contract_plan-event {
+  background-color: #a4cbe8;
+  color: white;
+  font-size: 14px;
+  border: none;
+}
+.contract_plan-event:hover {
+  background-color: #95bfdf;
+  cursor: pointer;
+  border: none;
+}
+
+/* 매출 */
+.sales_plan-event {
+  background-color: #a4bbe1;
+  color: #555555;
+  font-size: 14px;
+  border: none;
+}
+.sales_plan-event:hover {
+  background-color: #99b3de;
+  cursor: pointer;
+  border: none;
+}
+
+/* 견적 */
+.estimate_plan-event {
+  background-color: #ccd5db;
+  color: #686565;
+  font-size: 14px;
+  border: none;
+}
+.estimate_plan-event:hover {
+  background-color: #aab9c4;
+  cursor: pointer;
+  border: none;
+}
+
 .fc-event-title {
-    font-weight: bold;
-    color: #fff;
+  font-weight: bold;
+  color: #fff;
 }
 
-/* 이벤트 제목 컨테이너 스타일 */
 .fc-event-title-container {
-    padding: 2px 5px;
-    text-align: center;
+  padding: 2px 5px;
+  text-align: center;
 }
 
 .fc-toolbar button:hover {
-    background-color: #2a4887;
+  background-color: #2a4887;
 }
