@@ -28,6 +28,7 @@ export default defineComponent({
       showAlert: false,
       statusOptions: ['TODO', 'INPROGRESS', 'DONE'],
       priorityOptions: ['높음', '중간', '낮음'],
+      planClsOptions: ['개인', '전사', '제안', '견적','매출', '계약'],
       todo: {
         calendarNo: 1,
         title: '',
@@ -138,6 +139,7 @@ export default defineComponent({
       'COMPANY': 'company_plan',
       'PROPOSAL': 'proposal_plan',
       'ESTIMATE': 'estimate_plan',
+      'SALES': 'sales_plan',
       'CONTRACT': 'contract_plan'
     };
     return categoryMapping[planCls] || 'plan'; 
@@ -154,7 +156,7 @@ export default defineComponent({
           title: plan.title,
           start: plan.planDate + 'T' + plan.startTime,
           end: plan.planDate + 'T' + plan.endTime,
-          category: this.mapPlanClsToCategory(plan.planCls),  
+          category: this.mapPlanClsToCategory(plan.planCls),
           allDay: false,
         })));
       } catch (e) {
@@ -279,7 +281,7 @@ export default defineComponent({
           const planDetails = response.data.result;
           this.plan = {          
             calendarNo: planDetails.calendarNo,          
-            title: planDetails.title,          
+            title: planDetails.title,
             planCls: planDetails.planCls,
             planDate: planDetails.planDate,          
             startTime: planDetails.startTime,          
@@ -362,7 +364,7 @@ export default defineComponent({
       </FullCalendar>
 
       <TodoModal v-model="AddTodoModal" :todo="todo" :priorityOptions="priorityOptions" :statusOptions="statusOptions" @close="closeTodoModal" @add="addTodo" @show-alert="handleAlert"/>
-      <PlanModal v-model="AddPlanModal" :plan="plan" :statusOptions="statusOptions" @close="closePlanModal" @add="addPlan" @show-alert="handleAlert"/>
+      <PlanModal v-model="AddPlanModal" :plan="plan" :planClsOptions="planClsOptions" :statusOptions="statusOptions" @close="closePlanModal" @add="addPlan" @show-alert="handleAlert"/>
 
       <v-alert v-if="showSuccessAlert" type="success" variant="tonal" :class="['alert', alertType]">
         <h5 class="text-h6 text-capitalize">Success</h5>
