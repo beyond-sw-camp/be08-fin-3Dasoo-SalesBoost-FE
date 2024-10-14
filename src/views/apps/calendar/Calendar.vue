@@ -14,8 +14,6 @@ function allowedDates(val: unknown) {
 }
 
 
-
-
 const page = ref({ title: 'Calendar' });
 const breadcrumbs = ref([
     {
