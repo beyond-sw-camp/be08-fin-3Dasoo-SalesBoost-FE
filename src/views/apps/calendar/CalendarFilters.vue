@@ -1,190 +1,142 @@
 <script setup lang="ts">
-
-import { ref, onMounted, computed } from 'vue';
-import { useEcomStore } from '@/stores/apps/eCommerce';
-import { defineComponent } from 'vue';
-
+import { ref, computed, watch } from 'vue';
+import { useCalendarStore } from '@/stores/apps/calendar/calendar';
 
 const panel = ref([0, 1, 2, 3, 4]);
-const priceSort = [
-    {
-        label: '$10 - $50',
-        price: '50'
-    },
-    {
-        label: '$50 - $100',
-        price: '100'
-    },
-    {
-        label: '$100 - $150',
-        price: '151'
-    },
-    {
-        label: '$150 - $200',
-        price: '200'
-    },
-    {
-        label: 'Over $200',
-        price: '250'
-    }
-];
+const store = useCalendarStore();
 
-const store = useEcomStore();
-
-//Reset Filter
-store.filterReset();
-
-const selectedGender = ref('');
-store.SelectGender(selectedGender);
-
-const selectedStatus = ref('all');
-store.SelectCategory(selectedStatus);
-
-const selectPrice = ref('');
-store.SelectPrice(selectPrice);
-
-const selectRating = ref(1);
-
-onMounted(() => {
-    store.fetchProducts();
-});
-
-const getProducts = computed(() => {
-    return store.products;
-});
-const getUniqueData = (data: any, attr: any) => {
-    let newVal = data.map((curElem: any) => {
-        return curElem[attr];
-    });
-    if (attr === 'colors') {
-        newVal = newVal.flat();
-    }
-
-    return (newVal = [...Array.from(new Set(newVal))]);
+const categoryColors = {
+  todo: { color: '#e8b0a4', label: '할 일' },
+  act: { color: '#f1a1ae', label: '영업 활동' },
+  personal_plan: { color: '#f7eaa4', label: '개인 일정' },
+  company_plan: { color: '#dde2a9', label: '전사 일정' },
+  proposal_plan: { color: '#9ed7a9', label: '제안' },
+  contract_plan: { color: '#a4cbe8', label: '계약' },
+  sales_plan: { color: '#a4bbe1', label: '매출' },
+  estimate_plan: { color: '#ccd5db', label: '견적' },
 };
-interface ColorItem {
-    color: string;
-    label: string;
-}
 
-const filterbyColors: any = computed(() => {
-    return getUniqueData(getProducts.value, 'colors');
+const selectedCategory = computed({
+  get: () => store.selectedCategory,
+  set: (value) => store.setCategory(value)
 });
 
+const selectedStatus = computed({
+  get: () => store.selectedStatus,
+  set: (value) => store.setStatus(value)
+});
 
-function filterReset() {
-    store.SelectGender('');
-    store.SelectCategory('all');
-    store.SelectPrice('');
-    store.sortByColor('All');
+const selectedCalendarCategories = computed<string[]>({
+  get: () => {
+    const categories = store.selectedCalendarCategory as string[];
+    return categories;
+  },
+  set: (value: string[]) => {
+    store.setCalendarCategory(value);
+  }
+});
+
+function toggleCategory(key: string) {
+  store.setCalendarCategory(key);
 }
-
+function filterReset() {
+  store.resetFilters();
+}
 </script>
+
 <template>
   <v-sheet class="pa-4 pt-1">
-      <v-expansion-panels v-model="panel" multiple>
-          <v-expansion-panel elevation="0">
-              <v-expansion-panel-title class="font-weight-medium custom-accordion"> 분류 </v-expansion-panel-title>
-              <v-expansion-panel-text class="acco-body">
-                  <v-row no-gutters>
-                      <v-col cols="12">
-                          <v-checkbox label="개인일정" v-model="selectedGender" color="secondary" value="personal_plan" hide-details> </v-checkbox>
-                      </v-col>
-                      <v-col cols="12">
-                          <v-checkbox label="전사일정" v-model="selectedGender" color="secondary" value="company_plan" hide-details> </v-checkbox>
-                      </v-col>
-                      <v-col cols="12">
-                          <v-checkbox label="할 일" v-model="selectedGender" color="secondary" value="todo" hide-details></v-checkbox>
-                      </v-col>
-                      <v-col cols="12">
-                          <v-checkbox label="영업활동" v-model="selectedGender" color="secondary" value="act" hide-details></v-checkbox>
-                      </v-col>
-                  </v-row>
-              </v-expansion-panel-text>
-          </v-expansion-panel>
-          <v-divider />
-          <v-expansion-panel elevation="0">
-              <v-expansion-panel-title class="font-weight-medium custom-accordion"> 상태 </v-expansion-panel-title>
-              <v-expansion-panel-text class="acco-body">
-                  <v-row no-gutters>
-                      <v-col cols="12">
-                          <v-checkbox
-                              label="Todo"
-                              v-model="selectedStatus"
-                              color="primary"
-                              value="Todo"
-                              hide-details
-                          ></v-checkbox>
-                      </v-col>
-                      <v-col cols="12">
-                          <v-checkbox
-                              label="In Progress"
-                              v-model="selectedStatus"
-                              color="primary"
-                              value="In Progress"
-                              hide-details
-                          ></v-checkbox>
-                      </v-col>
-                      <v-col cols="12">
-                          <v-checkbox
-                              label="Done"
-                              v-model="selectedStatus"
-                              color="primary"
-                              value="Done"
-                              hide-details
-                          ></v-checkbox>
-                      </v-col>
-                  </v-row>
-              </v-expansion-panel-text>
-          </v-expansion-panel>
-          <v-divider />
-          <v-expansion-panel elevation="0">
-              <v-expansion-panel-title class="font-weight-medium custom-accordion"> 캘린더 구분 </v-expansion-panel-title>
-              <v-expansion-panel-text class="acco-body">
-                  <div class="d-flex gap-2 flex-wrap v-col-11 px-0">
-                      <template v-for="(catcolor, i) in filterbyColors" :key="i" v-if="filterbyColors.length > 0">
-                          <v-avatar
-                              class="cursor-pointer"
-                              :color="catcolor"
-                              variant="flat"
-                              size="small"
-                              @click="store.sortByColor(catcolor)"
-                          >
-                              <template v-if="store.color === catcolor">
-                                  <CheckIcon size="13" />
-                              </template>
-                          </v-avatar>
-                      </template>
-                  </div>
-              </v-expansion-panel-text>
-          </v-expansion-panel>
-          <v-divider />
-      </v-expansion-panels>
-      <v-btn color="primary" @click="filterReset()"  block class="mt-5" >필터 초기화</v-btn>
+    <v-expansion-panels v-model="panel" multiple>
+      <v-expansion-panel elevation="0">
+        <v-expansion-panel-title class="font-weight-medium custom-accordion"> 분류 </v-expansion-panel-title>
+        <v-expansion-panel-text class="acco-body">
+          <v-row no-gutters>
+            <v-col cols="12">
+              <v-checkbox label="일정" v-model="selectedCategory" color="secondary" value="plan" hide-details />
+            </v-col>
+            <v-col cols="12">
+              <v-checkbox label="할 일" v-model="selectedCategory" color="secondary" value="todo" hide-details />
+            </v-col>
+            <v-col cols="12">
+              <v-checkbox label="영업활동" v-model="selectedCategory" color="secondary" value="act" hide-details />
+            </v-col>
+          </v-row>
+        </v-expansion-panel-text>
+      </v-expansion-panel>
+
+      <v-expansion-panel elevation="0">
+        <v-expansion-panel-title class="font-weight-medium custom-accordion"> 상태 </v-expansion-panel-title>
+        <v-expansion-panel-text class="acco-body">
+          <v-row no-gutters>
+            <v-col cols="12">
+              <v-checkbox label="Todo" v-model="selectedStatus" color="primary" value="TODO" hide-details />
+            </v-col>
+            <v-col cols="12">
+              <v-checkbox label="In Progress" v-model="selectedStatus" color="primary" value="INPROGRESS" hide-details />
+            </v-col>
+            <v-col cols="12">
+              <v-checkbox label="Done" v-model="selectedStatus" color="primary" value="DONE" hide-details />
+            </v-col>
+          </v-row>
+        </v-expansion-panel-text>
+      </v-expansion-panel>
+
+      <v-expansion-panel elevation="0">
+        <v-expansion-panel-title class="font-weight-medium custom-accordion"> 캘린더 구분 </v-expansion-panel-title>
+        <v-expansion-panel-text class="acco-body">
+          <div class="d-flex flex-wrap gap-2 v-col-11 px-0">
+            <template v-for="(cat, key) in categoryColors" :key="key">
+              <div class="d-flex align-items-center" style="min-width: 150px;">
+                <v-avatar
+                  class="cursor-pointer"
+                  :color="cat.color"
+                  variant="flat"
+                  size="25"
+                  style="border-radius: 8px;"
+                  @click="toggleCategory(key)"
+                >
+              <v-icon 
+                v-if="selectedCalendarCategories.includes(key)" 
+                color="white" 
+                style="position: absolute; top: 5px; right: 5px; font-size: 16px;">
+                mdi-check
+              </v-icon>
+              </v-avatar>
+                <span class="ml-2" style="min-width: 80px;">{{ cat.label }}</span>
+              </div>
+            </template>
+          </div>
+        </v-expansion-panel-text>
+      </v-expansion-panel>
+    </v-expansion-panels>
+
+    <v-btn color="primary" @click="filterReset()" block class="mt-5">필터 초기화</v-btn>
   </v-sheet>
 </template>
 
 <style lang="scss">
 .custom-accordion {
-    padding: 18px 2px;
-
-    min-height: 30px !important;
-    .v-expansion-panel-title__overlay {
-        background-color: transparent;
-    }
+  padding: 18px 2px;
+  min-height: 30px !important;
+  .v-expansion-panel-title__overlay {
+    background-color: transparent;
+  }
 }
 .acco-body {
-    .v-expansion-panel-text__wrapper {
-        padding: 5px 0;
-    }
-}
-.custom-radio-box {
-    .v-selection-control-group {
-        flex-wrap: wrap;
-    }
+  .v-expansion-panel-text__wrapper {
+    padding: 5px 0;
+  }
 }
 .v-sheet {
-    border-radius: 8px;
+  border-radius: 8px;
 }
-
+.acco-body {
+  .d-flex {
+    display: flex;
+    align-items: center;
+  }
+  .ml-2 {
+    margin-left: 10px;
+  }
+}
 </style>
