@@ -82,6 +82,14 @@ export default {
       timeOptions: this.generateTimeOptions(), 
       planClsOptions: ['개인', '전사', '제안', '견적', '계약'],
       planCls: '',
+			categoryColors: {
+				personal_plan: { color: '#f7eaa4', label: '개인 일정' },
+				company_plan: { color: '#e5eaac', label: '전사 일정' },
+				proposal_plan: { color: '#9ed7a9', label: '제안' },
+				contract_plan: { color: '#a4cbe8', label: '계약' },
+				sales_plan: { color: '#a4bbe1', label: '매출' },
+				estimate_plan: { color: '#ccd5db', label: '견적' }
+			}
 		};
 	},
 	methods: {
@@ -97,6 +105,7 @@ export default {
       return options;
     },
     submitPlan() {
+
 			if (!this.plan.title || !this.planCls || !this.plan.planDate || !this.plan.startTime || !this.plan.endTime) {
 				this.showAlert = true;
         this.alertMessage = '필수 필드를 입력해주세요'
@@ -105,7 +114,8 @@ export default {
 				}, 2000);
 				return;
 			}
-			this.showAlert = false;
+			this.showAlert = false;  
+			
       const planClsMapping = {
         '개인': 'PERSONAL',
         '전사': 'COMPANY',
@@ -113,8 +123,28 @@ export default {
         '견적': 'ESTIMATE',
         '계약': 'CONTRACT'
       };
+			const categoryColors = {
+				'PERSONAL': '#f7eaa4',
+				'COMPANY': '#dde2a9',
+				'PROPOSAL': '#9ed7a9',
+				'CONTRACT': '#a4cbe8',
+				'SALES': '#a4bbe1',
+				'ESTIMATE': '#ccd5db'
+			};
 
-      this.plan.planCls = planClsMapping[this.planCls];
+			const mappedPlanCls = planClsMapping[this.planCls];
+			console.log('Mapped planCls:', mappedPlanCls);
+
+			if (!this.planCls || !planClsMapping[this.planCls]) {
+				console.error('Invalid planCls:', this.planCls);
+				return;
+			}
+
+			this.plan.planCls = planClsMapping[this.planCls];
+
+			const categoryColor = categoryColors[this.plan.planCls];
+			this.plan.backgroundColor = categoryColor;
+
       this.$emit('show-alert', {
         message: '저장이 완료되었습니다.',
         type: 'success',
