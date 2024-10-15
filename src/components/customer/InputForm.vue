@@ -39,6 +39,12 @@ const registerAPI = async()=>{
             router.push({
                 name: "Customer"
             });
+        }else if((res.data.code==425)){
+            // 로그아웃 페이지로 
+        }else if((res.data.code==426)){
+            // refresh token 재발급
+        }else{
+
         }
             
     }catch(err){
