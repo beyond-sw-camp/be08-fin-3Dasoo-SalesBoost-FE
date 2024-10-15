@@ -14,9 +14,9 @@ export default {
                 salesDate: '',
                 taxCls: '',
                 surtaxYn: '',
-                productCount: 0,
                 supplyPrice: 0,
                 tax: 0,
+                productCount: 0,
                 price: 0,
                 expArrivalDate: '',
                 busiType: '',
@@ -62,9 +62,9 @@ export default {
                 salesDate: '',
                 taxCls: '',
                 surtaxYn: '',
-                productCount: 0,
                 supplyPrice: 0,
                 tax: 0,
+                productCount: 0,
                 price: 0,
                 expArrivalDate: '',
                 busiType: '',
@@ -101,12 +101,16 @@ export default {
 <template>
     <div>
         <v-row>
+            <v-col><div >총 매출 개수: {{ sales.length }}개</div> </v-col>
             <v-col cols="12" class="text-right">
                 <v-btn color="primary" @click="openModal" flat>
-                    <v-icon class="mr-2">mdi-account-multiple-plus</v-icon>매출 추가
+                    <v-icon class="mr-2">mdi-account</v-icon>매출 추가
                 </v-btn>
             </v-col>
         </v-row>
+
+        <div class="divider"></div>
+
         <v-row>
             <v-col v-for="(sale, index) in sales" :key="index" cols="12" md="6">
                 <v-card @click="openSalesInfo(sale)" class="sales-card">
@@ -130,6 +134,7 @@ export default {
             :sale="editedSale"
             @save="saveSale"
             @close="closeModal"
+            @deleted="fetchSales" 
         />
     </div>
 </template>
@@ -164,5 +169,12 @@ export default {
 }
 .highlight {
     color: #747474; 
+}
+
+.divider {
+    height: 1px;
+    background-color: #aeaeae; 
+    margin: 20px auto; 
+    width: 100%; 
 }
 </style>
