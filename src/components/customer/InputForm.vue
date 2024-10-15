@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { mask } from 'maska';  
 
-const userName = ref('김은경');
+const userName = ref('');
 const grades = ref(['S등급', 'A등급','B등급','C등급','D등급']);
 const customerName = ref('');
 const email = ref('');
@@ -15,8 +15,20 @@ const phone = ref('');
 const tel = ref('');
 const grade = ref('');
 const keyman = ref(false);
+const token = ref('');
 
 const router = useRouter();
+
+onMounted(()=>{
+    userName.value = localStorage.getItem('loginUserName')||'';
+    const storedToken = localStorage.getItem("accessToken")||'';
+    if(storedToken){
+        console.log(storedToken);
+        token.value = String(storedToken);
+        console.log(token.value);
+    }
+    
+})
 
 const registerCustomer = ()=>{
     registerAPI();
@@ -33,7 +45,14 @@ const registerAPI = async()=>{
             email:email.value ? email.value:null,
             grade:grade.value ? grade.value:null,
             keyman:keyman.value 
-        })
+        },{
+            headers: {
+                    Authorization: `Bearer ${token.value}`, // token.value가 문자열로 제대로 들어가야 함
+                },
+        }
+    
+    
+    )
         if(res.data.code==200){
             alert(res.data.result);
             router.push({
@@ -69,9 +88,8 @@ const formIsValid = computed(()=>{
     return customerName.value && email.value && grade.value && phone.value;
 })
 
-onMounted(()=>{
-    userName.value = localStorage.getItem('')||'';
-})
+
+
 </script>
 <template>
     <v-row>
