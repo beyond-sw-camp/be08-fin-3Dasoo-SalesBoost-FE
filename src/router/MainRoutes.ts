@@ -143,6 +143,11 @@ const MainRoutes = {
             component: () => import('@/views/apps/calendar/Calendar.vue')
         },
         {
+            name: 'CalendarTemp',
+            path: '/apps/calendarTemp',
+            component: () => import('@/views/apps/calendar-template/Calendar.vue')
+        },
+        {
             name: 'Contract',
             path: '/apps/contracts',
             component: () => import('@/views/apps/contract/ContractView.vue')
