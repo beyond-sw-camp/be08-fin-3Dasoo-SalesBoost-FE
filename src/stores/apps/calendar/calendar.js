@@ -3,15 +3,20 @@ import { ref, computed } from 'vue';
 
 export const useCalendarStore = defineStore('calendar', () => {
   const selectedCategory = ref('');
-  const selectedStatus = ref('all');
+  const selectedStatus = ref([]);
   const selectedCalendarCategory = ref([]);
 
   const calendarData = ref([]);
 
   const filteredData = computed(() => {
     return calendarData.value.filter(item => {
+
       const matchCategory = selectedCategory.value ? item.category === selectedCategory.value : true;
-      const matchStatus = selectedStatus.value !== 'all' ? item.status === selectedStatus.value : true;
+
+      const matchStatus = selectedStatus.value.length > 0 
+      ? selectedStatus.value.includes(item.status)
+      : true;
+
       const matchCalendarCategory = selectedCalendarCategory.value.length > 0 
         ? selectedCalendarCategory.value.includes(item.category)
         : true;  
@@ -38,7 +43,7 @@ export const useCalendarStore = defineStore('calendar', () => {
 
   function resetFilters() {
     selectedCategory.value = '';
-    selectedStatus.value = 'all';
+    selectedStatus.value = [];
     selectedCalendarCategory.value = [];
   }
 
