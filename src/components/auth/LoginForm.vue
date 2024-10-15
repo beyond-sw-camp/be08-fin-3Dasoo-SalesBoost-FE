@@ -27,13 +27,10 @@ const formIsValid = computed(()=>{// 계산된 속성 사용
     }
 })
 
-
-
 const login =()=>{
     if(formIsValid.value){
         loginApi();
     }
-
 }
 
 const loginApi=async()=>{
@@ -43,7 +40,8 @@ const loginApi=async()=>{
             email: email.value ? email.value : null,
             employeeId : employeeId.value? employeeId.value : null,
             password: password.value 
-        })
+        }
+    )
         if(res.data.code==200){
             alert("로그인을 완료했습니다.");
             const result = res.data.result;
@@ -57,9 +55,9 @@ const loginApi=async()=>{
     }
 }
 const saveLocalStorage=(result:any)=>{
-        localStorage.setItem('loginUserName', JSON.stringify(result.name));
-        localStorage.setItem('loginUserEmail', JSON.stringify(result.email));
-        localStorage.setItem('loginUserToken', JSON.stringify(result.accessToken));
+        localStorage.setItem('loginUserName', result.name);
+        localStorage.setItem('loginUserEmail', result.email);
+        localStorage.setItem('accessToken',result.accessToken);
 }
 </script>
 
