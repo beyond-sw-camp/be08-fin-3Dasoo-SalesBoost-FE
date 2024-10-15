@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 
 export const useCalendarStore = defineStore('calendar', () => {
-  const selectedCategory = ref('');
+  const selectedCategory = ref([]);
   const selectedStatus = ref([]);
   const selectedCalendarCategory = ref([]);
 
@@ -10,8 +10,13 @@ export const useCalendarStore = defineStore('calendar', () => {
 
   const filteredData = computed(() => {
     return calendarData.value.filter(item => {
-
-      const matchCategory = selectedCategory.value ? item.category === selectedCategory.value : true;
+      
+      const selectecPlanFilter = selectedCategory.value.includes('plan');
+      
+      const matchCategory = selectedCategory.value.length > 0
+      ? selectedCategory.value.includes(item.category) || 
+        Array.isArray(item.classNames) && selectecPlanFilter && item.classNames.some(cs => cs.includes('plan'))
+      : true;
 
       const matchStatus = selectedStatus.value.length > 0 
       ? selectedStatus.value.includes(item.status)
@@ -20,6 +25,7 @@ export const useCalendarStore = defineStore('calendar', () => {
       const matchCalendarCategory = selectedCalendarCategory.value.length > 0 
         ? selectedCalendarCategory.value.includes(item.category)
         : true;  
+
       return matchCategory && matchStatus && matchCalendarCategory;
     });
   });
@@ -42,7 +48,7 @@ export const useCalendarStore = defineStore('calendar', () => {
   }
 
   function resetFilters() {
-    selectedCategory.value = '';
+    selectedCategory.value = [];
     selectedStatus.value = [];
     selectedCalendarCategory.value = [];
   }

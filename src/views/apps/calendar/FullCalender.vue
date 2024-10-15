@@ -150,13 +150,13 @@ export default defineComponent({
         const response = await axios.get('http://localhost:8080/api/plans');
         const plans = response.data.result;
         const store = useCalendarStore();
-
         store.setCalendarData(plans.map(plan => ({
           id: plan.planNo,
           title: plan.title,
           start: plan.planDate + 'T' + plan.startTime,
           end: plan.planDate + 'T' + plan.endTime,
           category: this.mapPlanClsToCategory(plan.planCls),
+          classNames: [`${plan.planCls.toLowerCase()}_plan-event`],
           allDay: false,
         })));
       } catch (e) {
@@ -314,7 +314,7 @@ export default defineComponent({
         } catch (e) {        
           console.error(e);      
         }
-      } 
+      }
     },
     handleEvents(events) {
       this.currentEvents = events;
