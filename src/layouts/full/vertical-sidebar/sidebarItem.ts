@@ -126,6 +126,11 @@ const sidebarItem: menu[] = [
                 title: '매출',
                 icon: CircleDotIcon,
                 to: '/apps/sales'
+            },
+            {
+                title: '차트',
+                icon: ChartBarIcon,
+                to: '/apps/chart'
             }
         ]
     },
