@@ -115,7 +115,7 @@ const sidebarItem: menu[] = [
             {
                 title: '견적',
                 icon: CircleDotIcon,
-                to: '/apps/blog/early-black-friday-amazon-deals-cheap-tvs-headphones'
+                to: '/estimates'
             },
             {
                 title: '계약',

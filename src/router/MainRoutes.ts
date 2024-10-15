@@ -373,6 +373,16 @@ const MainRoutes = {
                 path: '/proposals',
                 component: () => import('@/components/proposal/ProposalList.vue'),
             },
+            {
+                name: 'EstimateList',
+                path: '/estimates',
+                component: () => import('@/components/estimate/EstimateList.vue'),
+            },
+            {
+                name: 'CreateEstimate',
+                path: '/estimates/create',
+                component: () => import('@/components/estimate/CreateEstimate.vue'),
+            },
         {
             name: 'Gallery Lightbox',
             path: '/pages/gallery-lightbox',
