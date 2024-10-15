@@ -127,11 +127,6 @@ const sidebarItem: menu[] = [
                 icon: CircleDotIcon,
                 to: '/apps/sales'
             },
-            {
-                title: '차트',
-                icon: ChartBarIcon,
-                to: '/apps/chart'
-            }
         ]
     },
     {
@@ -154,6 +149,18 @@ const sidebarItem: menu[] = [
                 icon: CircleDotIcon,
                 to: '/apps/blog/early-black-friday-amazon-deals-cheap-tvs-headphones'
             }
+        ]
+    },
+    {
+        title: '차트',
+        icon: ChartBarIcon,
+        to: '/',
+        children: [
+            {
+                title: '매출 차트',
+                icon: ChartLineIcon,
+                to: '/apps/chart/sales'
+            },
         ]
     },
     { header: 'Home' },
