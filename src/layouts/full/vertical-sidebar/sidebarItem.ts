@@ -286,7 +286,7 @@ const sidebarItem: menu[] = [
     {
         title: 'Calendar',
         icon: CalendarIcon,
-        to: '/apps/calendar'
+        to: '/apps/calendarTemp'
     },
     {
         title: 'Kanban',

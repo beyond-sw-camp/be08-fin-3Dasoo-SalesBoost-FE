@@ -1,5 +1,5 @@
 <script>
-import { defineComponent } from 'vue';
+import { defineComponent, watch } from 'vue';
 import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -8,6 +8,7 @@ import axios from 'axios';
 import TodoModal from '@/components/modal/TodoModal.vue';
 import PlanModal from '@/components/modal/PlanModal.vue';
 import './calendar.css';
+import { useCalendarStore } from '@/stores/apps/calendar/calendar';
 
 export default defineComponent({
   components: {
@@ -27,6 +28,7 @@ export default defineComponent({
       showAlert: false,
       statusOptions: ['TODO', 'INPROGRESS', 'DONE'],
       priorityOptions: ['높음', '중간', '낮음'],
+      planClsOptions: ['개인', '전사', '제안', '견적','매출', '계약'],
       todo: {
         calendarNo: 1,
         title: '',
@@ -71,24 +73,44 @@ export default defineComponent({
     this.fetchTodos();
     this.fetchActs();
     this.fetchPlans();
+    const store = useCalendarStore();
+    
+    watch(() => store.filteredData, (newEvents) => {
+      this.applyFilter(newEvents);
+    }, { deep: true });
   },
+
   methods: {
+    applyFilter(filteredEvents) {
+      const calendarApi = this.$refs.calendar.getApi();
+      console.log('이벤트 삭제!');
+      calendarApi.removeAllEvents();
+
+      filteredEvents.forEach(event => {
+        const category = this.mapPlanClsToCategory(event.planCls);
+        calendarApi.addEvent({
+          id: event.id,
+          title: event.title,
+          start: event.start,
+          end: event.end,
+          allDay: event.allDay,
+          classNames: [event.category + '-event'],
+        });
+      });
+    },
     async fetchActs() {
       try {
         const response = await axios.get('http://localhost:8080/api/acts');
         const acts = response.data.result;
-
-        const calendarApi = this.$refs.calendar.getApi();
-        acts.forEach(act => {
-          calendarApi.addEvent({
-            id: act.no,
-            title: act.name,
-            start: act.actDate + 'T' + act.startTime,
-            end: act.actDate + 'T' + act.endTime,
-            allDay: false,
-            classNames: ['act-event'],
-          });
-        });
+        const store = useCalendarStore();
+        store.setCalendarData(acts.map(act => ({
+          id: act.actNo,
+          title: act.name,
+          start: act.actDate + 'T' + act.startTime,
+          end: act.actDate + 'T' + act.endTime,
+          category: 'act',
+          allDay: false,
+        })));
       } catch (e) {
         console.error(e);
       }
@@ -97,35 +119,46 @@ export default defineComponent({
       try {
         const response = await axios.get('http://localhost:8080/api/todos');
         const todos = response.data.result;
-        const calendarApi = this.$refs.calendar.getApi();
-        todos.forEach(todo => {
-          calendarApi.addEvent({
-            id: todo.todoNo,
-            title: todo.title,
-            start: todo.dueDate,
-            allDay: true,
-            classNames: ['todo-event'],
-          });
-        });
+        const store = useCalendarStore();
+        store.setCalendarData(todos.map(todo => ({
+          id: todo.todoNo,
+          title: todo.title,
+          start: todo.dueDate,
+          category: 'todo',
+          status: todo.status,
+          allDay: true,
+        })));
       } catch (e) {
         console.error(e);
       }
     }, 
+
+  mapPlanClsToCategory(planCls) {
+    const categoryMapping = {
+      'PERSONAL': 'personal_plan',
+      'COMPANY': 'company_plan',
+      'PROPOSAL': 'proposal_plan',
+      'ESTIMATE': 'estimate_plan',
+      'SALES': 'sales_plan',
+      'CONTRACT': 'contract_plan'
+    };
+    return categoryMapping[planCls] || 'plan'; 
+  },
+
     async fetchPlans() {
       try {
         const response = await axios.get('http://localhost:8080/api/plans');
         const plans = response.data.result;
-        const calendarApi = this.$refs.calendar.getApi();
-        plans.forEach(plan => {
-          calendarApi.addEvent({
-            id: plan.planNo,
-            title: plan.title,
-            start: plan.planDate + 'T' + plan.startTime,
-            end: plan.planDate + 'T' + plan.endTime,
-            allDay: false,
-            classNames: ['plan-event'],
-          });
-        });
+        const store = useCalendarStore();
+        store.setCalendarData(plans.map(plan => ({
+          id: plan.planNo,
+          title: plan.title,
+          start: plan.planDate + 'T' + plan.startTime,
+          end: plan.planDate + 'T' + plan.endTime,
+          category: this.mapPlanClsToCategory(plan.planCls),
+          classNames: [`${plan.planCls.toLowerCase()}_plan-event`],
+          allDay: false,
+        })));
       } catch (e) {
         console.error(e);
       }
@@ -169,7 +202,6 @@ export default defineComponent({
         return;
       }
       this.showAlert = false;
-    
       const setPersonalYn = {
         ...plan,
         personalYn: plan.personalYn ? 'Y' : 'N',
@@ -178,13 +210,15 @@ export default defineComponent({
         const response = await axios.post('http://localhost:8080/api/plans', setPersonalYn);
         const createdPlan = response.data.result;
         const calendarApi = this.$refs.calendar.getApi();
+        const className = `${plan.planCls.toLowerCase()}_plan-event`;
+    
         calendarApi.addEvent({
           id: createdPlan.planNo,
           title: createdPlan.title,
           start: createdPlan.planDate + 'T' + createdPlan.startTime,
           end: createdPlan.planDate + 'T' + createdPlan.endTime,
           allDay: false,
-          classNames: ['plan-event'],
+          classNames: [className], 
         });
       this.closePlanModal();
     } catch (e) {
@@ -240,14 +274,14 @@ export default defineComponent({
       const eventId = clickInfo.event.id;    
       const eventClassNames = clickInfo.event.classNames;
 
-      if (eventClassNames.includes('plan-event')) {
+      if (eventClassNames.some(className => className.includes('plan'))) {
         this.AddPlanModal = true;
         try {        
           const response = await axios.get(`http://localhost:8080/api/plans/${eventId}`);        
           const planDetails = response.data.result;
           this.plan = {          
             calendarNo: planDetails.calendarNo,          
-            title: planDetails.title,          
+            title: planDetails.title,
             planCls: planDetails.planCls,
             planDate: planDetails.planDate,          
             startTime: planDetails.startTime,          
@@ -280,17 +314,7 @@ export default defineComponent({
         } catch (e) {        
           console.error(e);      
         }
-      } 
-      // else if (eventClassNames.includes('act-event')) {
-      //   try {
-      //     await this.$router.push({ 
-      //       path: '/apps/act', 
-      //       query: { eventId: eventId }
-      //     });
-      //   } catch (e) {        
-      //     console.error(e);      
-      //   }
-      // }
+      }
     },
     handleEvents(events) {
       this.currentEvents = events;
@@ -340,7 +364,7 @@ export default defineComponent({
       </FullCalendar>
 
       <TodoModal v-model="AddTodoModal" :todo="todo" :priorityOptions="priorityOptions" :statusOptions="statusOptions" @close="closeTodoModal" @add="addTodo" @show-alert="handleAlert"/>
-      <PlanModal v-model="AddPlanModal" :plan="plan" :statusOptions="statusOptions" @close="closePlanModal" @add="addPlan" @show-alert="handleAlert"/>
+      <PlanModal v-model="AddPlanModal" :plan="plan" :planClsOptions="planClsOptions" :statusOptions="statusOptions" @close="closePlanModal" @add="addPlan" @show-alert="handleAlert"/>
 
       <v-alert v-if="showSuccessAlert" type="success" variant="tonal" :class="['alert', alertType]">
         <h5 class="text-h6 text-capitalize">Success</h5>
@@ -372,7 +396,7 @@ export default defineComponent({
 .alert {
   position: fixed;
   top: 10%;
-  left: 55%;
+  left: 70%;
   transform: translateX(-50%);
   z-index: 3000;
   width: 90%;
