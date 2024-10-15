@@ -9,11 +9,11 @@ export default {
         return {
             contracts: [],
             headers: [
-                { text: '계약 번호', value: 'contractNo' },
-                { text: '계약 이름', value: 'name' },
-                { text: '시작 날짜', value: 'startDate' },
-                { text: '종료 날짜', value: 'endDate' },
-                { text: '액션', value: 'action', sortable: false },
+                { title: '계약 번호', key: 'contractNo' },
+                { title: '계약 이름', key: 'name' },
+                { title: '시작 날짜', key: 'startDate' },
+                { title: '종료 날짜', key: 'endDate' },
+                { title: '추가 작업', key: 'action', sortable: false },
             ],
             showModal: false,
             editedContract: {
@@ -117,6 +117,7 @@ export default {
 <template>
     <div>
         <v-row>
+            <v-col><div >총 견적 개수: {{ contracts.length }}개</div> </v-col>
             <v-col cols="12" lg="12" md="6" class="text-right">
                 <v-btn color="primary" @click="openModal" flat class="ml-auto">
                     <v-icon class="mr-2">mdi-account-multiple-plus</v-icon>계약 추가
@@ -124,17 +125,10 @@ export default {
             </v-col>
         </v-row>
         <v-data-table :headers="headers" :items="contracts" class="elevation-0">
-            <template v-slot:header>
-                <tr>
-                    <th v-for="header in headers" :key="header.value">
-                        {{ header.text }}
-                    </th>
-                </tr>
-            </template>
 
             <template v-slot:item.action="{ item }">
-                <v-btn @click="editContract(item)">수정</v-btn>
-                <v-btn @click="deleteContract(item.contractNo)">삭제</v-btn>
+                <v-btn @click="editContract(item)" style="color: slateblue">수정</v-btn>
+                <v-btn @click="deleteContract(item.contractNo)" style="color: crimson">삭제</v-btn>
             </template>
 
             <template v-slot:no-data>
