@@ -509,6 +509,21 @@ const MainRoutes = {
             component: () => import("@/views/apps/customer/CustomerDetail.vue"),
             props:true
           },
+
+          { // 부서
+            name: "Department",
+            path: "/sales/departments",
+            component: () => import("@/views/apps/department/Department.vue"),
+            props:true
+          },
+
+          { // 제품
+            name: "Product",
+            path: "/sales/products",
+            component: () => import("@/views/apps/product/Product.vue"),
+            props:true
+          },
+
           {
             name: 'Material',
             path: '/icons/material',
