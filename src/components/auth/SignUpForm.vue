@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref , computed} from 'vue';
-import axios from 'axios';
+import baseApi from '@/api/baseapi';
 import { useRouter } from 'vue-router';
 
 const valid = ref(false);
@@ -40,26 +40,24 @@ const signUp=()=>{
 
 const signUpApi = async()=>{
     try{
-        axios.post('http://localhost:8080/api/users/join',{
+        const res = await baseApi.post('/users/join',{
             name:name.value,
             email:email.value,
             deptName:deptName.value,
             password:password.value,
 
-        }).then((res)=>{
-            console.log(res);
-            if(res.data.code==200){
+        })
+        console.log(res);
+        if(res.data.code==200){
                 alert('정상적으로 회원가입이 완료되었습니다.');
                 if(confirm(`사원번호 발급 : ${res.data.result.employeeId}`)){
-                    // router.push({name:"Login"});
                     router.push({
-                    name: "Customer"
+                    name: "Login"
             });
                 }
             }else{
                 alert(res.data.message);
             }
-        })
     }catch(err){
         console.log(err);
     }

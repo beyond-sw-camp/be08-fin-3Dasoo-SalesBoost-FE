@@ -7,10 +7,9 @@ const baseUrl = `${import.meta.env.VITE_API_URL}/users`;
 export const useAuthStore = defineStore({
     id: 'auth',
     state: () => ({
-        isLogedIn:true,
+        isLogedIn:false,
         // initialize state from local storage to enable user to stay logged in
         // @ts-ignore
-     //   user: JSON.parse(localStorage.getItem('loginUserName')),
         user: localStorage.getItem('loginUserName'),
         returnUrl: null
     }),

@@ -2,7 +2,7 @@
 import { ref,computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { Form } from 'vee-validate';
-import axios from 'axios';
+import baseApi from '@/api/baseapi';
 import { useRouter } from 'vue-router';
 
 const isEmployeeIdLogin = ref(false);
@@ -36,7 +36,7 @@ const login =()=>{
 
 const loginApi=async()=>{
     try{
-        const res = await axios.post('http://localhost:8080/api/users/login',{
+        const res = await baseApi.post('/users/login',{
             loginType: isEmployeeIdLogin.value ? 'employeeId':'email', // 로그인 방식 구분
             email: email.value ? email.value : null,
             employeeId : employeeId.value? employeeId.value : null,
