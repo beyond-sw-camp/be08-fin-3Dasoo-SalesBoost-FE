@@ -21,6 +21,7 @@
 import CustomerCard from '@/components/customer/CustomerCard.vue';
 import FilterCard from '@/components/customer/FilterCard.vue';
 import axios from 'axios';
+import api from '@/api/axiosinterceptor'
 import { computed, onMounted, ref } from 'vue';
 
 const customers = ref([]);
@@ -32,7 +33,8 @@ onMounted(()=>{
 
 const fetchCustomers=async()=>{
     try{
-        const res = await axios.get('http://localhost:8080/api/customers');
+       // const res = await axios.get('http://localhost:8080/api/customers');
+        const res = await api.get('/customers');
         if(res.data.code==200) {
             console.log(res.data.result);
             customers.value = res.data.result;
@@ -40,6 +42,7 @@ const fetchCustomers=async()=>{
     }catch(err){
         console.log(`[ERROR 몌세지] : ${err}`);
     }
+    
 
 }
 

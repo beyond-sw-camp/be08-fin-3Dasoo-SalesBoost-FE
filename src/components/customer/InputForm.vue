@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { mask } from 'maska';  
+import api from '@/api/axiosinterceptor';
 
 const userName = ref('');
 const grades = ref(['S등급', 'A등급','B등급','C등급','D등급']);
@@ -35,7 +36,7 @@ const registerCustomer = ()=>{
 }
 const registerAPI = async()=>{
     try{
-        const res = await axios.post('http://localhost:8080/api/customers',{
+        const res = await api.post('/customers/add',{
             name:customerName.value,
             company:company.value?company.value:null,
             dept:dept.value? dept.value:null,
@@ -45,27 +46,16 @@ const registerAPI = async()=>{
             email:email.value ? email.value:null,
             grade:grade.value ? grade.value:null,
             keyman:keyman.value 
-        },{
-            headers: {
-                    Authorization: `Bearer ${token.value}`, // token.value가 문자열로 제대로 들어가야 함
-                },
         }
-    
-    
-    )
+     )
         if(res.data.code==200){
             alert(res.data.result);
             router.push({
                 name: "Customer"
             });
-        }else if((res.data.code==425)){
-            // 로그아웃 페이지로 
-        }else if((res.data.code==426)){
-            // refresh token 재발급
         }else{
-
-        }
-            
+            alert(res.data.result);
+        }  
     }catch(err){
         console.log(`[ERROR 몌세지] : ${err}`);
 

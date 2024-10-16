@@ -10,6 +10,7 @@ const password = ref('');
 const email = ref('');
 const employeeId = ref('');
 const router = useRouter();
+const authStore = useAuthStore();
 
 const passwordRules = ref([
     (v: string) => !!v || '비밀번호를 입력해주세요',
@@ -40,19 +41,23 @@ const loginApi=async()=>{
             email: email.value ? email.value : null,
             employeeId : employeeId.value? employeeId.value : null,
             password: password.value 
+        },
+        {
+            withCredentials: true
         }
     )
         if(res.data.code==200){
             alert("로그인을 완료했습니다.");
             const result = res.data.result;
+            console.log(result);
+            authStore.setIsLogedIn(true);
             saveLocalStorage(result);
-            router.push("/");  // 로그인이 성공한 후 페이지 이동
-        
-            console.log('페이지 이동')
+            router.push("/");  
         }
     }catch(err) {
         console.log(err);
     }
+
 }
 const saveLocalStorage=(result:any)=>{
         localStorage.setItem('loginUserName', result.name);
