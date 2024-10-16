@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import axios from 'axios';
+import api from '@/api/axiosinterceptor';
 import { useRouter ,useRoute} from 'vue-router';
 import { mask } from 'maska';  
 
@@ -29,7 +29,7 @@ const updateCustomer = ()=>{
 
 const getCustomerInfoAPI = async(id: string | string[])=>{
     try{
-        const res = await axios.get(`http://localhost:8080/api/customers/${id}`);
+        const res = await api.get(`/customers/${id}`);
         if(res.data.code==200){
             console.log(res.data.result);
             const info = res.data.result;
