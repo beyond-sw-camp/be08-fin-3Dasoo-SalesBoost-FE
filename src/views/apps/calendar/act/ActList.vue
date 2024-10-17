@@ -84,7 +84,10 @@ try {
 const router = useRouter();
 
 function goToAddAct() {
-  router.push('/apps/act');
+  router.push({
+  path: '/apps/act',
+  query: { returnTo: '/apps/act/list' }
+});
 }
 
 function goToActDetails(actNo) {

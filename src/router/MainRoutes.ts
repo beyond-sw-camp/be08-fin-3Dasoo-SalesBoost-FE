@@ -163,6 +163,12 @@ const MainRoutes = {
             component: () => import('@/views/apps/calendar/act/FormCustom.vue')
         },
         {
+            name: 'FormCustom',
+            path: '/apps/act/:actNo',
+            props: true,
+            component: () => import('@/views/apps/calendar/act/FormCustom.vue')
+        },
+        {
             name: 'ActList',
             path: '/apps/act/list',
             component: () => import('@/views/apps/calendar/act/ActList.vue')

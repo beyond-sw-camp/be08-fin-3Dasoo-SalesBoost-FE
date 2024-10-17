@@ -92,7 +92,7 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { useRouter, useRoute } from 'vue-router';
 import baseApi from '@/api/baseapi';
@@ -121,6 +121,22 @@ export default {
       planContent: '',
       actContent: ''
     });
+
+    const actNo = route.params.actNo;
+
+    const fetchActDetails = async () => {
+      try {
+        const response = await api.get(`/acts/${actNo}`);
+        if (response.data.code === 200) {
+          const actData = response.data.result;
+          act.value = { ...actData };
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    onMounted(fetchActDetails);
+
 
     const actStatusMapping = {
       '고객 미팅': 'MEETING',
@@ -172,8 +188,10 @@ export default {
             showSuccessAlert.value = true;
             setTimeout(() => {
               showSuccessAlert.value = false;
-              console.log(route.path)
-              if (route.path === '/apps/act') {
+              
+              const returnTo = router.currentRoute.value.query.returnTo;
+              
+              if (returnTo) {
                 router.push('/apps/act/list');
               } else {
                 router.push('/apps/calendar');
