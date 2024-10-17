@@ -28,7 +28,7 @@ const breadcrumbs = ref([
 <template>
   <v-row>
         <v-col cols="12" class="mb-12">
-            <UiParentCard title="영업 활동 등록">
+            <UiParentCard title="영업 활동">
                 <ActView :cls="cls" />
             </UiParentCard>
         </v-col>
