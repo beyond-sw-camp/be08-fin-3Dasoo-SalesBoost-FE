@@ -6,6 +6,7 @@ import UiParentCard from '@/components/shared/UiParentCard.vue';
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import baseApi from '@/api/baseapi';
 import api from '@/api/axiosinterceptor';
+import { reverseActStatus, actStatus } from '@/utils/ActStatusMappings';
 
 const page = ref({ title: '영업활동 목록' });
 const breadcrumbs = ref([
@@ -90,8 +91,9 @@ function goToAddAct() {
 });
 }
 
-function goToActDetails(actNo) {
-  router.push({ name: 'FormCustom', params: { actNo } });
+function goToActDetails(actNo, cls) {
+  const convertedCls = reverseActStatus[cls] || cls;
+  router.push({ name: 'FormCustom', params: { actNo }, query: { cls: convertedCls }});
 }
 
 function resetSearch() {
@@ -119,7 +121,7 @@ onMounted(() => {
           show-select
         >
           <template v-slot:item.name="{ item }">
-            <h6 class="text-h6 cursor-pointer" @click="goToActDetails(item.actNo)">{{ item.name }}</h6>
+            <h6 class="text-h6 cursor-pointer" @click="goToActDetails(item.actNo, item.cls)">{{ item.name }}</h6>
           </template>
 
           <template v-slot:item.purpose="{ item }">

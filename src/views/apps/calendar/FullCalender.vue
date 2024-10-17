@@ -4,13 +4,13 @@ import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import axios from 'axios';
 import TodoModal from '@/components/modal/TodoModal.vue';
 import PlanModal from '@/components/modal/PlanModal.vue';
 import './calendar.css';
 import { useCalendarStore } from '@/stores/apps/calendar/calendar';
 import baseApi from '@/api/baseapi';
 import api from '@/api/axiosinterceptor';
+import { reverseActStatus, actStatus } from '@/utils/ActStatusMappings';
 
 export default defineComponent({
   components: {
@@ -190,6 +190,7 @@ export default defineComponent({
           allDay: true,
           classNames: ['todo-event'],
         });
+        this.fetchTodos();
         this.closeTodoModal();
       } catch (e) {
         console.error(e);
@@ -222,6 +223,7 @@ export default defineComponent({
           allDay: false,
           classNames: [className], 
         });
+      this.fetchPlans();
       this.closePlanModal();
     } catch (e) {
       console.error(e);
@@ -243,7 +245,7 @@ export default defineComponent({
     },
     clearTodoForm() {
       this.todo = {
-        calendarNo: 1,
+        calendarNo: 2,
         title: '',
         todoCls: '',
         priority: '',
@@ -255,7 +257,7 @@ export default defineComponent({
     },
     clearPlanForm() {
     this.plan = {
-        calendarNo: 1,
+        calendarNo: 2,
         title: '',
         planCls: '',
         planDate: '',
@@ -275,7 +277,7 @@ export default defineComponent({
     async handleEventClick(clickInfo) {
       const eventId = clickInfo.event.id;    
       const eventClassNames = clickInfo.event.classNames;
-
+      console.log('eventClassNames,', eventClassNames)
       if (eventClassNames.some(className => className.includes('plan'))) {
         this.AddPlanModal = true;
         try {        
@@ -316,6 +318,18 @@ export default defineComponent({
         } catch (e) {        
           console.error(e);      
         }
+      }
+      else if (eventClassNames.includes('act-event')) {
+        const response = await api.get(`/acts/${eventId}`);
+        const actDetails = response.data.result;
+        const convertCls = reverseActStatus[actDetails.cls] || actDetails.cls;
+        const actNo = actDetails.actNo;
+
+        this.$router.push({
+          name: 'FormCustom',
+          params: { actNo },
+          query: { cls: convertCls }
+        });
       }
     },
     handleEvents(events) {

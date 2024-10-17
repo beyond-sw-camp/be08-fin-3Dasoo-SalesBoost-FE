@@ -97,9 +97,16 @@ import axios from 'axios';
 import { useRouter, useRoute } from 'vue-router';
 import baseApi from '@/api/baseapi';
 import api from '@/api/axiosinterceptor';
+import { reverseActStatus, actStatus } from '@/utils/ActStatusMappings';
 
 export default {
-  setup() {
+  props: {
+    cls: {
+      type: String,
+      default: ''
+    }
+  },
+  setup(props) {
     const router = useRouter();
     const route = useRoute();
     const valid = ref(false);
@@ -129,7 +136,7 @@ export default {
         const response = await api.get(`/acts/${actNo}`);
         if (response.data.code === 200) {
           const actData = response.data.result;
-          act.value = { ...actData };
+          act.value = { ...actData, cls: props.cls || actData.cls };
         }
       } catch (error) {
         console.error(error);
@@ -137,16 +144,7 @@ export default {
     };
     onMounted(fetchActDetails);
 
-
-    const actStatusMapping = {
-      '고객 미팅': 'MEETING',
-      '제품 소개': 'PRODUCT_INTRO',
-      '협상': 'NEGOTIATION',
-      '계약': 'CONTRACT',
-      '견적': 'ESTIMATE',
-      '제안': 'PROPOSAL'
-    };
-    const actStatusOptions = ref(Object.keys(actStatusMapping));
+    const actStatusOptions = ref(Object.keys(actStatus));
 
     const generateTimeOptions = () => {
       const options = [];
