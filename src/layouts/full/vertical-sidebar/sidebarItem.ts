@@ -160,9 +160,9 @@ const sidebarItem: menu[] = [
                 to: '/apps/blog/early-black-friday-amazon-deals-cheap-tvs-headphones'
             },
             {
-                title: '할일',
+                title: '영업활동',
                 icon: CircleDotIcon,
-                to: '/apps/blog/early-black-friday-amazon-deals-cheap-tvs-headphones'
+                to: '/apps/act/list'
             }
         ]
     },
