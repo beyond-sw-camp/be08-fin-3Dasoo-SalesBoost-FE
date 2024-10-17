@@ -110,3 +110,9 @@ function selectRow(process) {
         </v-col>
     </v-row>
 </template>
+
+<style>
+.v-btn{
+    margin-left: 1rem;
+}
+</style>
