@@ -169,7 +169,7 @@ export default {
           const response = await api.post('/acts', {
             leadNo: act.value.leadNo,
             name: act.value.name,
-            cls: actStatusMapping[act.value.cls],
+            cls: actStatus[act.value.cls],
             purpose: act.value.purpose,
             actDate: act.value.actDate,
             startTime: act.value.startTime,
