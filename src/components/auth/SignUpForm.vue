@@ -87,13 +87,13 @@ const sendEmail = async()=>{
        const res = await baseApi.post("/users/email/code-request",{
         email: email.value
        });
-       console.log(res);
-       if(res.status ===200){
+       console.log(res.data);
+       if(res.data.code ===200){
         showCodeInput.value = true; 
         alert('인증코드가 이메일로 발송되었습니다.');
     
        }else{
-        alert("인증코드 전송을 실패했습니다.");
+        alert(res.data.message);
        }
     }catch(err){
         console.log(err);
@@ -111,9 +111,11 @@ const sendCodeCheck = async()=>{
         });
 
         console.log(res);
-        if(res.status==200){
+        if(res.data.code ===200){
             alert("인증을 완료했습니다.");
             valid.value = true;
+        }else{
+            alert(res.data.message);
         }
 
     }catch(err){
