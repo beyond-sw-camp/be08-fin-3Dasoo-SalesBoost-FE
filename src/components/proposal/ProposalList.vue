@@ -10,12 +10,11 @@ const breadcrumbs = ref([
 ]);
 
 const dialogDelete = ref(false);
-const proposals = ref([]); // Ensure 'proposals' is defined
+const proposals = ref([]); 
 const leads = ref([]);
 const dialogEdit = ref(false);
 const editedIndex = ref(-1);
 
-// Ensure defaultItem is defined before it's used
 const defaultItem = ref({
   propNo: null,
   leadNo: null,
@@ -30,8 +29,6 @@ const defaultItem = ref({
   note: '',
 });
 
-
-// Ensure editedItem is defined before it's used
 const editedItem = ref({ ...defaultItem.value }); 
 
 const editItem = (item) => {
@@ -50,7 +47,7 @@ const editItem = (item) => {
       note: item.note,
     };
     editedIndex.value = proposals.value.indexOf(item);
-    dialogEdit.value = true; // Open the modal
+    dialogEdit.value = true;
   }
 };
 
@@ -71,11 +68,10 @@ const router = useRouter();
 async function initialize() {
     try {
         const response = await api.get('/proposals');
-        
-        // Use 'proposals' to store the data
+    
         proposals.value = response.data;
 
-        console.log(proposals.value); // Log the proposals list
+        console.log(proposals.value); 
 
     } catch (error) {
         console.error('Failed to fetch proposals:', error);
@@ -103,9 +99,9 @@ const updateProposalApi = async () => {
     const res = await api.patch(`/proposals/${editedItem.value.propNo}`, editedItem.value);
     if (res.status === 200) {
       alert("제안이 성공적으로 수정되었습니다.");
-      await initialize(); // Refresh the proposals list
-      resetForm(); // Reset the form
-      dialogEdit.value = false; // Close the dialog
+      await initialize(); 
+      resetForm(); 
+      dialogEdit.value = false; 
     }
   } catch (error) {
     console.error("수정 실패:", error);
@@ -128,7 +124,7 @@ const deleteProposalApi = async () => {
 };
 
 const resetForm = () => {
-    editedItem.value = { ...defaultItem.value }; // Reset editedItem to defaultItem's structure
+    editedItem.value = { ...defaultItem.value };
     editedIndex.value = -1;
 };
 
@@ -157,18 +153,17 @@ const navigateToCreate = () => {
 };
 
 const closeEditDialog = () => {
-  resetForm(); // Reset the form to default item when closing
-  dialogEdit.value = false; // Close the edit dialog
+  resetForm(); 
+  dialogEdit.value = false; 
 };
 
-// Save function for modal
 const save = async () => {
   if (editedIndex.value === -1) {
     await submitProposalApi();
   } else {
     await updateProposalApi();
   }
-  closeEditDialog(); // Close the dialog
+  closeEditDialog(); 
 };
 
 const displayedProposals = computed(() => proposals.value);
@@ -222,7 +217,6 @@ initialize();
     </v-col>
   </v-row>
 
-  <!-- Edit Proposal Modal -->
   <v-dialog v-model="dialogEdit" max-width="500px">
     <v-card>
       <v-card-title class="text-h5 text-center py-6">{{ formTitle }}</v-card-title>
@@ -248,7 +242,6 @@ initialize();
     </v-card>
   </v-dialog>
 
-  <!-- Delete Confirmation Dialog -->
   <v-dialog v-model="dialogDelete" max-width="500px">
     <v-card>
       <v-card-title class="text-h5 text-center py-6">선택한 제안을 정말 삭제하시겠습니까?</v-card-title>

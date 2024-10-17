@@ -182,7 +182,6 @@
         const response = await api.get('/leads');
         console.log("API response", response.data);
 
-        // Extract leads from the response data
         if (response.data.isSuccess && Array.isArray(response.data.result)) {
             leads.value = response.data.result.map(lead => ({
                 leadNo: lead.leadNo,
