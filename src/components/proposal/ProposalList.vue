@@ -19,6 +19,8 @@ const proposals = ref([]);
 const editedIndex = ref(-1);
 const editedItem = ref({
   propNo: null,
+  leadNo: null,
+  leadName: '',
   name: '',
   cont: '',
   reqDate: '',
@@ -30,6 +32,8 @@ const editedItem = ref({
 });
 const defaultItem = ref({
   propNo: null,
+  leadNo: null,
+  leadName: '',
   name: '제안명',
   cont: '내용',
   reqDate: '요청일',
@@ -42,6 +46,7 @@ const defaultItem = ref({
 
 const headers = ref([
   { title: '제안명', key: 'name' },
+  { title: '영업기회명', key: 'leadName' },
   { title: '요청일', key: 'reqDate' },
   { title: '제안 시작일', key: 'startDate' },
   { title: '제안 종료일', key: 'endDate' },
@@ -63,7 +68,7 @@ async function initialize() {
 
 const submitProposalApi = async () => {
   try {
-    const res = await api.post('http://localhost:8080/api/proposals', editedItem.value);
+    const res = await api.post('/proposals', editedItem.value);
     console.log(res);
     if (res.status === 200) {
       alert("제안이 성공적으로 등록되었습니다.");
@@ -79,7 +84,7 @@ const submitProposalApi = async () => {
 
 const updateProposalApi = async () => {
   try {
-    const res = await api.post(`http://localhost:8080/api/proposals/${editedItem.value.propNo}`, editedItem.value);
+    const res = await api.post(`/proposals/${editedItem.value.propNo}`, editedItem.value);
     if (res.status === 200) {
       alert("제안이 성공적으로 수정되었습니다.");
       Object.assign(proposals.value[editedIndex.value], res.data);
@@ -94,7 +99,7 @@ const updateProposalApi = async () => {
 
 const deleteProposalApi = async () => {
   try {
-    await api.delete(`http://localhost:8080/api/proposals/${editedItem.value.propNo}`);
+    await api.delete(`/api/proposals/${editedItem.value.propNo}`);
     alert("제안이 성공적으로 삭제되었습니다.");
     proposals.value.splice(editedIndex.value, 1);
     resetForm();
