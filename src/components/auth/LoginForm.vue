@@ -50,7 +50,7 @@ const loginApi=async()=>{
             alert("로그인을 완료했습니다.");
             const result = res.data.result;
             console.log(result);
-            authStore.setIsLogedIn(true);
+            authStore.setIsLogedIn();
             saveLocalStorage(result);
             router.push("/");  
         }

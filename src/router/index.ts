@@ -22,7 +22,7 @@ router.beforeEach(async (to, from, next) => {
     const auth: any = useAuthStore();
 
     if (to.matched.some((record) => record.meta.requiresAuth)) {
-        if (authRequired && !auth.isLogedIn) {
+        if (authRequired && (localStorage.getItem('isLoggedIn')!=="true")) {
             auth.returnUrl = to.fullPath;
             return next('/auth/login');
         } else next();

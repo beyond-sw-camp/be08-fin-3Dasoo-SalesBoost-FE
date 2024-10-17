@@ -7,15 +7,15 @@ const baseUrl = `${import.meta.env.VITE_API_URL}/users`;
 export const useAuthStore = defineStore({
     id: 'auth',
     state: () => ({
-        isLogedIn:false,
+      //  isLoggedIn:localStorage.getItem('isLoggedIn')=='true',
         // initialize state from local storage to enable user to stay logged in
         // @ts-ignore
         user: localStorage.getItem('loginUserName'),
         returnUrl: null
     }),
     actions: {
-        setIsLogedIn(status:boolean){
-            this.isLogedIn = status;
+        setIsLogedIn(){
+            localStorage.setItem('isLoggedIn','true');
         },
         
         logout() {
@@ -23,7 +23,7 @@ export const useAuthStore = defineStore({
             localStorage.removeItem('loginUserName');
             localStorage.removeItem('loginUserEmail');
             localStorage.removeItem('accessToken');
-            this.setIsLogedIn(false);
+            localStorage.setItem('isLoggedIn','false');
             router.push({name:"Login"});
         }
     }
