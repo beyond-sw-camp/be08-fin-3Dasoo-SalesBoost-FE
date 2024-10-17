@@ -31,6 +31,7 @@ api.interceptors.response.use(
     return response; 
   },
   async error => {
+    console.log('interceptor 실행')
     const originalRequest = error.config;
     const data = error.response.data;
      // _retry 속성이 없으면 false로 초기화
@@ -40,6 +41,7 @@ api.interceptors.response.use(
 
     if(error.response && error.response.status === 401 && !originalRequest._retry){
         originalRequest._retry = true;
+        console.log(data)
       
         if(data.code===425){ 
             try {
@@ -49,6 +51,7 @@ api.interceptors.response.use(
                 });
         
                 const body = res.data;
+                console.log(body);
                 
                 if(body.code==200){
                     const newAccessToken = res.data.result;
@@ -58,7 +61,9 @@ api.interceptors.response.use(
                     originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
                     return axios(originalRequest);
                 }
-                
+                else{
+                  authStore.logout();
+                }
               } catch (reissueError) {
                 // Refresh Token이 만료되었거나 오류가 발생한 경우
                 console.error('Token reissue failed:', reissueError);
@@ -68,7 +73,13 @@ api.interceptors.response.use(
         }else if(data.code==426){ // 유효하지 않은 access token
             alert("세션이 만료되었습니다.");
             authStore.logout();
+        }else{
+          alert("세션이 만료되었습니다.");
+            authStore.logout();
         }
+    }else{
+            alert("세션이 만료되었습니다.");
+            authStore.logout();
     }
 
     return Promise.reject(error); 
