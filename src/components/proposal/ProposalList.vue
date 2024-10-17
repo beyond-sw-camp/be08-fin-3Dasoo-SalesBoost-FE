@@ -4,6 +4,8 @@ import axios from 'axios';
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
 import { useRouter } from 'vue-router';
+import baseUrl from '@/api/baseapi';
+import api from '@/api/axiosinterceptor';
 
 const page = ref({ title: '제안 리스트' });
 const breadcrumbs = ref([
@@ -52,21 +54,19 @@ const router = useRouter();
 
 async function initialize() {
   try {
-    const response = await axios.get('http://localhost:8080/api/proposals');
+    const response = await api.get('/proposals');
     proposals.value = response.data;
   } catch (error) {
     console.error('Failed to fetch proposals:', error);
   }
 }
 
-//제안등록
 const submitProposalApi = async () => {
   try {
-    const res = await axios.post('http://localhost:8080/api/proposals', editedItem.value);
+    const res = await api.post('http://localhost:8080/api/proposals', editedItem.value);
     console.log(res);
     if (res.status === 200) {
       alert("제안이 성공적으로 등록되었습니다.");
-      // proposals.value.push(res.data);
       await initialize();
       resetForm();
       router.push('/proposals');
@@ -77,10 +77,9 @@ const submitProposalApi = async () => {
   }
 };
 
-// PATCH: Update an existing proposal
 const updateProposalApi = async () => {
   try {
-    const res = await axios.patch(`http://localhost:8080/api/proposals/${editedItem.value.propNo}`, editedItem.value);
+    const res = await api.post(`http://localhost:8080/api/proposals/${editedItem.value.propNo}`, editedItem.value);
     if (res.status === 200) {
       alert("제안이 성공적으로 수정되었습니다.");
       Object.assign(proposals.value[editedIndex.value], res.data);
@@ -93,10 +92,9 @@ const updateProposalApi = async () => {
   }
 };
 
-// DELETE: Remove a proposal
 const deleteProposalApi = async () => {
   try {
-    await axios.delete(`http://localhost:8080/api/proposals/${editedItem.value.propNo}`);
+    await api.delete(`http://localhost:8080/api/proposals/${editedItem.value.propNo}`);
     alert("제안이 성공적으로 삭제되었습니다.");
     proposals.value.splice(editedIndex.value, 1);
     resetForm();
@@ -108,7 +106,6 @@ const deleteProposalApi = async () => {
   close();
 };
 
-// Reset form data
 const resetForm = () => {
   editedItem.value = { ...defaultItem };
   editedIndex.value = -1;
@@ -119,34 +116,32 @@ const createNewProposal = () => {
   dialog.value = true;
 };
 
-// Function to edit an existing proposal
+
 const editItem = (item) => {
   editedItem.value = { ...item };
   editedIndex.value = proposals.value.indexOf(item);
-  dialog.value = true; // Open the dialog
+  dialog.value = true; 
 };
 
-// Function to save the proposal (create/update)
 const save = async () => {
   if (editedIndex.value === -1) {
     await submitProposalApi();
   } else {
     await updateProposalApi();
   }
-  dialog.value = false; // Close the dialog
+  dialog.value = false; 
 };
 
-// Function to delete an item
 const deleteItem = (item) => {
-  editedItem.value = { ...item }; // Store the item to be deleted
-  editedIndex.value = proposals.value.indexOf(item); // Update editedIndex
-  dialogDelete.value = true; // Open the delete confirmation dialog
+  editedItem.value = { ...item };
+  editedIndex.value = proposals.value.indexOf(item); 
+  dialogDelete.value = true; 
 };
 
-// Handle deletion confirmation
+
 const deleteItemConfirm = async () => {
-  await deleteProposalApi(); // Call the API to delete the proposal
-  dialogDelete.value = false; // Close the confirmation dialog
+  await deleteProposalApi(); 
+  dialogDelete.value = false;
 };
 
 const close = () => {
@@ -156,10 +151,7 @@ const close = () => {
 const closeDelete = () => {
   dialogDelete.value = false;
 };
-// Form title computed property
-// const formTitle = computed(() => (editedIndex.value === -1 ? '제안 등록' : '제안 수정'));
 
-// Call this function on page load to initialize the proposal list
 initialize();
 </script>
 

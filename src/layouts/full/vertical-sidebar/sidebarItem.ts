@@ -110,7 +110,7 @@ const sidebarItem: menu[] = [
             {
                 title: '제안',
                 icon: CircleDotIcon,
-                to: '/apps/blog/early-black-friday-amazon-deals-cheap-tvs-headphones'
+                to: '/proposals'
             },
             {
                 title: '견적',
@@ -539,18 +539,6 @@ const sidebarItem: menu[] = [
         icon: EditCircleIcon,
         to: '/forms/editor'
     },
-    // {
-    //     title: 'Proposal List',
-    //     icon: FilesIcon,
-    //     to: '/proposals'
-    // },
-
-    {
-        title: '제안',
-        icon: FilesIcon,
-        to: '/proposals'
-    },
-
     { header: 'Widgets' },
     {
         title: 'Cards',
