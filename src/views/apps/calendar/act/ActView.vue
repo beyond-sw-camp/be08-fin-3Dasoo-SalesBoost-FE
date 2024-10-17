@@ -94,11 +94,14 @@
 <script>
 import { ref } from 'vue';
 import axios from 'axios';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
+import baseApi from '@/api/baseapi';
+import api from '@/api/axiosinterceptor';
 
 export default {
   setup() {
     const router = useRouter();
+    const route = useRoute();
     const valid = ref(false);
     const form = ref(null);
     const loading = ref(false);
@@ -149,7 +152,7 @@ export default {
       if (isValid.valid) {
         loading.value = true;
         try {
-          const response = await axios.post('http://localhost:8080/api/acts', {
+          const response = await api.post('/acts', {
             leadNo: act.value.leadNo,
             name: act.value.name,
             cls: actStatusMapping[act.value.cls],
@@ -169,7 +172,12 @@ export default {
             showSuccessAlert.value = true;
             setTimeout(() => {
               showSuccessAlert.value = false;
-              router.push('/apps/calendar');
+              console.log(route.path)
+              if (route.path === '/apps/act') {
+                router.push('/apps/act/list');
+              } else {
+                router.push('/apps/calendar');
+              }
             }, 2000);
           }
         } catch (error) {
