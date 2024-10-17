@@ -523,7 +523,12 @@ const MainRoutes = {
             component: () => import("@/views/apps/product/Product.vue"),
             props:true
           },
-
+          { // 프로세스
+            name: "Process",
+            path: "/sales/processes",
+            component: () => import("@/views/apps/process/Process.vue"),
+            props:true
+          },
           {
             name: 'Material',
             path: '/icons/material',
