@@ -52,6 +52,7 @@
 <script>
 import '@/views/apps/calendar/calendar.css'
 import ConfirmDialogs from './ConfirmDialogs.vue';
+import api from '@/api/axiosinterceptor';
 
 export default {
 	components: {
@@ -78,21 +79,46 @@ export default {
 		};
 	},
 	methods: {
+    validateTodo() {
+      if (!this.todo.title || !this.todo.todoCls || !this.todo.priority || !this.todo.dueDate || !this.todo.status) {
+        this.showAlert = true;
+        this.alertMessage = '필수 필드를 입력해주세요';
+        setTimeout(() => {
+          this.showAlert = false;
+        }, 2000);
+        return false;
+      }
+      return true;
+    },
 
 		addTodo() {
-      if (!this.todo.title || !this.todo.todoCls || !this.todo.priority || !this.todo.dueDate || !this.todo.status) {
-					this.showAlert = true;
-					this.alertMessage = '필수 필드를 입력해주세요'
-				setTimeout(() => {
-					this.showAlert = false;
-				}, 2000);
-				return;
+      if (!this.validateTodo()) {
+        return;
 			}else{
 					this.$emit('show-alert', {
 						message: '저장이 완료되었습니다.',
 						type: 'success',
 					});
 					this.$emit('add');
+			}
+		},
+		async updateTodo() {
+			if (!this.validateTodo()) {
+				return;
+			}
+
+			try {
+				const response = await api.patch(`/todos/${this.todo.todoNo}`, this.todo);
+				const updatedTodo = response.data.result;
+
+				this.$emit('update', updatedTodo);
+				this.$emit('show-alert', {
+					message: '수정이 완료되었습니다.',
+					type: 'success',
+				});
+				this.closeModal();
+			} catch (e) {
+				console.error(e);
 			}
 		},
 		deleteTodo(){
