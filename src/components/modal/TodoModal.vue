@@ -27,7 +27,7 @@
 							<v-select v-model="todo.status" :items="statusOptions" label="상태*" :rules="[v => !!v || '상태를 선택하세요.']" required></v-select>
 						</v-col>
 						<v-col cols="12">
-							<v-switch color="primary" v-model="todo.privateYn" label="나만보기 여부"></v-switch>
+							<v-switch color="primary" v-model="isPrivate" label="나만보기 여부"></v-switch>
 						</v-col>
 						<v-col cols="12">
 							<v-text-field v-model="todo.content" label="내용"></v-text-field>
@@ -76,7 +76,19 @@ export default {
 			showConfirmDialogs: false,
 			alertMessage: '',
 			alertType: '',
+			isPrivate: this.todo.privateYn === 'Y',
 		};
+	},
+	watch: {
+		isPrivate(newValue) {
+			this.todo.privateYn = newValue ? 'Y' : 'N';
+		},
+		'todo.privateYn': {
+			handler(newValue) {
+				this.isPrivate = newValue === 'Y';
+			},
+			immediate: true,
+		},
 	},
 	methods: {
     validateTodo() {
