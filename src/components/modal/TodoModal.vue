@@ -36,10 +36,14 @@
 					<small>*필수 입력</small>
 				</v-form>
 			</v-card-text>
+			<ConfirmDialogs :dialog="showConfirmDialogs" @agree="confirmDelete" @disagree="cancleDelete" />
 			<v-card-actions>
 				<v-spacer></v-spacer>
 				<v-btn color="close" @click="closeModal">Close</v-btn>
-				<v-btn color="success" variant="text" @click="addTodo" flat>Save</v-btn>
+				<v-btn v-if="mode === 'add'" color="success" variant="text" @click="addTodo" flat>Save</v-btn>
+				<v-btn v-else-if="mode === 'edit'" color="success" variant="text" @click="updateTodo" flat>Update</v-btn>
+				<v-btn v-if="mode === 'edit'" color="error" variant="text" @click="deleteTodo" flat>Delete</v-btn>
+				<ConfirmDialogs :dialog="showConfirmDialogs" @agree="confirmDelete" @disagree="cancleDelete" />
 			</v-card-actions>
 		</v-card>
 	</v-dialog>
@@ -47,19 +51,28 @@
 
 <script>
 import '@/views/apps/calendar/calendar.css'
+import ConfirmDialogs from './ConfirmDialogs.vue';
 
 export default {
+	components: {
+		ConfirmDialogs,
+	},
 	props: {
 		AddTodoModal: Boolean,
 		todo: Object,
 		statusOptions: Array,
 		priorityOptions: Array,
+		mode: {
+			type: String,
+			default: 'add',
+		},
 	},
 	data() {
 		return {
       priorityOptions: ['높음', '중간', '낮음'],
 			showAlert: false,
 			showSuccessAlert: false,
+			showConfirmDialogs: false,
 			alertMessage: '',
 			alertType: '',
 		};
@@ -81,6 +94,16 @@ export default {
 					});
 					this.$emit('add');
 			}
+		},
+		deleteTodo(){
+			this.showConfirmDialogs = true;
+		},
+		confirmDelete(){
+			this.showConfirmDialogs = false;
+			this.$emit('delete', this.todo);
+		},
+		cancleDelete(){
+			this.showConfirmDialogs = false;
 		},
 		closeModal(){
 				this.$emit('close');
