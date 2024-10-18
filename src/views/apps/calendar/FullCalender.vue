@@ -84,6 +84,7 @@ export default defineComponent({
   },
 
   methods: {
+    // 필터
     applyFilter(filteredEvents) {
       const calendarApi = this.$refs.calendar.getApi();
       console.log('이벤트 삭제!');
@@ -101,6 +102,7 @@ export default defineComponent({
         });
       });
     },
+    // 조회
     async fetchActs() {
       try {
         const response = await api.get('/acts');
@@ -166,6 +168,7 @@ export default defineComponent({
         console.error(e);
       }
     },
+    // 추가
     async addTodo() {
       if (!this.todo.title || !this.todo.todoCls || !this.todo.priority || !this.todo.dueDate || !this.todo.status) {
         this.showAlert = true;
@@ -231,6 +234,23 @@ export default defineComponent({
       console.error(e);
     }
   },
+  
+  // 수정
+  async updateTodo(updatedTodo) {
+
+    const calendarApi = this.$refs.calendar.getApi();
+    const event = calendarApi.getEventById(updatedTodo.todoNo);
+
+    if (event) {
+      event.setProp('title', updatedTodo.title);
+      event.setStart(updatedTodo.dueDate);
+      event.setExtendedProp('todoCls', updatedTodo.todoCls);
+      event.setExtendedProp('priority', updatedTodo.priority);
+      event.setExtendedProp('status', updatedTodo.status);
+      }
+    },
+  
+  // 닫기 및 초기화
     closeTodoModal() {
       this.AddTodoModal = false;
       this.selectedOption = null;
@@ -270,7 +290,7 @@ export default defineComponent({
         content: '',
       };
     },
-
+  // 클릭 이벤트
     handleDateSelect(selectInfo) {
       this.AddTodoModal = true;
       this.AddPlanModal = true;
@@ -351,7 +371,6 @@ export default defineComponent({
       }, 3000);
     },
     async deleteTodo(todoToDelete) {
-      console.log('Deleting todo:', todoToDelete); // todoToDelete 객체 출력
       try {
         await api.delete(`/todos/${todoToDelete.todoNo}`);
         const calendarApi = this.$refs.calendar.getApi();
@@ -405,7 +424,7 @@ export default defineComponent({
 
       <TodoModal v-model="AddTodoModal"
         :todo="todo" :priorityOptions="priorityOptions" :statusOptions="statusOptions" :mode="mode"
-        @close="closeTodoModal" @add="addTodo" @delete="deleteTodo" @show-alert="handleAlert"
+        @close="closeTodoModal" @add="addTodo" @delete="deleteTodo" @update="updateTodo" @show-alert="handleAlert"
       />
       <PlanModal v-model="AddPlanModal" :plan="plan" :planClsOptions="planClsOptions" :statusOptions="statusOptions" @close="closePlanModal" @add="addPlan" @show-alert="handleAlert"/>
 
