@@ -4,11 +4,13 @@ import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import axios from 'axios';
 import TodoModal from '@/components/modal/TodoModal.vue';
 import PlanModal from '@/components/modal/PlanModal.vue';
 import './calendar.css';
 import { useCalendarStore } from '@/stores/apps/calendar/calendar';
+import baseApi from '@/api/baseapi';
+import api from '@/api/axiosinterceptor';
+import { reverseActStatus, actStatus } from '@/utils/ActStatusMappings';
 
 export default defineComponent({
   components: {
@@ -30,7 +32,7 @@ export default defineComponent({
       priorityOptions: ['높음', '중간', '낮음'],
       planClsOptions: ['개인', '전사', '제안', '견적','매출', '계약'],
       todo: {
-        calendarNo: 1,
+        calendarNo: 2,
         title: '',
         todoCls: '',
         priority: '',
@@ -40,7 +42,7 @@ export default defineComponent({
         content: '',
       },
       plan: {
-        calendarNo: 1,
+        calendarNo: 2,
         title: '',
         planCls: '',
         planDate: '',
@@ -100,7 +102,7 @@ export default defineComponent({
     },
     async fetchActs() {
       try {
-        const response = await axios.get('http://localhost:8080/api/acts');
+        const response = await api.get('/acts');
         const acts = response.data.result;
         const store = useCalendarStore();
         store.setCalendarData(acts.map(act => ({
@@ -117,7 +119,7 @@ export default defineComponent({
     },
     async fetchTodos() {
       try {
-        const response = await axios.get('http://localhost:8080/api/todos');
+        const response = await api.get('/todos');
         const todos = response.data.result;
         const store = useCalendarStore();
         store.setCalendarData(todos.map(todo => ({
@@ -147,7 +149,7 @@ export default defineComponent({
 
     async fetchPlans() {
       try {
-        const response = await axios.get('http://localhost:8080/api/plans');
+        const response = await api.get('/plans');
         const plans = response.data.result;
         const store = useCalendarStore();
         store.setCalendarData(plans.map(plan => ({
@@ -178,7 +180,7 @@ export default defineComponent({
         privateYn: this.todo.privateYn ? 'Y' : 'N',
       };
       try {
-        const response = await axios.post('http://localhost:8080/api/todos', setPrivateYn);
+        const response = await api.post('/todos', setPrivateYn);
         const createdTodo = response.data.result;
         const calendarApi = this.$refs.calendar.getApi();
         calendarApi.addEvent({
@@ -188,6 +190,7 @@ export default defineComponent({
           allDay: true,
           classNames: ['todo-event'],
         });
+        this.fetchTodos();
         this.closeTodoModal();
       } catch (e) {
         console.error(e);
@@ -207,7 +210,7 @@ export default defineComponent({
         personalYn: plan.personalYn ? 'Y' : 'N',
       };
       try {
-        const response = await axios.post('http://localhost:8080/api/plans', setPersonalYn);
+        const response = await api.post('/plans', setPersonalYn);
         const createdPlan = response.data.result;
         const calendarApi = this.$refs.calendar.getApi();
         const className = `${plan.planCls.toLowerCase()}_plan-event`;
@@ -220,6 +223,7 @@ export default defineComponent({
           allDay: false,
           classNames: [className], 
         });
+      this.fetchPlans();
       this.closePlanModal();
     } catch (e) {
       console.error(e);
@@ -241,7 +245,7 @@ export default defineComponent({
     },
     clearTodoForm() {
       this.todo = {
-        calendarNo: 1,
+        calendarNo: 2,
         title: '',
         todoCls: '',
         priority: '',
@@ -253,7 +257,7 @@ export default defineComponent({
     },
     clearPlanForm() {
     this.plan = {
-        calendarNo: 1,
+        calendarNo: 2,
         title: '',
         planCls: '',
         planDate: '',
@@ -273,11 +277,11 @@ export default defineComponent({
     async handleEventClick(clickInfo) {
       const eventId = clickInfo.event.id;    
       const eventClassNames = clickInfo.event.classNames;
-
+      console.log('eventClassNames,', eventClassNames)
       if (eventClassNames.some(className => className.includes('plan'))) {
         this.AddPlanModal = true;
         try {        
-          const response = await axios.get(`http://localhost:8080/api/plans/${eventId}`);        
+          const response = await api.get(`/plans/${eventId}`);        
           const planDetails = response.data.result;
           this.plan = {          
             calendarNo: planDetails.calendarNo,          
@@ -297,7 +301,7 @@ export default defineComponent({
       else if (eventClassNames.includes('todo-event')) {
         this.AddTodoModal = true;
         try {        
-          const response = await axios.get(`http://localhost:8080/api/todos/${eventId}`);
+          const response = await api.get(`/todos/${eventId}`);
           const todoDetails = response.data.result;
 
           this.todo = {          
@@ -314,6 +318,18 @@ export default defineComponent({
         } catch (e) {        
           console.error(e);      
         }
+      }
+      else if (eventClassNames.includes('act-event')) {
+        const response = await api.get(`/acts/${eventId}`);
+        const actDetails = response.data.result;
+        const convertCls = reverseActStatus[actDetails.cls] || actDetails.cls;
+        const actNo = actDetails.actNo;
+
+        this.$router.push({
+          name: 'FormCustom',
+          params: { actNo },
+          query: { cls: convertCls }
+        });
       }
     },
     handleEvents(events) {

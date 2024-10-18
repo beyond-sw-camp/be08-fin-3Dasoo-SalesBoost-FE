@@ -92,13 +92,23 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
+import baseApi from '@/api/baseapi';
+import api from '@/api/axiosinterceptor';
+import { reverseActStatus, actStatus } from '@/utils/ActStatusMappings';
 
 export default {
-  setup() {
+  props: {
+    cls: {
+      type: String,
+      default: ''
+    }
+  },
+  setup(props) {
     const router = useRouter();
+    const route = useRoute();
     const valid = ref(false);
     const form = ref(null);
     const loading = ref(false);
@@ -119,15 +129,22 @@ export default {
       actContent: ''
     });
 
-    const actStatusMapping = {
-      '고객 미팅': 'MEETING',
-      '제품 소개': 'PRODUCT_INTRO',
-      '협상': 'NEGOTIATION',
-      '계약': 'CONTRACT',
-      '견적': 'ESTIMATE',
-      '제안': 'PROPOSAL'
+    const actNo = route.params.actNo;
+
+    const fetchActDetails = async () => {
+      try {
+        const response = await api.get(`/acts/${actNo}`);
+        if (response.data.code === 200) {
+          const actData = response.data.result;
+          act.value = { ...actData, cls: props.cls || actData.cls };
+        }
+      } catch (error) {
+        console.error(error);
+      }
     };
-    const actStatusOptions = ref(Object.keys(actStatusMapping));
+    onMounted(fetchActDetails);
+
+    const actStatusOptions = ref(Object.keys(actStatus));
 
     const generateTimeOptions = () => {
       const options = [];
@@ -149,10 +166,10 @@ export default {
       if (isValid.valid) {
         loading.value = true;
         try {
-          const response = await axios.post('http://localhost:8080/api/acts', {
+          const response = await api.post('/acts', {
             leadNo: act.value.leadNo,
             name: act.value.name,
-            cls: actStatusMapping[act.value.cls],
+            cls: actStatus[act.value.cls],
             purpose: act.value.purpose,
             actDate: act.value.actDate,
             startTime: act.value.startTime,
@@ -169,7 +186,14 @@ export default {
             showSuccessAlert.value = true;
             setTimeout(() => {
               showSuccessAlert.value = false;
-              router.push('/apps/calendar');
+              
+              const returnTo = router.currentRoute.value.query.returnTo;
+              
+              if (returnTo) {
+                router.push('/apps/act/list');
+              } else {
+                router.push('/apps/calendar');
+              }
             }, 2000);
           }
         } catch (error) {
