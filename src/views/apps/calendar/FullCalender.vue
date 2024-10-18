@@ -11,6 +11,7 @@ import { useCalendarStore } from '@/stores/apps/calendar/calendar';
 import baseApi from '@/api/baseapi';
 import api from '@/api/axiosinterceptor';
 import { reverseActStatus, actStatus } from '@/utils/ActStatusMappings';
+import axios from 'axios';
 
 export default defineComponent({
   components: {
@@ -174,6 +175,7 @@ export default defineComponent({
         return;
       }
 
+      this.mode = 'add';
       this.showAlert = false;
       const setPrivateYn = {
         ...this.todo,
@@ -244,6 +246,7 @@ export default defineComponent({
       }, 300);
     },
     clearTodoForm() {
+      this.mode = 'add';
       this.todo = {
         calendarNo: 2,
         title: '',
@@ -300,11 +303,13 @@ export default defineComponent({
       } 
       else if (eventClassNames.includes('todo-event')) {
         this.AddTodoModal = true;
+        this.mode = 'edit'; 
         try {        
           const response = await api.get(`/todos/${eventId}`);
           const todoDetails = response.data.result;
 
-          this.todo = {          
+          this.todo = {
+            todoNo: todoDetails.todoNo,
             calendarNo: todoDetails.calendarNo,
             title: todoDetails.title,
             todoCls: todoDetails.todoCls,
@@ -344,6 +349,25 @@ export default defineComponent({
       setTimeout(() => {
         this.showSuccessAlert = false;
       }, 3000);
+    },
+    async deleteTodo(todoToDelete) {
+      console.log('Deleting todo:', todoToDelete); // todoToDelete 객체 출력
+      try {
+        await api.delete(`/todos/${todoToDelete.todoNo}`);
+        const calendarApi = this.$refs.calendar.getApi();
+        
+        const event = calendarApi.getEventById(todoToDelete.todoNo);
+        if (event) {
+          event.remove();
+        }
+        this.closeTodoModal();
+        this.handleAlert({
+          message: '할 일이 삭제되었습니다.',
+          type: 'success',
+        });
+      } catch (e) {
+        console.error(e);
+      }
     }
   },
   watch: {
@@ -379,7 +403,10 @@ export default defineComponent({
         </template>
       </FullCalendar>
 
-      <TodoModal v-model="AddTodoModal" :todo="todo" :priorityOptions="priorityOptions" :statusOptions="statusOptions" @close="closeTodoModal" @add="addTodo" @show-alert="handleAlert"/>
+      <TodoModal v-model="AddTodoModal"
+        :todo="todo" :priorityOptions="priorityOptions" :statusOptions="statusOptions" :mode="mode"
+        @close="closeTodoModal" @add="addTodo" @delete="deleteTodo" @show-alert="handleAlert"
+      />
       <PlanModal v-model="AddPlanModal" :plan="plan" :planClsOptions="planClsOptions" :statusOptions="statusOptions" @close="closePlanModal" @add="addPlan" @show-alert="handleAlert"/>
 
       <v-alert v-if="showSuccessAlert" type="success" variant="tonal" :class="['alert', alertType]">
