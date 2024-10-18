@@ -105,7 +105,7 @@ const sidebarItem: menu[] = [
             {
                 title: '잠재고객',
                 icon: CircleDotIcon,
-                to: '/apps/blog/posts'
+                to: '/sales/prospect'
             },
             {
                 title: '제안',

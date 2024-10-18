@@ -1,3 +1,5 @@
+import { Component } from '@fullcalendar/core/preact';
+
 const MainRoutes = {
     path: '/main',
     meta: {
@@ -502,16 +504,16 @@ const MainRoutes = {
 
           // -------- 추가 by kuk329 ------------
 
-        {
-            name: "CustomerAdd",
-            path: "/sales/customer-add",
-            component: () => import("@/views/apps/customer/CustomerAdd.vue"),
-          },
-
-          {
+      
+          { // 고객
             name: "Customer",
             path: "/sales/contact",
             component: () => import("@/views/apps/customer/Customer.vue"),
+          },
+          { // 고객 등록
+            name: "CustomerAdd",
+            path: "/sales/customer-add",
+            component: () => import("@/views/apps/customer/CustomerAdd.vue"),
           },
 
           { // 고객 조회 및 수정
@@ -519,6 +521,18 @@ const MainRoutes = {
             path: "/sales/customer-detail/:id",
             component: () => import("@/views/apps/customer/CustomerDetail.vue"),
             props:true
+          },
+
+          { // 잠재고객
+            name: 'pCusomer',
+            path: '/sales/prospect',
+            component: ()=> import('@/views/apps/pCustomer/pCustomer.vue')
+            },
+
+          { // 잠재고객 등록
+            name: "pCustomer",
+            path: "/sales/pcustomer-add",
+            component: ()=> import("@/views/apps/pCustomer/pCustomerAdd.vue")
           },
 
           { // 부서
@@ -540,6 +554,7 @@ const MainRoutes = {
             component: () => import("@/views/apps/process/Process.vue"),
             props:true
           },
+          
           {
             name: 'Material',
             path: '/icons/material',
