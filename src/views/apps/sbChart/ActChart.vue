@@ -1,0 +1,38 @@
+<script setup lang="ts">
+import { computed, onMounted, ref } from 'vue';
+import { useTheme } from 'vuetify';
+import api from '@/api/axiosinterceptor';
+import ChatUserActRatio from './ActChatUserRatio.vue';
+import ActChartCount from './ActChartCount.vue';
+
+// common components
+import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
+import UiParentCard from '@/components/shared/UiParentCard.vue';
+
+const page = ref({ title: 'Chart' });
+const breadcrumbs = ref([
+    { text: 'Chart', disabled: false, href: '#' },
+    { text: 'Act Chart', disabled: true, href: '#' }
+]);
+</script>
+
+<template>
+    <BaseBreadcrumb :title="page.title" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
+    <v-row>
+        <v-col cols="12">
+                <v-col cols="12" lg="6">
+                    <!-- Donut Chart -->
+                    <UiParentCard title="영업사원별 활동 비율">
+                      <ChatUserActRatio/>
+                    </UiParentCard>
+                </v-col>
+            
+            <v-col cols="12">
+                    <!-- AREA Chart -->
+                    <UiParentCard title="월별 영업활동 추이">
+                      <ActChartCount/>
+                    </UiParentCard>
+                </v-col>
+        </v-col>
+    </v-row>
+</template>
