@@ -1,3 +1,5 @@
+import { Component } from '@fullcalendar/core/preact';
+
 const MainRoutes = {
     path: '/main',
     meta: {
@@ -511,49 +513,64 @@ const MainRoutes = {
         },
 
         // -------- 추가 by kuk329 ------------
+      
+          { // 고객
+            name: "Customer",
+            path: "/sales/contact",
+            component: () => import("@/views/apps/customer/Customer.vue"),
+          },
+          { // 고객 등록
+            name: "CustomerAdd",
+            path: "/sales/customer-add",
+            component: () => import("@/views/apps/customer/CustomerAdd.vue"),
+          },
 
-        {
-            name: 'CustomerAdd',
-            path: '/sales/customer-add',
-            component: () => import('@/views/apps/customer/CustomerAdd.vue')
-        },
+          { // 고객 상세 조회 및 수정
+            name: "CustomerDetail",
+            path: "/sales/customer-detail/:id",
+            component: () => import("@/views/apps/customer/CustomerDetail.vue"),
+            props:true
+          },
 
-        {
-            name: 'Customer',
-            path: '/sales/contact',
-            component: () => import('@/views/apps/customer/Customer.vue')
-        },
+          { // 잠재고객
+            name: 'pCustomer',
+            path: '/sales/prospect',
+            component: ()=> import('@/views/apps/pCustomer/pCustomer.vue')
+            },
 
-        {
-            // 고객 조회 및 수정
-            name: 'CustomerDetail',
-            path: '/sales/customer-detail/:id',
-            component: () => import('@/views/apps/customer/CustomerDetail.vue'),
-            props: true
-        },
+          { // 잠재고객 등록
+            name: "pCustomerAdd",
+            path: "/sales/prospect/add",
+            component: ()=> import("@/views/apps/pCustomer/pCustomerAdd.vue")
+          },
 
-        {
-            // 부서
-            name: 'Department',
-            path: '/sales/departments',
-            component: () => import('@/views/apps/department/Department.vue'),
-            props: true
-        },
+          { // 잠재고객 상세 조회 및 수정
+            name: "pCustomerDetail",
+            path: "/sales/prospect/:id",
+            component: ()=> import("@/views/apps/pCustomer/pCustomerDetail.vue")
+          },
 
-        {
-            // 제품
-            name: 'Product',
-            path: '/sales/products',
-            component: () => import('@/views/apps/product/Product.vue'),
-            props: true
-        },
-        {
-            // 프로세스
-            name: 'Process',
-            path: '/sales/processes',
-            component: () => import('@/views/apps/process/Process.vue'),
-            props: true
-        },
+   
+          { // 부서
+            name: "Department",
+            path: "/sales/departments",
+            component: () => import("@/views/apps/department/Department.vue"),
+            props:true
+          },
+
+          { // 제품
+            name: "Product",
+            path: "/sales/products",
+            component: () => import("@/views/apps/product/Product.vue"),
+            props:true
+          },
+          { // 프로세스
+            name: "Process",
+            path: "/sales/processes",
+            component: () => import("@/views/apps/process/Process.vue"),
+            props:true
+          },
+
         {
             name: 'Material',
             path: '/icons/material',

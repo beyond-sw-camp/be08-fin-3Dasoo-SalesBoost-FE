@@ -81,7 +81,7 @@ const confirmEmail = ref([(v: string) => !!v || '이메일을 입력해주세요
 
 
 const formIsValid = computed(()=>{
-    return customerName.value && email.value && grade.value && phone.value;
+    return customerName.value && email.value && phone.value;
 })
 
 
@@ -113,7 +113,7 @@ const formIsValid = computed(()=>{
         </v-col>
 
         <v-col cols="6">
-            <v-label class="font-weight-medium mb-2">휴대폰 번호</v-label><span class="require">*</span>
+            <v-label class="font-weight-medium mb-2">휴대폰번호</v-label><span class="require">*</span>
             <v-text-field v-maska="'###-####-####'"  color="primary" v-model="phone" variant="outlined" type="text" placeholder="-를 제외하고 입력해주세요" :rules="confirmPhone">
             </v-text-field>
         </v-col>
@@ -130,8 +130,8 @@ const formIsValid = computed(()=>{
         </v-col>
 
         <v-col cols="6">
-            <v-label class="font-weight-medium mb-2">등급</v-label><span class="require">*</span>
-            <v-select v-model="grade" :items="grades" single-line variant="outlined" :rules="confirmGrade"></v-select>
+            <v-label class="font-weight-medium mb-2">등급</v-label>
+            <v-select v-model="grade" :items="grades" single-line variant="outlined"></v-select>
         </v-col>
 
         <v-col cols="6">
