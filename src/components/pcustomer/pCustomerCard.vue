@@ -43,29 +43,24 @@ const goToEditPage = (pcustomerId)=>{
                 <v-card elevation="10" class="card text-center" rounded="md" @click="goToEditPage(pcustomer.id)">
                     <v-card-item class="card_container">
                         <div class="title_container">
-                            <v-avatar size="60" rounded="xl">
-                                <img :src="getRandomImage()" alt="img" width="60">
-                            </v-avatar>
+                        
                             <div class="name_container">
                                     <div class="customer_name">{{ pcustomer.name }}</div> 
-                                    <div class="customer_position">( {{ pcustomer.position }} )</div>
+                                    <div class="customer_position"> <span v-if="pcustomer.company">( <i class="mr-2 mdi text-h5 mdi-domain"></i> {{ pcustomer.company }} )</span></div>
                             </div>
                         </div>
 
                         <div class="mt-4 info_container">
                         
-                            <div>
-                                Company. {{ pcustomer.company }}
-                            </div>
-                        <div>
-                                0건
-                        </div>
+                        <!-- <div>관리자 : <span>{{ pcustomer. }}</span> </div> -->
+                        <div><i class="mr-2 mdi text-h5 mdi-calendar"></i>등록일 : <span v-if="pcustomer.status">{{ pcustomer.registerDate }}</span></div>
+                        <div><i class="mr-2 mdi text-h5 mdi-account-check"></i>접촉상태 : <span v-if="pcustomer.status">{{ pcustomer.status }}</span></div>
                       </div>
                     </v-card-item>
                     <div class="bottom_container">
-                    <div>{{ pcustomer.email }}</div>
-                    <div>{{ pcustomer.phone }} </div>
-                    <div>{{ pcustomer.tel }}</div>
+                    <div><i class="mr-2 mdi text-h5 mdi-email"></i> {{ pcustomer.email }}</div>
+                    <div><i class="mr-2 mdi text-h5 mdi-cellphone-basic"></i>{{ pcustomer.phone }} </div>
+                
                 </div>
                 </v-card>
 
