@@ -175,7 +175,12 @@ const sidebarItem: menu[] = [
                 title: '매출 차트',
                 icon: ChartLineIcon,
                 to: '/apps/chart/sales'
-            }
+            },
+            {
+                title: '활동 차트',
+                icon: ChartLineIcon,
+                to: '/apps/chart/act'
+            },
         ]
     },
     { header: 'Home' },
