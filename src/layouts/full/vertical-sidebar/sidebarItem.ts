@@ -90,7 +90,7 @@ const sidebarItem: menu[] = [
     {
         title: '영업기회',
         // icon: CalendarIcon,
-        to: '/apps/calendar'
+        to: '/sales/lead'
     },
     {
         title: '고객',
@@ -175,7 +175,7 @@ const sidebarItem: menu[] = [
                 title: '매출 차트',
                 icon: ChartLineIcon,
                 to: '/apps/chart/sales'
-            },
+            }
         ]
     },
     { header: 'Home' },

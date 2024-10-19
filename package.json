@@ -14,6 +14,7 @@
         "@fullcalendar/interaction": "6.1.10",
         "@fullcalendar/timegrid": "6.1.10",
         "@fullcalendar/vue3": "6.1.10",
+        "@tiptap/extension-text-style": "^2.8.0",
         "@tiptap/pm": "2.2.2",
         "@tiptap/starter-kit": "2.2.2",
         "@tiptap/vue-3": "2.2.2",
@@ -68,6 +69,6 @@
         "vite": "^5.4.2",
         "vue-cli-plugin-vuetify": "2.5.8",
         "vue-tsc": "^2.1.2",
-        "vuetify-loader": "1.9.2"
+        "vuetify-loader": "^1.9.2"
     }
 }
