@@ -8,24 +8,24 @@
         <div class="customer_container">
             <div class="header">
                 <div class="result_count">(검색결과: {{ dataSize }}건)</div>   
-                <v-btn variant="tonal" color="primary" to="/sales/pcustomer-add">잠재고객 추가</v-btn>
+                <v-btn variant="tonal" color="primary" to="/sales/prospect/add">잠재고객 추가</v-btn>
             </div>
          
             <hr  class="divider"></hr>
-                <CustomerCard :customers="customers"/>
+                  <pCustomerCard :pcustomers="pcustomers"/> 
         </div>
     </div>
 </template>
 
 <script setup>
-import CustomerCard from '@/components/customer/CustomerCard.vue';
+import pCustomerCard from '@/components/pcustomer/pCustomerCard.vue';
 import FilterCard from '@/components/customer/FilterCard.vue';
 import axios from 'axios';
 import api from '@/api/axiosinterceptor'
 import { computed, onMounted, ref } from 'vue';
 
-const customers = ref([]);
-const dataSize = computed(()=> customers.value.length);
+const pcustomers = ref([]);
+const dataSize = computed(()=> pcustomers.value.length);
 
 onMounted(()=>{
     fetchCustomers();
@@ -33,17 +33,16 @@ onMounted(()=>{
 
 const fetchCustomers=async()=>{
     try{
-       // const res = await axios.get('http://localhost:8080/api/customers');
-        const res = await api.get('/customers');
+        const res = await api.get('/pcustomers');
+        console.log(res);
         if(res.data.code==200) {
             console.log(res.data.result);
-            customers.value = res.data.result;
+            pcustomers.value = res.data.result;
         }
     }catch(err){
         console.log(`[ERROR 몌세지] : ${err}`);
     }
     
-
 }
 
 </script>

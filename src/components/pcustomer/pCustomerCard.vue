@@ -1,6 +1,6 @@
 <script setup>
 import {profileCards} from '@/_mockApis/components/widget/card';
-import { ref ,onMounted, watch,nextTick} from 'vue';
+import { ref ,onMounted, watch,nextTick,defineProps} from 'vue';
 import user1 from '@/assets/images/profile/user-1.jpg';
 import user2 from '@/assets/images/profile/user-2.jpg';
 import user3 from '@/assets/images/profile/user-3.jpg';
@@ -15,7 +15,7 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const props = defineProps({
-    customers:{
+    pcustomers:{
         type:Array,
         required:true
     }
@@ -29,8 +29,8 @@ const getRandomImage = () => {
   return avatarImgs[randomIndex];
 };
 
-const goToEditPage = (customerId)=>{
-    router.push({name:"CustomerDetail",params:{id:customerId}});
+const goToEditPage = (pcustomerId)=>{
+    router.push({name:"CustomerDetail",params:{id:pcustomerId}});
 
 }
 
@@ -39,23 +39,23 @@ const goToEditPage = (customerId)=>{
 <template>
        <v-col cols="12">
         <v-row class="pt-3">
-            <v-col cols="6" md="6" v-for="customer in customers" :key="customer.id" class="column">
-                <v-card elevation="10" class="card text-center" rounded="md" @click="goToEditPage(customer.id)">
+            <v-col cols="6" md="6" v-for="pcustomer in pcustomers" :key="pcustomer.id" class="column">
+                <v-card elevation="10" class="card text-center" rounded="md" @click="goToEditPage(pcustomer.id)">
                     <v-card-item class="card_container">
                         <div class="title_container">
                             <v-avatar size="60" rounded="xl">
                                 <img :src="getRandomImage()" alt="img" width="60">
                             </v-avatar>
                             <div class="name_container">
-                                    <div class="customer_name">{{ customer.name }}</div> 
-                                    <div class="customer_position">( {{ customer.position }} )</div>
+                                    <div class="customer_name">{{ pcustomer.name }}</div> 
+                                    <div class="customer_position">( {{ pcustomer.position }} )</div>
                             </div>
                         </div>
 
                         <div class="mt-4 info_container">
                         
                             <div>
-                                Company. {{ customer.company }}
+                                Company. {{ pcustomer.company }}
                             </div>
                         <div>
                                 0건
@@ -63,9 +63,9 @@ const goToEditPage = (customerId)=>{
                       </div>
                     </v-card-item>
                     <div class="bottom_container">
-                    <div>{{ customer.email }}</div>
-                    <div>{{ customer.phone }} </div>
-                    <div>{{ customer.tel }}</div>
+                    <div>{{ pcustomer.email }}</div>
+                    <div>{{ pcustomer.phone }} </div>
+                    <div>{{ pcustomer.tel }}</div>
                 </div>
                 </v-card>
 

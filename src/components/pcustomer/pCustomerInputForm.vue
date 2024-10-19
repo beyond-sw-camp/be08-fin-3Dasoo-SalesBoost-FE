@@ -6,8 +6,8 @@ import { mask } from 'maska';
 import api from '@/api/axiosinterceptor';
 
 const userName = ref('');
-const grades = ref(['S등급', 'A등급','B등급','C등급','D등급']);
-const customerName = ref('');
+const grades = ref(['S등급', 'A등급','B등급','C등급']);
+const pcName = ref('');
 const email = ref('');
 const company = ref('');
 const dept  = ref('');
@@ -43,7 +43,20 @@ const registerPCustomer = ()=>{
 const registerAPI = async()=>{
     try{
         const response = await api.post('/pcustomers',{
-            
+            name:pcName.value?pcName.value:"",  // 필수
+            company:company.value?company.value:null,
+            dept:dept.value?dept.value:null,
+            position:position.value?position.value:null,
+            cls:cls.value?cls.value:"", // 필수
+            contactStatus:contact.value?contact.value:null, // 필수
+            grade:grade.value?grade.value:null,
+            phone:phone.value?phone.value:"", // 필수
+            tel:tel.value?tel.value:null,
+            email:email.value?email.value:null,
+            fax:fax.value? fax.value:null,
+            addr:address.value?address.value:null,
+            note:note.value?note.value:null,
+                      
         }
      )
         if(response.data.code==200){
@@ -86,7 +99,7 @@ const confirmContact = ref([
 
 
 const formIsValid = computed(()=>{
-    return customerName.value && email.value && cls.value && contact.value && phone.value;
+    return pcName.value && cls.value && contact.value && phone.value;
 })
 
 
@@ -96,7 +109,7 @@ const formIsValid = computed(()=>{
     <v-row>
         <v-col cols="6">
             <v-label class="font-weight-medium mb-2">고객명</v-label><span class="require">*</span>
-            <v-text-field color="primary" v-model="customerName" variant="outlined" type="text" :rules="confirmName" required>
+            <v-text-field color="primary" v-model="pcName" variant="outlined" type="text" :rules="confirmName" required>
        
             </v-text-field>
         </v-col>
@@ -129,8 +142,7 @@ const formIsValid = computed(()=>{
 
         <v-col cols="6">
             <v-label class="font-weight-medium mb-2">가망등급</v-label>
-            <v-text-field color="primary" v-model="position" variant="outlined" type="text"  hide-details>
-            </v-text-field>
+            <v-select v-model="grade" :items="grades" single-line variant="outlined" ></v-select>
         </v-col>
 
         <v-col cols="6">
@@ -145,8 +157,8 @@ const formIsValid = computed(()=>{
             </v-text-field>
         </v-col>
         <v-col cols="6">
-            <v-label class="font-weight-medium mb-2">이메일</v-label><span class="require">*</span>
-            <v-text-field color="primary" v-model="email" variant="outlined" type="email" required :rules="confirmEmail"/>
+            <v-label class="font-weight-medium mb-2">이메일</v-label>
+            <v-text-field color="primary" v-model="email" variant="outlined" type="email"/>
         </v-col>
 
         <v-col cols="6">

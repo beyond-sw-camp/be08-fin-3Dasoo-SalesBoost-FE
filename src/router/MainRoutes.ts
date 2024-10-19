@@ -524,14 +524,14 @@ const MainRoutes = {
           },
 
           { // 잠재고객
-            name: 'pCusomer',
+            name: 'pCustomer',
             path: '/sales/prospect',
             component: ()=> import('@/views/apps/pCustomer/pCustomer.vue')
             },
 
           { // 잠재고객 등록
-            name: "pCustomer",
-            path: "/sales/pcustomer-add",
+            name: "pCustomerAdd",
+            path: "/sales/prospect/add",
             component: ()=> import("@/views/apps/pCustomer/pCustomerAdd.vue")
           },
 
