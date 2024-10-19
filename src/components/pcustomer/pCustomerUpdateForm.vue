@@ -29,8 +29,37 @@ onMounted(()=>{
     getCustomerInfoAPI(route.params.id);
 })
 const updatePCustomer = ()=>{
-  //  updatePCustomerAPI();
-  alert('해당 서비스는 오픈 예정입니다.');
+    if(confirm("고객정보를 수정하시겠습니까?")){
+        updatePCustomerAPI(route.params.id);
+    }
+}
+
+const updatePCustomerAPI=async(id: string | string[])=>{
+    try{
+        const res = await api.patch(`/pcustomers/${id}`,{
+            name:pcName.value?pcName.value:"",  // 필수
+            company:company.value?company.value:null,
+            dept:dept.value?dept.value:null,
+            position:position.value?position.value:null,
+            cls:cls.value?cls.value:"", // 필수
+            contactStatus:contact.value?contact.value:null, // 필수
+            grade:grade.value?grade.value:null,
+            phone:phone.value?phone.value:"", // 필수
+            tel:tel.value?tel.value:null,
+            email:email.value?email.value:null,
+            fax:fax.value? fax.value:null,
+            addr:address.value?address.value:null,
+            note:note.value?note.value:null,
+        });
+        console.log(res.data);
+        if(res.data.code==200){
+            alert(res.data.result);
+            getCustomerInfoAPI(route.params.id);
+        }
+    }catch(err){
+        console.log(`[ERROR 몌세지] : ${err}`);
+    }
+
 }
 
 const getCustomerInfoAPI = async(id: string | string[])=>{
@@ -165,7 +194,7 @@ onMounted(()=>{
     </v-row>
     <div class="d-flex gap-3 mt-5 justify-content flex-column flex-wrap flex-xl-nowrap flex-sm-row fill-height"> 
             <v-btn color="info" variant="outlined" to="/sales/prospect">목록</v-btn>
-            <v-btn color="primary" variant="outlined" @click="updateCustomer" :disabled="!formIsValid">고객 정보 수정</v-btn>
+            <v-btn color="primary" variant="outlined" @click="updatePCustomer" :disabled="!formIsValid">고객 정보 수정</v-btn>
     </div>   
 </template>
 <style scoped>
