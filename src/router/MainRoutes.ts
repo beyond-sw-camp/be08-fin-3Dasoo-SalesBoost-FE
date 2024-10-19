@@ -516,7 +516,7 @@ const MainRoutes = {
             component: () => import("@/views/apps/customer/CustomerAdd.vue"),
           },
 
-          { // 고객 조회 및 수정
+          { // 고객 상세 조회 및 수정
             name: "CustomerDetail",
             path: "/sales/customer-detail/:id",
             component: () => import("@/views/apps/customer/CustomerDetail.vue"),
@@ -535,6 +535,13 @@ const MainRoutes = {
             component: ()=> import("@/views/apps/pCustomer/pCustomerAdd.vue")
           },
 
+          { // 잠재고객 상세 조회 및 수정
+            name: "pCustomerDetail",
+            path: "/sales/prospect/:id",
+            component: ()=> import("@/views/apps/pCustomer/pCustomerDetail.vue")
+          },
+
+   
           { // 부서
             name: "Department",
             path: "/sales/departments",
