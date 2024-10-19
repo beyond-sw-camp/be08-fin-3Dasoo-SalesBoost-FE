@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { useTheme } from 'vuetify';
-import api from '@/api/axiosinterceptor';
+import { ref } from 'vue';
 import ChatUserActRatio from './ActChatUserRatio.vue';
 import ActChartCount from './ActChartCount.vue';
 
-// common components
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
+import ActChartClsCount from './ActChartClsCount.vue';
 
 const page = ref({ title: 'Chart' });
 const breadcrumbs = ref([
@@ -27,12 +25,18 @@ const breadcrumbs = ref([
                     </UiParentCard>
                 </v-col>
             
-            <v-col cols="12">
+                <v-col cols="12">
                     <!-- AREA Chart -->
                     <UiParentCard title="월별 영업활동 추이">
                       <ActChartCount/>
                     </UiParentCard>
                 </v-col>
-        </v-col>
+                <v-col cols="12">
+                    <!-- Colunm Chart -->
+                    <UiParentCard title="활동 분류별 집계">
+                      <ActChartClsCount/>
+                    </UiParentCard>
+                </v-col>
+            </v-col>
     </v-row>
 </template>
