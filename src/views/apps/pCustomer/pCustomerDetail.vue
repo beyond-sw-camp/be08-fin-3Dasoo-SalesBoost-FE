@@ -14,16 +14,17 @@ const page = ref({ title: '고객 정보' });
 const dialog=ref(false);
 
 const openHistoryModal = ()=>{
-     console.log('click')
-     dialog.value = true // 모달 열기
-
+     dialog.value = true // 접촉이력 창 열기
 }
 
 const closeHistoryModal = ()=>{
-     dialog.value = false; // 모달 닫기
+     dialog.value = false; // 접촉이력 창 닫기
 }
 const saveHistory = ()=>{
-     // api 로 데이터 저장. -> 얘는 하위 컴포넌트에서?
+     // api 로 데이터 저장
+     console.log('부모 컴포넌트 호출함');
+     // 모달창 닫음
+     dialog.value = false;
 }
 </script>
 
