@@ -15,3 +15,11 @@ export const actStatus = {
   '견적': 'ESTIMATE',
   '제안': 'PROPOSAL'
 };
+
+export const categoryMapping = {
+  'OTHER': '기타',
+  'VISIT': '방문',
+  'PHONE': '전화',
+  'EMAIL': '이메일',
+  'ONLINE': '온라인'
+};

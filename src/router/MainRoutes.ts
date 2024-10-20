@@ -186,6 +186,11 @@ const MainRoutes = {
             component: () => import('@/views/apps/calendar/act/ActList.vue')
         },
         {
+            name: 'ActChart',
+            path: '/apps/chart/act',
+            component: () => import('@/views/apps/sbChart/ActChart.vue')
+        },
+        {
             name: 'Kanban',
             path: '/apps/kanban',
             component: () => import('@/views/apps/kanban/Kanban.vue')
