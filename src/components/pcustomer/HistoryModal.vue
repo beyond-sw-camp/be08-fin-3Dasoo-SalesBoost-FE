@@ -30,7 +30,7 @@ const formIsValid = computed(()=>{
 
 const saveHistory = ()=>{
  
-  if(formIsValid){
+  if(formIsValid.value){
     saveHistoryAPI(route.params.id);
     
   }else{
