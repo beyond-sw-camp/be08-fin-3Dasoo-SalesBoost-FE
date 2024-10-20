@@ -575,6 +575,13 @@ const MainRoutes = {
             component: () => import("@/views/apps/process/Process.vue"),
             props:true
           },
+          
+          { // 목표 매출
+            name: "TargetSale",
+            path: "/sales/targetsales",
+            component: () => import("@/views/apps/targetSale/TargetSale.vue"),
+            props:true
+          },
 
         {
             name: 'Material',
