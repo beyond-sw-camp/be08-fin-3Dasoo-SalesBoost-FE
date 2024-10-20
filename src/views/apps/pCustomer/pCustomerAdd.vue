@@ -24,7 +24,7 @@ const addHistory = ()=>{
           </pCustomerAddCard>
 
      </v-row>
-     <v-row>
+     <!-- <v-row>
           <pCustomerHistoryCard>
                <div class="history_container">
                     <div>이력 (1)</div>
@@ -49,7 +49,7 @@ const addHistory = ()=>{
                </v-col>
           </pCustomerHistoryCard>
 
-     </v-row>
+     </v-row> -->
 </template>
 <style lang="scss" scoped>
 .history_container {

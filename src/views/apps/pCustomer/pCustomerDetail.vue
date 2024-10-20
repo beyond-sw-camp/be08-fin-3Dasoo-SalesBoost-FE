@@ -1,19 +1,62 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref , computed} from 'vue';
 // common components
 
 //Components
 import CustomerAddCard from '@/components/customer/CustomerAddCard.vue';
 import pCustomerHistoryCard from '@/components/pcustomer/pCustomerHistoryCard.vue';
 import pCustomerUpdateForm from '@/components/pcustomer/pCustomerUpdateForm.vue';
+import HistoryModal from '@/components/pcustomer/HistoryModal.vue';
+import { useRoute } from 'vue-router';
+import api from '@/api/axiosinterceptor';
 
-/*tab*/
-const tab = ref(null);
 
-const page = ref({ title: '고객 정보' });
-const addHistory = ()=>{
-     
+interface History {
+  id: number;
+  contactDate: string;
+  cls: string;
+  content: string;
+  userName:string;
 }
+
+onMounted(()=>{
+     getHistorysAPI(route.params.id);
+});
+const dataSize = computed(()=> historys.value.length);
+const route = useRoute();
+const tab = ref(null);
+const page = ref({ title: '고객 정보' });
+const dialog=ref(false);
+const historys = ref<History[]>([]);
+
+const openHistoryModal = ()=>{
+     dialog.value = true // 접촉이력 창 열기
+}
+
+const closeHistoryModal = ()=>{
+     dialog.value = false; // 접촉이력 창 닫기
+}
+const saveHistory = ()=>{
+     // 모달창 닫음
+     dialog.value = false;
+     getHistorysAPI(route.params.id);
+}
+
+const getHistorysAPI=async(id: string | string[])=>{
+     try{
+          const response = await api.get(`/pcustomers/${id}/history`);
+
+          console.log(response);
+          if(response.data.code != 200){
+               alert(response.data.message);
+          }else{
+               historys.value = response.data.result;
+          }
+     }catch(err){
+          console.log(`[ERROR 몌세지] : ${err}`);
+     }
+}
+
 </script>
 
 <template>
@@ -22,32 +65,27 @@ const addHistory = ()=>{
              <pCustomerUpdateForm/>
         </CustomerAddCard>        
                             
-   </v-row>           
+   </v-row>
+
+   <!-- todo : Refactoring : 컴포넌트로 분리 -->           
    <v-row>
           <pCustomerHistoryCard>
                <div class="history_container">
-                    <div>이력 (1)</div>
-                    <div class="history_plus" @click="addHistory"><v-icon color="error" icon="$plus" size="x-large" /></div>
+                    <div>접촉 이력 ({{ dataSize }})</div>
+                    <div class="history_plus" @click="openHistoryModal"><v-icon color="error" icon="$plus" size="x-large" /></div>
                </div>
                <hr class="divider">
                </hr>
 
-               <v-col cols="12">
+               <v-col cols="12" v-for="history in historys" :key="history.id">
                    <div>
-                    <div>2024.10.23 (방문) - 삼다수</div>
+                    <div>{{ history.contactDate }} ({{ history.cls }}) - {{ history.userName }}</div>
                     <hr/>
-                    <div>오후 2시 방문 예정</div>
-                   </div>
-               </v-col>
-               <v-col cols="12">
-                   <div>
-                    <div>2024.10.23 (메일) - 삼다수</div>
-                    <hr/>
-                    <div>상담 날짜 약속을 위한 메일</div>
+                    <div>{{ history.content }}</div>
                    </div>
                </v-col>
           </pCustomerHistoryCard>
-
+          <HistoryModal :dialog="dialog" @update:dialog="dialog=$event" @close="closeHistoryModal" @save="saveHistory"/>
      </v-row>
 </template>
 <style lang="scss" scoped>
