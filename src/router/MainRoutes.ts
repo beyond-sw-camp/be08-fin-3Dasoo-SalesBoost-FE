@@ -17,11 +17,21 @@ const MainRoutes = {
             path: '/sales/main',
             component: () => import('@/views/sales/Main.vue')
         },
-        // {
-        //     name: 'SalesContact',
-        //     path: '/sales/contact',
-        //     component: () => import('@/views/sales/Contact.vue')
-        // },
+        {
+            name: 'LeadMain',
+            path: '/sales/lead',
+            component: () => import('@/views/apps/lead/Lead.vue')
+        },
+        {
+            name: 'LeadNew',
+            path: '/sales/lead/new',
+            component: () => import('@/views/apps/lead/LeadNew.vue')
+        },
+        {
+            name: 'LeadDetail',
+            path: '/sales/lead/detail/:no',
+            component: () => import('@/views/apps/lead/LeadDetail.vue')
+        },
         {
             name: 'SalesNotice',
             path: '/sales/notice',
@@ -381,21 +391,21 @@ const MainRoutes = {
             path: '/forms/editor',
             component: () => import('@/views/forms/plugins/editor/Editor.vue')
         },
-            {
-                name: 'ProposalList',
-                path: '/proposals',
-                component: () => import('@/components/proposal/ProposalList.vue'),
-            },
-            {
-                name: 'EstimateList',
-                path: '/estimates',
-                component: () => import('@/components/estimate/EstimateList.vue'),
-            },
-            {
-                name: 'CreateEstimate',
-                path: '/estimates/create',
-                component: () => import('@/components/estimate/CreateEstimate.vue'),
-            },
+        {
+            name: 'ProposalList',
+            path: '/proposals',
+            component: () => import('@/components/proposal/ProposalList.vue')
+        },
+        {
+            name: 'EstimateList',
+            path: '/estimates',
+            component: () => import('@/components/estimate/EstimateList.vue')
+        },
+        {
+            name: 'CreateEstimate',
+            path: '/estimates/create',
+            component: () => import('@/components/estimate/CreateEstimate.vue')
+        },
         {
             name: 'Gallery Lightbox',
             path: '/pages/gallery-lightbox',
@@ -492,18 +502,17 @@ const MainRoutes = {
             component: () => import('@/views/tables/datatables/CrudTable.vue')
         },
         {
-            name: "Material",
-            path: "/icons/material",
-            component: () => import("@/views/icons/MaterialIcons.vue"),
-          },
-          {
-            name: "Tabler",
-            path: "/icons/tabler",
-            component: () => import("@/views/icons/TablerIcons.vue"),
-          },
+            name: 'Material',
+            path: '/icons/material',
+            component: () => import('@/views/icons/MaterialIcons.vue')
+        },
+        {
+            name: 'Tabler',
+            path: '/icons/tabler',
+            component: () => import('@/views/icons/TablerIcons.vue')
+        },
 
-          // -------- 추가 by kuk329 ------------
-
+        // -------- 추가 by kuk329 ------------
       
           { // 고객
             name: "Customer",
@@ -561,8 +570,8 @@ const MainRoutes = {
             component: () => import("@/views/apps/process/Process.vue"),
             props:true
           },
-          
-          {
+
+        {
             name: 'Material',
             path: '/icons/material',
             component: () => import('@/views/icons/MaterialIcons.vue')

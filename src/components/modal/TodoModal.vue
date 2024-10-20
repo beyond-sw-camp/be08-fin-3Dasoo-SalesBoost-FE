@@ -27,7 +27,7 @@
 							<v-select v-model="todo.status" :items="statusOptions" label="상태*" :rules="[v => !!v || '상태를 선택하세요.']" required></v-select>
 						</v-col>
 						<v-col cols="12">
-							<v-switch color="primary" v-model="todo.privateYn" label="나만보기 여부"></v-switch>
+							<v-switch color="primary" v-model="isPrivate" label="나만보기 여부"></v-switch>
 						</v-col>
 						<v-col cols="12">
 							<v-text-field v-model="todo.content" label="내용"></v-text-field>
@@ -52,6 +52,7 @@
 <script>
 import '@/views/apps/calendar/calendar.css'
 import ConfirmDialogs from './ConfirmDialogs.vue';
+import api from '@/api/axiosinterceptor';
 
 export default {
 	components: {
@@ -75,24 +76,61 @@ export default {
 			showConfirmDialogs: false,
 			alertMessage: '',
 			alertType: '',
+			isPrivate: this.todo.privateYn === 'Y',
 		};
 	},
+	watch: {
+		isPrivate(newValue) {
+			this.todo.privateYn = newValue ? 'Y' : 'N';
+		},
+		'todo.privateYn': {
+			handler(newValue) {
+				this.isPrivate = newValue === 'Y';
+			},
+			immediate: true,
+		},
+	},
 	methods: {
+    validateTodo() {
+      if (!this.todo.title || !this.todo.todoCls || !this.todo.priority || !this.todo.dueDate || !this.todo.status) {
+        this.showAlert = true;
+        this.alertMessage = '필수 필드를 입력해주세요';
+        setTimeout(() => {
+          this.showAlert = false;
+        }, 2000);
+        return false;
+      }
+      return true;
+    },
 
 		addTodo() {
-      if (!this.todo.title || !this.todo.todoCls || !this.todo.priority || !this.todo.dueDate || !this.todo.status) {
-					this.showAlert = true;
-					this.alertMessage = '필수 필드를 입력해주세요'
-				setTimeout(() => {
-					this.showAlert = false;
-				}, 2000);
-				return;
+      if (!this.validateTodo()) {
+        return;
 			}else{
 					this.$emit('show-alert', {
 						message: '저장이 완료되었습니다.',
 						type: 'success',
 					});
 					this.$emit('add');
+			}
+		},
+		async updateTodo() {
+			if (!this.validateTodo()) {
+				return;
+			}
+
+			try {
+				const response = await api.patch(`/todos/${this.todo.todoNo}`, this.todo);
+				const updatedTodo = response.data.result;
+
+				this.$emit('update', updatedTodo);
+				this.$emit('show-alert', {
+					message: '수정이 완료되었습니다.',
+					type: 'success',
+				});
+				this.closeModal();
+			} catch (e) {
+				console.error(e);
 			}
 		},
 		deleteTodo(){
