@@ -36,7 +36,7 @@ const updatePCustomer = ()=>{
 
 const updatePCustomerAPI=async(id: string | string[])=>{
     try{
-        const res = await api.patch(`/pcustomers/${id}`,{
+        const response = await api.patch(`/pcustomers/${id}`,{
             name:pcName.value?pcName.value:"",  // 필수
             company:company.value?company.value:null,
             dept:dept.value?dept.value:null,
@@ -51,9 +51,9 @@ const updatePCustomerAPI=async(id: string | string[])=>{
             addr:address.value?address.value:null,
             note:note.value?note.value:null,
         });
-        console.log(res.data);
-        if(res.data.code==200){
-            alert(res.data.result);
+        console.log(response.data);
+        if(response.data.result.code ==200){
+            alert(response.data.result);
             getCustomerInfoAPI(route.params.id);
         }
     }catch(err){
