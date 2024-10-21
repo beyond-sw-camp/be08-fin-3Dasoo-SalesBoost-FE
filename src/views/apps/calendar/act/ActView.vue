@@ -11,16 +11,55 @@
     </div>
     <v-row justify="end">
       <v-col cols="12" lg="12" offset-md="1">
-          <v-label class="mb-2 font-weight-medium">영업기회</v-label>
-          <v-form ref="form" v-model="valid" @submit.prevent="submitForm">
-            <v-text-field
-              v-model="act.leadNo"
-              outlined
-              :rules="[v => !!v || '영업기회를 입력하세요.']"
-              required
-            ></v-text-field>
+        <v-form ref="form" v-model="valid" @submit.prevent="submitForm">
 
-            <v-label class="mb-2 font-weight-medium">활동명</v-label>
+          <div class="mb-4">
+            <v-label class="custom-label">영업기회</v-label>
+            <v-btn v-if="!isEditMode" @click="showLeadsModal = true" class="cus-btn">
+              <v-icon small>mdi-plus</v-icon>영업기회 가져오기
+            </v-btn>
+
+            <v-text-field class="mt-4"
+              v-model="act.leadName"
+              label="관련 영업기회"
+              outlined
+              readonly
+              :disabled="isEditMode"
+            ></v-text-field>
+          </div>
+
+          <v-dialog v-model="showLeadsModal" width="500">
+            <v-card>
+              <v-card-title class="headline">영업기회 목록</v-card-title>
+              <v-card-text>
+                <perfect-scrollbar style="max-height: 250px">
+                  <v-list shaped>
+                    <v-list-item
+                      v-for="(lead, index) in leads"
+                      :key="lead.leadNo"
+                      @click="selectLead(lead)"
+                      class="hover:bg-primary-light list-item-spacing"
+                    >
+                      <v-list-item-content>
+                        <v-list-item-title class="list-item-title">
+                          <v-icon small class="mr-2">mdi-check</v-icon>
+                          {{ lead.name }}
+                        </v-list-item-title>
+                        <v-list-item-subtitle class="note-text">
+                          {{ lead.note }}
+                        </v-list-item-subtitle>
+                      </v-list-item-content>
+                    </v-list-item>
+                  </v-list>
+                </perfect-scrollbar>
+              </v-card-text>
+              <v-card-actions>
+                <v-btn text @click="showLeadsModal = false">닫기</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
+            <v-label class="custom-label">활동명</v-label>
             <v-text-field
               v-model="act.name"
               outlined
@@ -28,7 +67,7 @@
               required
             ></v-text-field>
 
-            <v-label class="mb-2 font-weight-medium">활동분류</v-label>
+            <v-label class="custom-label">활동분류</v-label>
             <v-select
               v-model="act.cls"
               :items="actStatusOptions"
@@ -37,7 +76,7 @@
               required
             ></v-select>
 
-            <v-label class="mb-2 font-weight-medium">활동목적</v-label>
+            <v-label class="custom-label">활동목적</v-label>
             <v-text-field
               v-model="act.purpose"
               outlined
@@ -45,7 +84,7 @@
               required
             ></v-text-field>
 
-            <v-label class="mb-2 font-weight-medium">활동일자</v-label>
+            <v-label class="custom-label">활동일자</v-label>
             <v-text-field
               v-model="act.actDate"
               type="date"
@@ -56,7 +95,7 @@
 
             <v-row>
               <v-col>
-                <v-label class="mb-2 font-weight-medium">시작 시간</v-label>
+                <v-label class="custom-label">시작 시간</v-label>
                 <v-select 
                   v-model="act.startTime" 
                   :items="timeOptions"
@@ -66,7 +105,7 @@
                 ></v-select>
               </v-col>
               <v-col>
-                <v-label class="mb-2 font-weight-medium">종료 시간</v-label>
+                <v-label class="custom-label">종료 시간</v-label>
                 <v-select 
                   v-model="act.endTime" 
                   :items="timeOptions"
@@ -78,26 +117,27 @@
             </v-row>
 
             <v-col cols="12" md="3" sm="6">
-              <v-label class="mb-2 font-weight-medium">완료 여부</v-label>
-                <v-switch v-model="act.completeYn" hide-details color="primary" inset></v-switch>
+              <v-label class="custom-label">완료 여부</v-label>
+                <v-switch v-model="isComplete" hide-details color="primary" inset></v-switch>
             </v-col>
 
             <v-textarea label="계획내용" v-model="act.planContent" outlined></v-textarea>
             <v-textarea label="활동내용" v-model="act.actContent" outlined></v-textarea>
 
             <v-btn :loading="loading" color="primary" type="submit">저장</v-btn>
+            <v-btn class="ml-2" variant="outlined" color="primary" @click="goToList">목록으로 돌아가기</v-btn>
           </v-form>
       </v-col>
     </v-row>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { ref, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import baseApi from '@/api/baseapi';
 import api from '@/api/axiosinterceptor';
 import { reverseActStatus, actStatus } from '@/utils/ActStatusMappings';
+import './Act.css'
 
 export default {
   props: {
@@ -116,8 +156,12 @@ export default {
     const showSuccessAlert = ref(false);  // 성공 알림 상태
     const alertMessage = ref('');  // 알림 메시지
     const alertType = ref('');  // 알림 타입
+    const showLeadsModal = ref(false);
+    const leads = ref([]);
+    const isEditMode = ref(false);
+    const isComplete = ref(false);
     const act = ref({
-      leadNo: 1, 
+      leadNo: null,
       name: '',
       cls: '',
       purpose: '',
@@ -129,6 +173,34 @@ export default {
       actContent: ''
     });
 
+    onMounted(() => {
+      const actNo = route.params.actNo; // actNo가 있으면 수정 모드로 간주
+      isEditMode.value = !!actNo; // actNo가 있으면 true, 없으면 false
+    });
+    const selectLead = (lead) => {
+      act.value.leadNo = lead.leadNo;
+      act.value.leadName = lead.name;
+      act.value.leadNote = lead.note;
+      showLeadsModal.value = false;
+    };
+
+    const fetchLeads = async () => {
+      try {
+        const response = await api.get('/leads');
+        if (response.data.code === 200) {
+          leads.value = response.data.result.map((lead) => ({
+            leadNo: lead.leadNo.toString(),
+            name: lead.name,
+            note: lead.note
+          }));
+        }
+      } catch (error) {
+        console.error('영업기회 목록 불러오기 실패:', error);
+      }
+    };
+
+    onMounted(fetchLeads);
+
     const actNo = route.params.actNo;
 
     const fetchActDetails = async () => {
@@ -137,6 +209,7 @@ export default {
         if (response.data.code === 200) {
           const actData = response.data.result;
           act.value = { ...actData, cls: props.cls || actData.cls };
+          isComplete.value = act.value.completeYn === 'Y'; // 스위치 상태 설정
         }
       } catch (error) {
         console.error(error);
@@ -177,7 +250,7 @@ export default {
             completeYn: act.value.completeYn ? "Y" : "N", 
             planContent: act.value.planContent,
             actContent: act.value.actContent,
-            calendarNo: 1, // TODO: 유저 캘린더 번호로 설정 필요
+            calendarNo: act.value.calendarNo,
           });
 
           if (response.data.code === 200 || response.data.code === 201) {
@@ -212,6 +285,14 @@ export default {
       }
     };
 
+    const goToList = () => {
+      router.push('/apps/act/list');
+    };
+
+    watch(isComplete, (newVal) => {
+      act.value.completeYn = newVal ? 'Y' : 'N';
+    });
+
     return {
       form,
       valid,
@@ -223,26 +304,14 @@ export default {
       showSuccessAlert,
       alertMessage,
       alertType,
-      submitForm
+      submitForm,
+      leads,
+      showLeadsModal,
+      selectLead,
+      goToList,
+      isEditMode,
+      isComplete
     };
   }
 };
 </script>
-
-<style scoped>
-
-.form-container {
-  position: absolute;
-  right: 0;
-  width: 80%;
-  padding: 20px;
-  border-radius: 8px;
-}
-
-.alert {
-  position: fixed;
-  top: 10%;
-  right: 20px;
-  z-index: 999;
-}
-</style>
