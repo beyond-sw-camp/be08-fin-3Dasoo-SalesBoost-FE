@@ -11,6 +11,7 @@ import { useCalendarStore } from '@/stores/apps/calendar/calendar';
 import baseApi from '@/api/baseapi';
 import api from '@/api/axiosinterceptor';
 import { reverseActStatus, actStatus } from '@/utils/ActStatusMappings';
+import {planClsMapping, reversePlanCls} from '@/utils/PlanMappings'
 import axios from 'axios';
 
 export default defineComponent({
@@ -211,8 +212,8 @@ export default defineComponent({
       }
       this.showAlert = false;
       const setPersonalYn = {
-        ...plan,
-        personalYn: plan.personalYn ? 'Y' : 'N',
+        ...this.plan,
+        personalYn: this.plan.personalYn ? 'Y' : 'N',
       };
       try {
         const response = await api.post('/plans', setPersonalYn);
@@ -288,6 +289,8 @@ export default defineComponent({
         endTime: '',
         personalYn: 'N',
         content: '',
+				title: '',
+				note: '',
       };
     },
   // 클릭 이벤트
@@ -309,7 +312,7 @@ export default defineComponent({
           this.plan = {          
             calendarNo: planDetails.calendarNo,          
             title: planDetails.title,
-            planCls: planDetails.planCls,
+            planCls: reversePlanCls[planDetails.planCls],
             planDate: planDetails.planDate,          
             startTime: planDetails.startTime,          
             endTime: planDetails.endTime,         
