@@ -33,7 +33,6 @@ onMounted(()=>{
 
 const fetchCustomers=async()=>{
     try{
-       // const res = await axios.get('http://localhost:8080/api/customers');
         const res = await api.get('/customers');
         if(res.data.code==200) {
             console.log(res.data.result);

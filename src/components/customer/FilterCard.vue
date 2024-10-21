@@ -3,7 +3,8 @@
         <v-row class="select_row">
             <h1 class="title">검색조건</h1>
             <v-col cols="12" class="select_col">
-                    <v-combobox class="combo" v-model="select" :items="items" hide-details label="조건선택" multiple chips></v-combobox>
+                <v-select v-model="selectedItem" :items="items" single-line variant="outlined" hide-details placeholder="검색조건"></v-select>
+                    <!-- <v-combobox class="combo" v-model="select" :items="items" hide-details label="조건선택" multiple chips></v-combobox> -->
             </v-col>
 
             <v-col cols=12>
@@ -20,7 +21,7 @@
                 </v-text-field>
             </v-col>
             <v-col cols="12">
-                <v-btn class="search_btn" variant="flat" color="primary">검색</v-btn>
+                <v-btn class="search_btn" variant="flat" color="primary" @click="search">검색</v-btn>
             </v-col>
             
         </v-row>
@@ -28,11 +29,14 @@
 </template>
 
 <script setup>
+import api from '@/api/axiosinterceptor';
 import {ref, watch} from 'vue';
 
-const select = ref([])
-const selectedKey = ref(["키맨(전체)"]);
-const selectKey = ['키맨(전체)','키맨','키맨아님'];
+const selectedItem = ref();
+const searchQuery = ref(''); // 검색어
+const personInCharge = ref(''); // 담당자
+const selectedKey = ref(["전체"]); // 키맨 여부 선택
+const selectKey = ['전체','키맨','키맨아님'];
 
 const items = [
   '고객사명',
@@ -53,6 +57,20 @@ const items = [
 //     console.log(`선택값 변경 : ${select.value}`)
 // })
 
+const search = ()=>{
+
+    sendQueryAPI();
+
+}
+
+const sendQueryAPI = async()=>{
+    try{
+        const response = await api.post('/customer')
+
+    }catch(err){
+        console.log(`[ERROR 몌세지] : ${err}`);
+    }
+}
 
 
 </script>
