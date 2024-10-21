@@ -50,7 +50,7 @@ export default defineComponent({
         planDate: '',
         startTime: '',
         endTime: '',
-        personalYn: 'N',
+        personalYn: 'Y',
         content: '',
       },
       calendarOptions: {

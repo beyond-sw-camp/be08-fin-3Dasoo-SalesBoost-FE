@@ -143,7 +143,7 @@ export default {
 			timeOptions: this.generateTimeOptions(), 
 			planClsOptions: ['개인', '전사', '제안', '견적', '매출', '계약'],
 			planCls: '',
-			personalYn: this.plan.personalYn === 'Y',
+			isPersonal: this.plan.personalYn === 'Y',
 			planDetails: {
 				title: '',
 				note: '',
@@ -159,7 +159,7 @@ export default {
 		};
 	},
 	watch: {
-		isPrivate(newValue) {
+		isPersonal(newValue) {
 			this.plan.personalYn = newValue ? 'Y' : 'N';
 		},
 		'plan.personalYn': {
