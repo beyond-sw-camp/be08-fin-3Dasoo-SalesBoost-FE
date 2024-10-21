@@ -82,6 +82,7 @@
 			<v-card>
 				<v-card-title class="headline">{{ dynamicCardTitle}}</v-card-title>
 				<v-card-text>
+					<perfect-scrollbar style="max-height: 300px">
 					<v-list>
 						<v-list-item
 							v-for="(item, index) in domainList"
@@ -96,6 +97,7 @@
 							</v-list-item-content>
 						</v-list-item>
 					</v-list>
+				</perfect-scrollbar>
 				</v-card-text>
 				<v-card-actions>
 					<v-spacer></v-spacer>
