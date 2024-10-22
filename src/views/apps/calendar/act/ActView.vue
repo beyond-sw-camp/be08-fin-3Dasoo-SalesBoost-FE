@@ -120,13 +120,16 @@
               <v-label class="custom-label">완료 여부</v-label>
                 <v-switch v-model="isComplete" hide-details color="primary" inset></v-switch>
             </v-col>
-
+            <ConfirmDialogs :dialog="showConfirmDialogs" @update:dialog="(val) => showConfirmDialogs = val" @agree="confirmDelete" @disagree="cancleDelete" />
             <v-textarea label="계획내용" v-model="act.planContent" outlined></v-textarea>
             <v-textarea label="활동내용" v-model="act.actContent" outlined></v-textarea>
 
-            <v-btn :loading="loading" color="primary" type="submit">저장</v-btn>
+            <v-btn v-if="isEditMode" class="mr-2" color="primary" @click="updateAct" variant="flat">수정</v-btn>
+            <v-btn v-else-if="!isEditMode" :loading="loading" color="primary" type="submit">저장</v-btn>
+            <v-btn v-if="isEditMode" color="error" variant="flat" @click="deleteAct" flat>삭제</v-btn>
             <v-btn class="ml-2" variant="outlined" color="primary" @click="goToList">목록으로 돌아가기</v-btn>
-          </v-form>
+          </v-form>            
+
       </v-col>
     </v-row>
 </template>
@@ -134,28 +137,32 @@
 <script>
 import { ref, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import baseApi from '@/api/baseapi';
 import api from '@/api/axiosinterceptor';
-import { reverseActStatus, actStatus } from '@/utils/ActStatusMappings';
+import { actStatus } from '@/utils/ActStatusMappings';
+import ConfirmDialogs from '@/components/modal/ConfirmDialogs.vue';
 import './Act.css'
 
 export default {
+	components: {
+		ConfirmDialogs,
+	},
   props: {
     cls: {
       type: String,
       default: ''
     }
   },
-  setup(props) {
+  setup(props,{ emit }) {
     const router = useRouter();
     const route = useRoute();
     const valid = ref(false);
     const form = ref(null);
     const loading = ref(false);
-    const showAlert = ref(false);  // 경고 알림 상태
-    const showSuccessAlert = ref(false);  // 성공 알림 상태
-    const alertMessage = ref('');  // 알림 메시지
-    const alertType = ref('');  // 알림 타입
+    const showConfirmDialogs = ref(false);
+    const showAlert = ref(false);
+    const showSuccessAlert = ref(false);
+    const alertMessage = ref('');
+    const alertType = ref('');
     const showLeadsModal = ref(false);
     const leads = ref([]);
     const isEditMode = ref(false);
@@ -176,6 +183,7 @@ export default {
     onMounted(() => {
       const actNo = route.params.actNo; // actNo가 있으면 수정 모드로 간주
       isEditMode.value = !!actNo; // actNo가 있으면 true, 없으면 false
+      console.log('isEditMode',isEditMode.value)
     });
     const selectLead = (lead) => {
       act.value.leadNo = lead.leadNo;
@@ -209,7 +217,7 @@ export default {
         if (response.data.code === 200) {
           const actData = response.data.result;
           act.value = { ...actData, cls: props.cls || actData.cls };
-          isComplete.value = act.value.completeYn === 'Y'; // 스위치 상태 설정
+          isComplete.value = act.value.completeYn === 'Y';
         }
       } catch (error) {
         console.error(error);
@@ -284,9 +292,70 @@ export default {
         }, 2000);
       }
     };
+    
+    const updateAct = async () => {
+			try {
+				const response = await api.patch(`/acts/${actNo}`, {
+            leadNo: act.value.leadNo,
+            name: act.value.name,
+            cls: actStatus[act.value.cls],
+            purpose: act.value.purpose,
+            actDate: act.value.actDate,
+            startTime: act.value.startTime,
+            endTime: act.value.endTime,
+            completeYn: act.value.completeYn, 
+            planContent: act.value.planContent,
+            actContent: act.value.actContent,
+            calendarNo: act.value.calendarNo,
+          });
+
+				const updatedAct = response.data.result;
+
+				emit('update', updatedAct);
+        
+        alertMessage.value = '수정이 완료되었습니다.';
+        alertType.value = 'success';
+        showSuccessAlert.value = true;
+        setTimeout(() => {
+          showAlert.value = false;
+        router.push('/apps/act/list');
+        }, 2000);
+			} catch (e) {
+				console.error(e);
+			}
+    };
 
     const goToList = () => {
       router.push('/apps/act/list');
+    };
+
+    const deleteAct = () => {
+      showConfirmDialogs.value = true;
+    };
+
+    const confirmDelete = async () => {
+      showConfirmDialogs.value = false;
+      const actNo = route.params.actNo;
+      try {
+        await api.delete(`/acts/${actNo}`);
+        alertMessage.value = '삭제가 완료되었습니다.';
+        showSuccessAlert.value = true;
+        setTimeout(() => {
+          showSuccessAlert.value = false;
+          router.push('/apps/act/list');
+        }, 2000);
+      } catch (e) {
+        console.error(e);
+        alertMessage.value = '삭제 실패!';
+        showAlert.value = true;
+        setTimeout(() => {
+          showAlert.value = false;
+        }, 2000);
+      }
+    };
+
+    const cancleDelete = () => {
+      showConfirmDialogs.value = false;
     };
 
     watch(isComplete, (newVal) => {
@@ -310,7 +379,12 @@ export default {
       selectLead,
       goToList,
       isEditMode,
-      isComplete
+      isComplete,
+      updateAct,
+      deleteAct,
+      confirmDelete,
+      cancleDelete,
+      showConfirmDialogs
     };
   }
 };
