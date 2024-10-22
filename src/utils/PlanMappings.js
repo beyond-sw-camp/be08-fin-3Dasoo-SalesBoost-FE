@@ -24,3 +24,12 @@ export const categoryColors = {
   'SALES': '#a4bbe1',
   'CONTRACT': '#a4cbe8'
 };
+
+export const categoryMapping = {
+  'PERSONAL': 'personal_plan',
+  'COMPANY': 'company_plan',
+  'PROPOSAL': 'proposal_plan',
+  'ESTIMATE': 'estimate_plan',
+  'SALES': 'sales_plan',
+  'CONTRACT': 'contract_plan'
+};
