@@ -8,10 +8,9 @@ import TodoModal from '@/components/modal/TodoModal.vue';
 import PlanModal from '@/components/modal/PlanModal.vue';
 import './calendar.css';
 import { useCalendarStore } from '@/stores/apps/calendar/calendar';
-import baseApi from '@/api/baseapi';
 import api from '@/api/axiosinterceptor';
 import { reverseActStatus, actStatus } from '@/utils/ActStatusMappings';
-import axios from 'axios';
+import {categoryMapping, reversePlanCls} from '@/utils/PlanMappings'
 
 export default defineComponent({
   components: {
@@ -49,8 +48,12 @@ export default defineComponent({
         planDate: '',
         startTime: '',
         endTime: '',
-        personalYn: 'N',
+        personalYn: 'Y',
         content: '',
+        planDetails : {
+          title: '',
+          note: '',
+        },
       },
       calendarOptions: {
         plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -139,14 +142,6 @@ export default defineComponent({
     }, 
 
   mapPlanClsToCategory(planCls) {
-    const categoryMapping = {
-      'PERSONAL': 'personal_plan',
-      'COMPANY': 'company_plan',
-      'PROPOSAL': 'proposal_plan',
-      'ESTIMATE': 'estimate_plan',
-      'SALES': 'sales_plan',
-      'CONTRACT': 'contract_plan'
-    };
     return categoryMapping[planCls] || 'plan'; 
   },
 
@@ -209,10 +204,11 @@ export default defineComponent({
         }, 2000);
         return;
       }
+      this.mode = 'add';
       this.showAlert = false;
       const setPersonalYn = {
-        ...plan,
-        personalYn: plan.personalYn ? 'Y' : 'N',
+        ...this.plan,
+        personalYn: this.plan.personalYn ? 'Y' : 'N',
       };
       try {
         const response = await api.post('/plans', setPersonalYn);
@@ -237,7 +233,6 @@ export default defineComponent({
   
   // 수정
   async updateTodo(updatedTodo) {
-
     const calendarApi = this.$refs.calendar.getApi();
     const event = calendarApi.getEventById(updatedTodo.todoNo);
 
@@ -247,6 +242,18 @@ export default defineComponent({
       event.setExtendedProp('todoCls', updatedTodo.todoCls);
       event.setExtendedProp('priority', updatedTodo.priority);
       event.setExtendedProp('status', updatedTodo.status);
+      }
+    },
+
+  async updatePlan(updatedPlan) {
+    console.log('updatedPlan.planNo',updatedPlan)
+    const calendarApi = this.$refs.calendar.getApi();
+    const event = calendarApi.getEventById(updatedPlan.planNo);
+
+    if (event) {
+      event.setProp('title', updatedPlan.title);
+      event.setStart(updatedPlan.dueDate);
+      event.setExtendedProp('planCls', updatedPlan.planCls);
       }
     },
   
@@ -279,8 +286,9 @@ export default defineComponent({
       };
     },
     clearPlanForm() {
-    this.plan = {
-        calendarNo: 2,
+      this.mode = 'add';
+      this.plan = {
+        calendarNo: 2,  // 기본 값 설정
         title: '',
         planCls: '',
         planDate: '',
@@ -289,6 +297,11 @@ export default defineComponent({
         personalYn: 'N',
         content: '',
       };
+      this.planDetails = {
+        title: '',
+        note: '',
+      };
+      this.isPersonal = false;
     },
   // 클릭 이벤트
     handleDateSelect(selectInfo) {
@@ -303,18 +316,21 @@ export default defineComponent({
       console.log('eventClassNames,', eventClassNames)
       if (eventClassNames.some(className => className.includes('plan'))) {
         this.AddPlanModal = true;
+        this.mode = 'edit';
         try {        
-          const response = await api.get(`/plans/${eventId}`);        
+          const response = await api.get(`/plans/${eventId}`);  
+          console.log('get',response)      
           const planDetails = response.data.result;
-          this.plan = {          
-            calendarNo: planDetails.calendarNo,          
+          this.plan = {     
+            planNo: planDetails.planNo,
+            calendarNo: planDetails.calendarNo,
             title: planDetails.title,
-            planCls: planDetails.planCls,
+            planCls: reversePlanCls[planDetails.planCls],
             planDate: planDetails.planDate,          
             startTime: planDetails.startTime,          
-            endTime: planDetails.endTime,         
-            personalYn: planDetails.personalYn,           
-            content: planDetails.content,        
+            endTime: planDetails.endTime,
+            personalYn: planDetails.personalYn,     
+            content: planDetails.content,
           };
           this.DetailPlanShow = false;
         } catch (e) {        
@@ -387,7 +403,25 @@ export default defineComponent({
       } catch (e) {
         console.error(e);
       }
-    }
+    },
+    async deletePlan(planToDelete) {
+      try {
+        await api.delete(`/plans/${planToDelete.planNo}`);
+        const calendarApi = this.$refs.calendar.getApi();
+        
+        const event = calendarApi.getEventById(planToDelete.planNo);
+        if (event) {
+          event.remove();
+        }
+        this.closePlanModal();
+        this.handleAlert({
+          message: '일정이 삭제되었습니다.',
+          type: 'success',
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    },
   },
   watch: {
     selectedOption(value) {
@@ -426,7 +460,9 @@ export default defineComponent({
         :todo="todo" :priorityOptions="priorityOptions" :statusOptions="statusOptions" :mode="mode"
         @close="closeTodoModal" @add="addTodo" @delete="deleteTodo" @update="updateTodo" @show-alert="handleAlert"
       />
-      <PlanModal v-model="AddPlanModal" :plan="plan" :planClsOptions="planClsOptions" :statusOptions="statusOptions" @close="closePlanModal" @add="addPlan" @show-alert="handleAlert"/>
+      <PlanModal v-model="AddPlanModal" 
+      :plan="plan" :planClsOptions="planClsOptions" :statusOptions="statusOptions" :mode="mode"
+      @close="closePlanModal" @add="addPlan" @delete="deletePlan" @update="updatePlan" @show-alert="handleAlert"/>
 
       <v-alert v-if="showSuccessAlert" type="success" variant="tonal" :class="['alert', alertType]">
         <h5 class="text-h6 text-capitalize">Success</h5>

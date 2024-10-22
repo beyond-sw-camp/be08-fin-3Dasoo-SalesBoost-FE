@@ -20,9 +20,22 @@
 								v-model="plan.planCls"
 								:items="planClsOptions"
 								label="분류*" outlined
+								@update:model-value ="fetchDomainDetails"
 								:rules="[v => !!v || '분류를 선택하세요.']"
 								required
 							></v-select>
+						</v-col>
+						<v-col cols="12" v-if="plan.planCls && !['개인', '전사'].includes(this.plan.planCls)">
+							<v-text-field 
+								v-model="planDetails.title" 
+								:label="dynamicTitleLabel" 
+								readonly
+							></v-text-field>
+							<v-text-field 
+								v-model="planDetails.note" 
+								:label="dynamicNoteLabel" 
+								readonly
+							></v-text-field>
 						</v-col>
 						<v-col cols="12">
 							<v-text-field v-model="plan.planDate" label="일자*" type="date" 
@@ -49,7 +62,7 @@
 								></v-select>
 							</v-col>
 						<v-col cols="12">
-							<v-switch color="primary" v-model="plan.privateYn" label="나만보기 여부"></v-switch>
+							<v-switch color="primary" v-model="isPersonal" label="나만보기 여부"></v-switch>
 						</v-col>
 						<v-col cols="12">
 							<v-text-field v-model="plan.content" label="내용"></v-text-field>
@@ -58,31 +71,98 @@
 					<small>*필수 입력</small>
 				</v-form>
 			</v-card-text>
+			<ConfirmDialogs :dialog="showConfirmDialogs" @agree="confirmDelete" @disagree="cancleDelete" />
 			<v-card-actions>
 				<v-spacer></v-spacer>
-				<v-btn color="close" @click="closeModal">Close</v-btn>
-				<v-btn color="success" variant="text" @click="submitPlan" flat>Save</v-btn>
+					<v-btn color="close" @click="closeModal">Close</v-btn>
+					<v-btn v-if="mode === 'add'" color="success" variant="text" @click="submitPlan" flat>Save</v-btn>
+					<v-btn v-else-if="mode === 'edit'" color="success" variant="text" @click="updatePlan" flat>Update</v-btn>
+					<v-btn v-if="mode === 'edit'" color="error" variant="text" @click="deletePlan" flat>Delete</v-btn>
+					<ConfirmDialogs :dialog="showConfirmDialogs" @agree="confirmDelete" @disagree="cancleDelete" />
 			</v-card-actions>
 		</v-card>
+		
+		<v-dialog v-model="isSelected" max-width="450px">
+			<v-card>
+				<v-card-title class="headline">{{ dynamicCardTitle}}</v-card-title>
+				<v-card-text>
+					<perfect-scrollbar style="max-height: 300px">
+					<v-list>
+						<v-list-item
+							v-for="(item, index) in domainList"
+							:key="index"
+							@click="selectDomain(item)"
+							class="list-item-spacing"
+						>
+							<v-list-item-content>
+								
+								<v-list-item-title class="list-item-title"><v-icon small class="mr-2">mdi-check</v-icon>{{ item[titleField] }}</v-list-item-title>
+								<v-list-item-subtitle class="note-text">{{ item[noteField] }}</v-list-item-subtitle>
+							</v-list-item-content>
+						</v-list-item>
+					</v-list>
+				</perfect-scrollbar>
+				</v-card-text>
+				<v-card-actions>
+					<v-spacer></v-spacer>
+					<v-btn text @click="isSelected = false">닫기</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
 	</v-dialog>
 </template>
 
 <script>
 import '@/views/apps/calendar/calendar.css';
+import api from '@/api/axiosinterceptor';
+import ConfirmDialogs from './ConfirmDialogs.vue';
+import {planClsMapping, categoryColors} from '@/utils/PlanMappings'
 
 export default {
+	components: {
+		ConfirmDialogs,
+	},
 	props: {
 		AddPlanModal: Boolean,
 		plan: Object,
 		statusOptions: Array,
-		planClsOptions: Array
+		planClsOptions: Array,
+		mode: {
+			type: String,
+			default: 'add',
+		},
 	},
+	computed: {
+		dynamicCardTitle() {
+			if (!this.plan.planCls) return '';
+			return `${this.plan.planCls} 목록`;
+		},
+		dynamicTitleLabel() {
+			if (!this.plan.planCls) return '관련 도메인';
+			return `관련 ${this.plan.planCls} `;
+		},
+		dynamicNoteLabel() {
+			if (!this.plan.planCls) return '내용';
+			return `${this.plan.planCls} 내용`;
+		},
+	},
+
 	data() {
 		return {
 			showAlert: false,
-      timeOptions: this.generateTimeOptions(), 
-      planClsOptions: ['개인', '전사', '제안', '견적', '매출', '계약'],
-      planCls: '',
+			showConfirmDialogs: false,
+			isSelected: false,
+			domainList: [],
+			titleField: 'name',
+			noteField: 'note',
+			timeOptions: this.generateTimeOptions(), 
+			planClsOptions: ['개인', '전사', '제안', '견적', '매출', '계약'],
+			planCls: '',
+			isPersonal: this.plan.personalYn === 'Y',
+			planDetails: {
+				title: '',
+				note: '',
+			},
 			categoryColors: {
 				personal_plan: { color: '#f7eaa4', label: '개인 일정' },
 				company_plan: { color: '#e5eaac', label: '전사 일정' },
@@ -93,62 +173,155 @@ export default {
 			}
 		};
 	},
+	watch: {
+		isPersonal(newValue) {
+			this.plan.personalYn = newValue ? 'Y' : 'N';
+		},
+		'plan.personalYn': {
+			handler(newValue) {
+				this.isPersonal = newValue === 'Y';
+			},
+			immediate: true,
+		},
+	},
 	methods: {
-    generateTimeOptions() {
-      const options = [];
-      for (let hour = 0; hour < 24; hour++) {
-        for (let minute = 0; minute < 60; minute += 30) {
-          const paddedHour = hour.toString().padStart(2, '0');
-          const paddedMinute = minute.toString().padStart(2, '0');
-          options.push(`${paddedHour}:${paddedMinute}`);
-        }
-      }
-      return options;
-    },
-    submitPlan() {
+		validatePlan(){
 			if (!this.plan.title || !this.plan.planCls || !this.plan.planDate || !this.plan.startTime || !this.plan.endTime) {
 				this.showAlert = true;
-        this.alertMessage = '필수 필드를 입력해주세요'
+				this.alertMessage = '필수 필드를 입력해주세요'
 				setTimeout(() => {
 					this.showAlert = false;
 				}, 2000);
+        return false;
+			}
+			return true;
+		},
+		async fetchDomainDetails() {
+		const planCls = this.plan.planCls;
+		console.log(planCls, 'planCls');
+			let apiUrl = '';
+			let titleField = '';
+			let noteField = '';
+			switch (planCls) {
+				case '매출':
+					apiUrl = `sales`;
+					this.titleField = 'busiTypeDetail';
+					noteField = 'note';
+					break;
+				case '제안':
+					apiUrl = `proposals`;
+					this.titleField = 'name';
+					noteField = 'cont';
+					break;
+				case '견적':
+					apiUrl = `estimates`;
+					this.titleField = 'name';
+					noteField = 'note';
+					break;
+				case '계약':
+					apiUrl = `contract`;
+					this.titleField = 'name';
+					noteField = 'note';
+					break;
+				default:
+					this.domainList = [];
+					return;
+			}
+
+			try {
+				const response = await api.get(apiUrl);
+				console.log(response.data)
+
+				if (planCls === '제안') {
+					this.domainList = response.data;
+				} else {
+					this.domainList = response.data.result;
+				}
+				this.isSelected = true;
+			} catch (error) {
+				console.error(error);
+				this.domainList = [];
+			}
+		},
+		selectDomain(item) {
+			this.planDetails = {
+				title: item[this.titleField] || '',
+				note: item[this.noteField] || '',
+			};	
+			this.isSelected = false;
+			this.domainList = [];
+		},
+		generateTimeOptions() {
+			const options = [];
+			for (let hour = 0; hour < 24; hour++) {
+				for (let minute = 0; minute < 60; minute += 30) {
+					const paddedHour = hour.toString().padStart(2, '0');
+					const paddedMinute = minute.toString().padStart(2, '0');
+					options.push(`${paddedHour}:${paddedMinute}`);
+				}
+			}
+			return options;
+		},
+		submitPlan() {
+			if(!this.validatePlan()){
 				return;
 			}
-			this.showAlert = false;  
+			this.showAlert = false;
 			
-      const planClsMapping = {
-        '개인': 'PERSONAL',
-        '전사': 'COMPANY',
-        '제안': 'PROPOSAL',
-        '견적': 'ESTIMATE',
-				'매출': 'SALES',
-        '계약': 'CONTRACT'
-      };
-			const categoryColors = {
-				'PERSONAL': '#f7eaa4',
-				'COMPANY': '#dde2a9',
-				'PROPOSAL': '#9ed7a9',
-				'ESTIMATE': '#ccd5db',
-				'SALES': '#a4bbe1',
-				'CONTRACT': '#a4cbe8'
-			};
-
 			if (!this.plan.planCls || !planClsMapping[this.plan.planCls]) {
 				return;
 			}
-
 			this.plan.planCls = planClsMapping[this.plan.planCls];
-
 			const categoryColor = categoryColors[this.plan.planCls];
 			this.plan.backgroundColor = categoryColor;
 
-      this.$emit('show-alert', {
-        message: '저장이 완료되었습니다.',
-        type: 'success',
-      });
-      this.$emit('add', this.plan);
+			this.$emit('show-alert', {
+				message: '저장이 완료되었습니다.',
+				type: 'success',
+			});
+			this.$emit('add', this.plan);
 			this.closeModal();
 			},
+
+		async updatePlan() {
+			if(!this.validatePlan()){
+				return;
+			}
+			try {
+				this.plan.planCls = planClsMapping[this.plan.planCls];
+				const categoryColor = categoryColors[this.plan.planCls];
+				this.plan.backgroundColor = categoryColor;
+				const response = await api.patch(`/plans/${this.plan.planNo}`, this.plan);
+				const updatedPlan = response.data.result;
+
+				this.$emit('show-alert', {
+					message: '수정이 완료되었습니다.',
+					type: 'success',
+				});
+				this.$emit('update', updatedPlan);
+				this.closeModal();
+			} catch (error) {
+				console.error(error);
+			}
+		},
+		async deletePlan() {
+			if (!this.plan.planNo) {
+				return;
+			}
+
+			try {
+				this.showConfirmDialogs = true;
+			} catch (error) {
+				console.error(e);
+			}
+		},
+		confirmDelete(){
+			this.showConfirmDialogs = false;
+			this.$emit('delete', this.plan);
+		},
+		cancleDelete(){
+			this.showConfirmDialogs = false;
+		},
 
 		closeModal() {
 			this.planCls=null;
@@ -167,4 +340,24 @@ export default {
 	z-index: 3000;
 	width: 60%;
 }
+.headline {
+	padding-top: 20px;
+	font-weight: bold;
+}
+
+.list-item-spacing {
+	margin-bottom: 12px;
+}
+
+.list-item-title {
+	font-size: 1em;
+	font-weight: 500;
+}
+
+.note-text {
+	font-size: 0.9rem;
+	margin-left: 37px;
+	color: #464646;
+}
+
 </style>

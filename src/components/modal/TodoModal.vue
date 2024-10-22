@@ -43,7 +43,6 @@
 				<v-btn v-if="mode === 'add'" color="success" variant="text" @click="addTodo" flat>Save</v-btn>
 				<v-btn v-else-if="mode === 'edit'" color="success" variant="text" @click="updateTodo" flat>Update</v-btn>
 				<v-btn v-if="mode === 'edit'" color="error" variant="text" @click="deleteTodo" flat>Delete</v-btn>
-				<ConfirmDialogs :dialog="showConfirmDialogs" @agree="confirmDelete" @disagree="cancleDelete" />
 			</v-card-actions>
 		</v-card>
 	</v-dialog>
@@ -90,6 +89,7 @@ export default {
 			immediate: true,
 		},
 	},
+	
 	methods: {
     validateTodo() {
       if (!this.todo.title || !this.todo.todoCls || !this.todo.priority || !this.todo.dueDate || !this.todo.status) {

@@ -4,9 +4,9 @@ import { ref, onMounted } from 'vue';
 import { EditIcon, PointFilledIcon, TrashIcon } from 'vue-tabler-icons';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
 import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
-import baseApi from '@/api/baseapi';
 import api from '@/api/axiosinterceptor';
 import { reverseActStatus, actStatus } from '@/utils/ActStatusMappings';
+import ConfirmDialogs from '@/components/modal/ConfirmDialogs.vue';
 
 const page = ref({ title: '영업활동 목록' });
 const breadcrumbs = ref([
@@ -34,8 +34,7 @@ const headers = ref([
 ]);
 
 const actList = ref([]);
-
-
+const editedItem = ref(null);
 
 async function initialize() {
 try {
@@ -48,39 +47,33 @@ try {
   }
 }
 
-// TODO: 수정 삭제 추후 구현
+function deleteItem(item) {
+  console.log('editedItem.value.actNo',item.actNo)
+  editedItem.value = item;
+  console.log('editedItem.value',editedItem.value)
+  dialogDelete.value = true;
+  console.log('dialogDelete.value',dialogDelete.value)
+}
 
-// const editedIndex = ref(-1);
-// const editedItem = ref({});
-// const defaultItem = ref({});
-// function editItem(item) {
-//   editedIndex.value = actList.value.indexOf(item);
-//   editedItem.value = Object.assign({}, item);
-//   dialog.value = true;
-// }
+async function confirmDelete() {
+  console.log('confirmDelete 함수 호출됨');
+  console.log('editedItem.value.actNo2', editedItem.value);
+  if (editedItem.value) {
+    try {
+      await api.delete(`/acts/${editedItem.value.actNo}`);
+      actList.value = actList.value.filter(act => act.actNo !== editedItem.value.actNo);
+      dialogDelete.value = false;
+      editedItem.value = null;
+    } catch (error) {
+      console.error('삭제 실패:', error);
+    }
+  }
+}
 
-// function deleteItem(item) {
-//   editedIndex.value = actList.value.indexOf(item);
-//   editedItem.value = Object.assign({}, item);
-//   dialogDelete.value = true;
-// }
-
-// function deleteItemConfirm() {
-//   actList.value.splice(editedIndex.value, 1);
-// closeDelete();
-// }
-
-// function close() {
-//   dialog.value = false;
-//   editedItem.value = Object.assign({}, defaultItem.value);
-//   editedIndex.value = -1;
-// }
-
-// function closeDelete() {
-//   dialogDelete.value = false;
-//   editedItem.value = Object.assign({}, defaultItem.value);
-//   editedIndex.value = -1;
-// }
+function cancleDelete() {
+  dialogDelete.value = false;
+  editedItem.value = null;
+}
 
 const router = useRouter();
 
@@ -147,7 +140,7 @@ onMounted(() => {
                 width="20"
                 class="text-primary cursor-pointer"
                 size="small"
-                @click="editItem(item)"
+                @click="goToActDetails(item.actNo, item.cls)"
               />
               <TrashIcon
                 height="20"
@@ -178,6 +171,7 @@ onMounted(() => {
             <v-btn color="primary" @click="resetSearch"> Reset </v-btn>
           </template>
         </v-data-table>
+        <ConfirmDialogs :dialog="dialogDelete" @agree="confirmDelete" @disagree="cancleDelete" />
       </UiParentCard>
     </v-col>
   </v-row>
