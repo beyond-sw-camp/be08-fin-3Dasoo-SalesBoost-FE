@@ -91,6 +91,7 @@ const fetchCustomersByFilterAPI = async()=>{
     background-color: white;
     margin-right: 30px;
     width: 25%;
+    height: 100%;
 }
 
 .customer_container {

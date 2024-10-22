@@ -116,7 +116,7 @@ onMounted(()=>{
         </v-col>
         <v-col cols="6">
             <v-label class="font-weight-medium mb-2">이메일</v-label><span class="require">*</span>
-            <v-text-field color="primary" v-model="email" variant="outlined" type="email" placeholder="john@gmail.com" required :rules="confirmEmail">
+            <v-text-field color="primary" v-model="email" variant="outlined" type="email" placeholder="sample@gmail.com" required :rules="confirmEmail">
             </v-text-field>
         </v-col>
 

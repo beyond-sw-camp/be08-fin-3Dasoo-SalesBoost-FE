@@ -115,6 +115,7 @@ const search = ()=>{
 .search_btn {
     width: 100%;
     text-align: center;
+    margin-bottom: 20px;
 }
 
 </style>
