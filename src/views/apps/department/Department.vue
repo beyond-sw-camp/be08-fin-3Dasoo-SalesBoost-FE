@@ -1,88 +1,95 @@
 <template>
-    <v-card>
-        <v-card-title class="custom-card-title">
-            Department
-        </v-card-title>
+    <div class="container">
 
-        <v-row class="pa-4" justify="space-between">
-            <v-col cols="5">
-                <v-treeview
-                    v-model:activated="active"
-                    v-model:opened="open"
-                    :items="items"
-                    color="warning"
-                    density="compact"
-                    item-title="name"
-                    item-value="no"
-                    activatable
-                >
-                    <template v-slot:prepend="{ item }">
-                        <v-icon v-if="!item.children">
-                            mdi-domain
-                        </v-icon>
-                    </template>
-                </v-treeview>
-            </v-col>
+        <div class="customer_container">
+            <v-card>
+                <v-card-title class="custom-card-title">
+                    Department
+                </v-card-title>
 
-            <v-col>
-                <v-scroll-y-transition>
-                    <div>
-                        <v-card>
-                            <v-row class="text-right">
-                                <v-col class="text-sm-left">
-                                    <span class="font-weight-black custom-margin">정보</span>
-                                </v-col>
-                                <v-col>
-                                    <v-btn color="primary" @click="clearForm">신규</v-btn>
-                                    <v-btn color="primary">저장</v-btn>
-                                    <v-btn color="primary">삭제</v-btn>
-                                </v-col>
-                            </v-row>
+                <v-row class="pa-4" justify="space-between">
+                    <v-col cols="5">
+                        <v-treeview
+                            v-model:activated="active"
+                            v-model:opened="open"
+                            :items="items"
+                            color="warning"
+                            density="compact"
+                            item-title="name"
+                            item-value="no"
+                            activatable
+                        >
+                            <template v-slot:prepend="{ item }">
+                                <v-icon v-if="!item.children">
+                                    mdi-domain
+                                </v-icon>
+                            </template>
+                        </v-treeview>
+                    </v-col>
 
-                            <v-card-text>
-                                <v-col>
-                                    <v-row class="align-center">
-                                        <v-col cols="4">
-                                            <span class="font-weight-black">상위 부서</span>
-                                            <v-text-field dense :value="selected ? selected.parentDeptName : ''"></v-text-field>
+                    <v-col>
+                        <v-scroll-y-transition>
+                            <div>
+                                <v-card>
+                                    <v-row class="text-right">
+                                        <v-col class="text-sm-left">
+                                            <span class="font-weight-black custom-margin">정보</span>
                                         </v-col>
-                                        <v-col cols="4">
-                                            <span class="font-weight-black">부서 코드</span>
-                                            <v-text-field dense :value="selected ? selected.deptCode : ''"></v-text-field>
-                                        </v-col>
-                                        <v-col cols="4">
-                                            <span class="font-weight-black">부서명</span>
-                                            <v-text-field dense :value="selected ? selected.name : ''"></v-text-field>
+                                        <v-col>
+                                            <v-btn color="primary" @click="clearForm">신규</v-btn>
+                                            <v-btn color="primary">저장</v-btn>
+                                            <v-btn color="primary">삭제</v-btn>
                                         </v-col>
                                     </v-row>
 
-                                    <v-row class="align-center">
-                                        <v-col cols="4">
-                                            <span class="font-weight-black">영문 부서명</span>
-                                            <v-text-field dense :value="selected ? selected.engName : ''"></v-text-field>
+                                    <v-card-text>
+                                        <v-col>
+                                            <v-row class="align-center">
+                                                <v-col cols="4">
+                                                    <span class="font-weight-black">상위 부서</span>
+                                                    <v-text-field dense :value="selected ? selected.parentDeptName : ''"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="4">
+                                                    <span class="font-weight-black">부서 코드</span>
+                                                    <v-text-field dense :value="selected ? selected.deptCode : ''"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="4">
+                                                    <span class="font-weight-black">부서명</span>
+                                                    <v-text-field dense :value="selected ? selected.name : ''"></v-text-field>
+                                                </v-col>
+                                            </v-row>
+
+                                            <v-row class="align-center">
+                                                <v-col cols="4">
+                                                    <span class="font-weight-black">영문 부서명</span>
+                                                    <v-text-field dense :value="selected ? selected.engName : ''"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="4">
+                                                    <span class="font-weight-black">부서장</span>
+                                                    <v-text-field dense :value="selected ? selected.deptHead : ''"></v-text-field>
+                                                </v-col>
+                                            </v-row>
                                         </v-col>
-                                        <v-col cols="4">
-                                            <span class="font-weight-black">부서장</span>
-                                            <v-text-field dense :value="selected ? selected.deptHead : ''"></v-text-field>
-                                        </v-col>
-                                    </v-row>
-                                </v-col>
-                            </v-card-text>
-                        </v-card>
-                    </div>
-                </v-scroll-y-transition>
-            </v-col>
-        </v-row>
-    </v-card>
+                                    </v-card-text>
+                                </v-card>
+                            </div>
+                        </v-scroll-y-transition>
+                    </v-col>
+                </v-row>
+            </v-card>
+        </div>
+    </div>
 </template>
 
 <script>
 import { VTreeview } from 'vuetify/labs/VTreeview';
-import axios from 'axios';
+import api from '@/api/axiosinterceptor';
+import FilterCard from '@/components/customer/FilterCard.vue';
 
 export default {
     components: {
         VTreeview,
+        FilterCard,
     },
 
     data: () => ({
@@ -103,13 +110,13 @@ export default {
         selected() {
             if (!this.active.length) return undefined;
             const id = this.active[0];
-            
+
             const findDepartment = (departments) => {
                 for (const department of departments) {
                     if (department.no === id) {
                         return department;
                     }
-                    
+
                     if (department.children && department.children.length) {
                         const foundInChildren = findDepartment(department.children);
                         if (foundInChildren) {
@@ -127,7 +134,7 @@ export default {
     methods: {
         async fetchDepartments() {
             try {
-                const response = await axios.get('http://localhost:8080/api/departments');
+                const response = await api.get('/departments'); // api 인스턴스 사용
                 const departments = response.data.result;
 
                 if (departments) {
@@ -144,6 +151,13 @@ export default {
             } catch (error) {
                 console.error("부서 목록을 가져오는 중 오류 발생:", error);
             }
+        },
+        clearForm() {
+            this.deptCode = '';
+            this.deptName = '';
+            this.engName = '';
+            this.deptHead = '';
+            this.active = [];
         },
     },
 
@@ -169,7 +183,20 @@ export default {
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
 }
-.v-card{
+.v-card {
     margin-top: 1rem;
+}
+.container {
+    display: flex;
+    flex-direction: row;
+}
+.filter_container {
+    background-color: white;
+    margin-right: 30px;
+    width: 25%;
+}
+.customer_container {
+    background-color: white;
+    width: 80%;
 }
 </style>
