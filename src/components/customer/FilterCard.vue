@@ -87,7 +87,7 @@ const search = ()=>{
         selectedItem:selectedItem.value?selectedItem.value:null,
         searchQuery:searchQuery.value?searchQuery.value:null,
         selectedKey:selectedKey.value?selectedKey.value:null,
-        personInCharge:selectedUser.value?selectedUser.value:null
+        personInCharge:selectedUser.value?selectedUser.value.id:null
 
     });
 }

@@ -34,11 +34,15 @@ const filters = ref({
 });
 
 onMounted(()=>{
-    fetchCustomersByFilterAPI();
+  //  fetchCustomersByFilterAPI();
+  fetchCustomers();
 })
 
 const handleFilters=(filterValues)=>{
     console.log("상위 컴포넌트")
+    console.log("======");
+    console.log(filterValues.personInCharge);
+    console.log("======");
     filters.value = filterValues;
     fetchCustomersByFilterAPI();
 }
@@ -57,12 +61,7 @@ const fetchCustomers=async()=>{
 }
 
 const fetchCustomersByFilterAPI = async()=>{
-    // const searchParams = {
-    //     selectedItem: selectedItem.value,   // 선택된 검색 조건
-    //     searchQuery: searchQuery.value,   // 입력된 검색어
-    //     personInCharge: personInCharge.value, // 담당자
-    //     selectedKey: selectedKey.value,   // 키맨 여부
-    // };
+
     try{
         const response = await api.post('/customers',filters.value);
         console.log(response);
