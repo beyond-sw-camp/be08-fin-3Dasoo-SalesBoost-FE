@@ -71,10 +71,14 @@
 					<small>*필수 입력</small>
 				</v-form>
 			</v-card-text>
+			<ConfirmDialogs :dialog="showConfirmDialogs" @agree="confirmDelete" @disagree="cancleDelete" />
 			<v-card-actions>
 				<v-spacer></v-spacer>
-				<v-btn color="close" @click="closeModal">Close</v-btn>
-				<v-btn color="success" variant="text" @click="submitPlan" flat>Save</v-btn>
+					<v-btn color="close" @click="closeModal">Close</v-btn>
+					<v-btn v-if="mode === 'add'" color="success" variant="text" @click="submitPlan" flat>Save</v-btn>
+					<v-btn v-else-if="mode === 'edit'" color="success" variant="text" @click="updatePlan" flat>Update</v-btn>
+					<v-btn v-if="mode === 'edit'" color="error" variant="text" @click="deletePlan" flat>Delete</v-btn>
+					<ConfirmDialogs :dialog="showConfirmDialogs" @agree="confirmDelete" @disagree="cancleDelete" />
 			</v-card-actions>
 		</v-card>
 		
@@ -111,14 +115,22 @@
 <script>
 import '@/views/apps/calendar/calendar.css';
 import api from '@/api/axiosinterceptor';
+import ConfirmDialogs from './ConfirmDialogs.vue';
 import {planClsMapping, categoryColors} from '@/utils/PlanMappings'
 
 export default {
+	components: {
+		ConfirmDialogs,
+	},
 	props: {
 		AddPlanModal: Boolean,
 		plan: Object,
 		statusOptions: Array,
-		planClsOptions: Array
+		planClsOptions: Array,
+		mode: {
+			type: String,
+			default: 'add',
+		},
 	},
 	computed: {
 		dynamicCardTitle() {
@@ -138,6 +150,7 @@ export default {
 	data() {
 		return {
 			showAlert: false,
+			showConfirmDialogs: false,
 			isSelected: false,
 			domainList: [],
 			titleField: 'name',
@@ -172,6 +185,17 @@ export default {
 		},
 	},
 	methods: {
+		validatePlan(){
+			if (!this.plan.title || !this.plan.planCls || !this.plan.planDate || !this.plan.startTime || !this.plan.endTime) {
+				this.showAlert = true;
+				this.alertMessage = '필수 필드를 입력해주세요'
+				setTimeout(() => {
+					this.showAlert = false;
+				}, 2000);
+        return false;
+			}
+			return true;
+		},
 		async fetchDomainDetails() {
 		const planCls = this.plan.planCls;
 		console.log(planCls, 'planCls');
@@ -213,7 +237,6 @@ export default {
 				} else {
 					this.domainList = response.data.result;
 				}
-				console.log('this.domainList',this.domainList)
 				this.isSelected = true;
 			} catch (error) {
 				console.error(error);
@@ -240,23 +263,15 @@ export default {
 			return options;
 		},
 		submitPlan() {
-			if (!this.plan.title || !this.plan.planCls || !this.plan.planDate || !this.plan.startTime || !this.plan.endTime) {
-				this.showAlert = true;
-				this.alertMessage = '필수 필드를 입력해주세요'
-				setTimeout(() => {
-					this.showAlert = false;
-				}, 2000);
+			if(!this.validatePlan()){
 				return;
 			}
-			this.showAlert = false;  
+			this.showAlert = false;
 			
-
 			if (!this.plan.planCls || !planClsMapping[this.plan.planCls]) {
 				return;
 			}
-
 			this.plan.planCls = planClsMapping[this.plan.planCls];
-
 			const categoryColor = categoryColors[this.plan.planCls];
 			this.plan.backgroundColor = categoryColor;
 
@@ -267,6 +282,46 @@ export default {
 			this.$emit('add', this.plan);
 			this.closeModal();
 			},
+
+		async updatePlan() {
+			if(!this.validatePlan()){
+				return;
+			}
+			try {
+				this.plan.planCls = planClsMapping[this.plan.planCls];
+				const categoryColor = categoryColors[this.plan.planCls];
+				this.plan.backgroundColor = categoryColor;
+				const response = await api.patch(`/plans/${this.plan.planNo}`, this.plan);
+				const updatedPlan = response.data.result;
+
+				this.$emit('show-alert', {
+					message: '수정이 완료되었습니다.',
+					type: 'success',
+				});
+				this.$emit('update', updatedPlan);
+				this.closeModal();
+			} catch (error) {
+				console.error(error);
+			}
+		},
+		async deletePlan() {
+			if (!this.plan.planNo) {
+				return;
+			}
+
+			try {
+				this.showConfirmDialogs = true;
+			} catch (error) {
+				console.error(e);
+			}
+		},
+		confirmDelete(){
+			this.showConfirmDialogs = false;
+			this.$emit('delete', this.plan);
+		},
+		cancleDelete(){
+			this.showConfirmDialogs = false;
+		},
 
 		closeModal() {
 			this.planCls=null;
