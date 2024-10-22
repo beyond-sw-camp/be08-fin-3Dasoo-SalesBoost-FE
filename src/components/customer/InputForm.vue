@@ -15,26 +15,15 @@ const position = ref('');
 const phone = ref('');
 const tel = ref('');
 const grade = ref('');
-const keyman = ref(false);
-const token = ref('');
+const isKeyMan = ref(false);
 
 const router = useRouter();
-
-onMounted(()=>{
-    userName.value = localStorage.getItem('loginUserName')||'';
-    const storedToken = localStorage.getItem("accessToken")||'';
-    if(storedToken){
-        console.log(storedToken);
-        token.value = String(storedToken);
-        console.log(token.value);
-    }
-    
-})
 
 const registerCustomer = ()=>{
     registerAPI();
 }
 const registerAPI = async()=>{
+
     try{
         const res = await api.post('/customers/add',{
             name:customerName.value,
@@ -45,7 +34,7 @@ const registerAPI = async()=>{
             tel: tel.value?  tel.value:null,
             email:email.value ? email.value:null,
             grade:grade.value ? grade.value:null,
-            keyman:keyman.value 
+            isKeyMan:isKeyMan.value 
         }
      )
         if(res.data.code==200){
@@ -136,7 +125,7 @@ const formIsValid = computed(()=>{
 
         <v-col cols="6">
             <v-label class="font-weight-medium mb-2">키맨여부</v-label>
-            <v-switch color="primary" :model-value="keyman" hide-details></v-switch>
+            <v-switch color="primary" v-model="isKeyMan" hide-details></v-switch>
         </v-col>
                  
         <v-col cols="6">

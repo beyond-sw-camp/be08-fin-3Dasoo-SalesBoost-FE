@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref ,nextTick } from 'vue';
 import api from '@/api/axiosinterceptor';
 import { useRouter ,useRoute} from 'vue-router';
 import { mask } from 'maska';  
 
-const userName = ref('김은경');
+const userName = ref();
 const grades = ref(['S등급', 'A등급','B등급','C등급','D등급']);
-const customerName = ref('');
-const email = ref('');
-const company = ref('');
-const dept  = ref('');
-const position = ref('');
-const phone = ref('');
-const tel = ref('');
-const grade = ref('');
-const keyman = ref(false);
+const customerName = ref(null);
+const email = ref(null);
+const company = ref(null);
+const dept  = ref(null);
+const position = ref(null);
+const phone = ref(null);
+const tel = ref(null);
+const grade = ref(null);
+const isKeyMan = ref(false);
 
 const router = useRouter();
 const route = useRoute();
@@ -23,8 +23,9 @@ onMounted(()=>{
     getCustomerInfoAPI(route.params.id);
 })
 const updateCustomer = ()=>{
-  //  updateCustomerAPI();
-  alert('해당 서비스는 오픈 예정입니다.');
+    if(confirm("고객정보를 수정하시겠습니까?")){
+        updateCustomerAPI(route.params.id);
+    }
 }
 
 const getCustomerInfoAPI = async(id: string | string[])=>{
@@ -40,7 +41,10 @@ const getCustomerInfoAPI = async(id: string | string[])=>{
             tel.value = info.tel;
             company.value = info.company;
             grade.value = info.grade;
-            keyman.value = info.keyMan;
+            isKeyMan.value = info.keyMan;
+
+            await nextTick();
+
             dept.value = info.dept;
             userName.value = info.userName;
         
@@ -48,6 +52,31 @@ const getCustomerInfoAPI = async(id: string | string[])=>{
     }catch(err){
         console.log(`[ERROR 몌세지] : ${err}`);
     }
+}
+
+const updateCustomerAPI = async(id:string|string[])=>{
+    try{
+        const response = await api.patch(`/customers/${id}`,{
+            name:customerName.value,
+            company:company.value?company.value:null,
+            dept:dept.value? dept.value:null,
+            position:position.value?  position.value:null,
+            phone:phone.value? phone.value:null,
+            tel: tel.value?  tel.value:null,
+            email:email.value ? email.value:null,
+            grade:grade.value ? grade.value:null,
+            isKeyMan:isKeyMan.value
+        })
+        console.log(response.data);
+        if(response.data.code==200){
+            alert(response.data.result);
+            getCustomerInfoAPI(route.params.id);
+        }
+
+    }catch(err){
+        console.log(`[ERROR 몌세지] : ${err}`);
+    }
+
 }
 
 const confirmName = ref([
@@ -72,9 +101,7 @@ const formIsValid = computed(()=>{
     return customerName.value && email.value && grade.value && phone.value;
 })
 
-onMounted(()=>{
-    userName.value = localStorage.getItem('')||'';
-})
+
 </script>
 <template>
     <v-row>
@@ -125,7 +152,7 @@ onMounted(()=>{
 
         <v-col cols="6">
             <v-label class="font-weight-medium mb-2">키맨여부</v-label>
-            <v-switch color="primary" :model-value="keyman" hide-details></v-switch>
+            <v-switch color="primary" v-model="isKeyMan" hide-details></v-switch>
         </v-col>
                  
         <v-col cols="6">
