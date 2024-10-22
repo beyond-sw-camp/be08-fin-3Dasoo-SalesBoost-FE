@@ -34,8 +34,8 @@ const filters = ref({
 });
 
 onMounted(()=>{
-  //  fetchCustomersByFilterAPI();
-  fetchCustomers();
+  fetchCustomersByFilterAPI();
+  //fetchCustomers();
 })
 
 const handleFilters=(filterValues)=>{
