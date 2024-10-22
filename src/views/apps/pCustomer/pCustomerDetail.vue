@@ -10,7 +10,6 @@ import HistoryModal from '@/components/pcustomer/HistoryModal.vue';
 import { useRoute } from 'vue-router';
 import api from '@/api/axiosinterceptor';
 
-
 interface History {
   id: number;
   contactDate: string;

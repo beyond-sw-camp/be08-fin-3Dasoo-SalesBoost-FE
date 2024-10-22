@@ -2,7 +2,7 @@
     <div class="container">
         
         <div class="filter_container">
-            <FilterCard/> 
+            <FilterCard @search="handleFilters"/> 
         </div>
     
         <div class="customer_container">
@@ -26,10 +26,22 @@ import { computed, onMounted, ref } from 'vue';
 
 const customers = ref([]);
 const dataSize = computed(()=> customers.value.length);
+const filters = ref({
+  selectedItem: null,
+  searchQuery: null,
+  selectedKey: '전체',
+  personInCharge: null
+});
 
 onMounted(()=>{
-    fetchCustomers();
+    fetchCustomersByFilterAPI();
 })
+
+const handleFilters=(filterValues)=>{
+    console.log("상위 컴포넌트")
+    filters.value = filterValues;
+    fetchCustomersByFilterAPI();
+}
 
 const fetchCustomers=async()=>{
     try{
@@ -42,7 +54,25 @@ const fetchCustomers=async()=>{
         console.log(`[ERROR 몌세지] : ${err}`);
     }
     
+}
 
+const fetchCustomersByFilterAPI = async()=>{
+    // const searchParams = {
+    //     selectedItem: selectedItem.value,   // 선택된 검색 조건
+    //     searchQuery: searchQuery.value,   // 입력된 검색어
+    //     personInCharge: personInCharge.value, // 담당자
+    //     selectedKey: selectedKey.value,   // 키맨 여부
+    // };
+    try{
+        const response = await api.post('/customers',filters.value);
+        console.log(response);
+        if(response.data.code==200){
+            customers.value = response.data.result;
+        }
+
+    }catch(err){
+        console.log(`[ERROR 몌세지] : ${err}`);
+    }
 }
 
 </script>
