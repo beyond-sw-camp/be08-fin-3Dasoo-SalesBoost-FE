@@ -40,7 +40,7 @@ interface UserDepartmentDto {
 const emit = defineEmits(['search'])
 
 const selectedItem = ref();
-const searchQuery = ref(''); // 검색어
+const searchQuery = ref(null); // 검색어
 const selectedKey = ref("전체"); // 키맨 여부 선택
 const selectKey = ['전체','키맨','키맨아님'];
 const userOptions = ref([]);
@@ -83,13 +83,17 @@ const getPersonInChargeList=async()=>{
 const search = ()=>{
     // todo : 검색 조건 초기화
     console.log('클릭')
+    if(selectedItem.value==null || searchQuery.value==null){
+        alert("검색조건과 검색어를 입력해주세요");
+        return;
+    }
     emit('search',{
         selectedItem:selectedItem.value?selectedItem.value:null,
         searchQuery:searchQuery.value?searchQuery.value:null,
         selectedKey:selectedKey.value?selectedKey.value:null,
         personInCharge:selectedUser.value?selectedUser.value.id:null
-
     });
+
 }
 
 

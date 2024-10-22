@@ -42,6 +42,7 @@ const getCustomerInfoAPI = async(id: string | string[])=>{
             grade.value = info.grade;
             keyman.value = info.keyMan;
             dept.value = info.dept;
+            userName.value = info.userName;
         
         }
     }catch(err){
