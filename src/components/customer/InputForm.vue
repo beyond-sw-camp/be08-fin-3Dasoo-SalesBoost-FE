@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router';
 import { mask } from 'maska';  
 import api from '@/api/axiosinterceptor';
 
-const userName = ref('');
+const userName = ref();
 const grades = ref(['S등급', 'A등급','B등급','C등급','D등급']);
 const customerName = ref('');
 const email = ref('');
@@ -73,7 +73,9 @@ const formIsValid = computed(()=>{
     return customerName.value && email.value && phone.value && grade.value;
 })
 
-
+onMounted(()=>{
+    userName.value = localStorage.getItem("loginUserName");
+})
 
 </script>
 <template>

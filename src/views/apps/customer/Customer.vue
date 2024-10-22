@@ -10,7 +10,6 @@
                 <div class="result_count">(검색결과: {{ dataSize }}건)</div>   
                 <v-btn variant="tonal" color="primary" to="/sales/customer-add">고객 추가</v-btn>
             </div>
-         
             <hr  class="divider"></hr>
                 <CustomerCard :customers="customers"/>
         </div>
@@ -39,10 +38,7 @@ onMounted(()=>{
 })
 
 const handleFilters=(filterValues)=>{
-    console.log("상위 컴포넌트")
-    console.log("======");
-    console.log(filterValues.personInCharge);
-    console.log("======");
+ //   console.log(filterValues.personInCharge);
     filters.value = filterValues;
     fetchCustomersByFilterAPI();
 }

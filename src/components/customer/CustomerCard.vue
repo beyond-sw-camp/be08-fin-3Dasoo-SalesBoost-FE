@@ -47,25 +47,24 @@ const goToEditPage = (customerId)=>{
                                 <img :src="getRandomImage()" alt="img" width="60">
                             </v-avatar>
                             <div class="name_container">
-                                    <div class="customer_name">{{ customer.name }}</div> 
-                                    <div class="customer_position">( {{ customer.position }} )</div>
+                                    <div class="customer_name">{{ customer.name }} </div> 
+                                    <div class="customer_position"> <span v-if="customer.position">( {{ customer.position }} )</span></div>
                             </div>
                         </div>
 
                         <div class="mt-4 info_container">
-                        
-                            <div>
-                                Company. {{ customer.company }}
-                            </div>
                         <div>
-                                0건
+                            <div class="customer_position"> <span v-if="customer.company"> <i class="mr-2 mdi text-h5 mdi-domain"></i>Company. {{ customer.company }} </span></div>
+                        </div>
+                        <div>
+                            <i class="mr-2 mdi text-h5 mdi-account-edit"></i>담당: {{ customer.userName }}
                         </div>
                       </div>
                     </v-card-item>
                     <div class="bottom_container">
-                    <div>{{ customer.email }}</div>
-                    <div>{{ customer.phone }} </div>
-                    <div>{{ customer.tel }}</div>
+                    <div v-if="customer.email" class="content"><i class="mr-2 mdi text-h5 mdi-email"></i><span>{{ customer.email }}</span></div>
+                    <div v-if="customer.phone"><i class="mr-2 mdi text-h5 mdi-phone"></i>{{ customer.phone }} </div>
+                    <!-- <div v-if="customer.tel">tel.{{ customer.tel }}</div> -->
                 </div>
                 </v-card>
 
@@ -115,11 +114,13 @@ const goToEditPage = (customerId)=>{
     background-color: rgb(228, 225, 225);
     font-size: 12px;
     display: flex;
-    justify-content: center;
+    justify-content: space-evenly;
     color: #1a1818;
 
     div {
-        padding-right:5px
+        padding-right:5px;
     }
+   
 }
+
 </style>
