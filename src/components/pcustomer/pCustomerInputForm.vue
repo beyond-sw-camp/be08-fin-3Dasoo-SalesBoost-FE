@@ -42,7 +42,7 @@ const registerPCustomer = ()=>{
 }
 const registerAPI = async()=>{
     try{
-        const response = await api.post('/pcustomers',{
+        const response = await api.post('/pcustomers/add',{
             name:pcName.value?pcName.value:"",  // 필수
             company:company.value?company.value:null,
             dept:dept.value?dept.value:null,
