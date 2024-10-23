@@ -2,7 +2,7 @@
     <div class="container">
         
         <div class="filter_container">
-            <FilterCard/> 
+            <pFilterCard @search="handleFilter"/> 
         </div>
     
         <div class="customer_container">
@@ -19,13 +19,13 @@
 
 <script setup>
 import pCustomerCard from '@/components/pcustomer/pCustomerCard.vue';
-import FilterCard from '@/components/customer/FilterCard.vue';
-import axios from 'axios';
+import pFilterCard from '@/components/pcustomer/pFilterCard.vue';
 import api from '@/api/axiosinterceptor'
 import { computed, onMounted, ref } from 'vue';
 
 const pcustomers = ref([]);
 const dataSize = computed(()=> pcustomers.value.length);
+const filters = ref({selectedItem:null,searchQuery:null,selecedContact:'전체'});
 
 onMounted(()=>{
     fetchCustomers();
@@ -42,7 +42,24 @@ const fetchCustomers=async()=>{
     }catch(err){
         console.log(`[ERROR 몌세지] : ${err}`);
     }
-    
+}
+
+const handleFilter =(filterValues)=>{
+    filters.value = filterValues;
+    fetchpCustomersByFilterAPI();
+}
+
+const fetchpCustomersByFilterAPI =async()=>{
+    try{
+        const response = await api.post("/pcustomers",filters.value);
+        console.log(response);
+        if(response.data.code==200){
+            pcustomers.value = response.data.result;
+        }
+
+    }catch(err){
+        console.log(`[ERROR 몌세지] : ${err}`);
+    }
 }
 
 </script>
