@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router';
 import { mask } from 'maska';  
 import api from '@/api/axiosinterceptor';
 
-const userName = ref('');
+const userName = ref();
 const grades = ref(['S등급', 'A등급','B등급','C등급','D등급']);
 const customerName = ref('');
 const email = ref('');
@@ -14,27 +14,16 @@ const dept  = ref('');
 const position = ref('');
 const phone = ref('');
 const tel = ref('');
-const grade = ref('');
-const keyman = ref(false);
-const token = ref('');
+const grade = ref(null);
+const isKeyMan = ref(false);
 
 const router = useRouter();
-
-onMounted(()=>{
-    userName.value = localStorage.getItem('loginUserName')||'';
-    const storedToken = localStorage.getItem("accessToken")||'';
-    if(storedToken){
-        console.log(storedToken);
-        token.value = String(storedToken);
-        console.log(token.value);
-    }
-    
-})
 
 const registerCustomer = ()=>{
     registerAPI();
 }
 const registerAPI = async()=>{
+
     try{
         const res = await api.post('/customers/add',{
             name:customerName.value,
@@ -45,7 +34,7 @@ const registerAPI = async()=>{
             tel: tel.value?  tel.value:null,
             email:email.value ? email.value:null,
             grade:grade.value ? grade.value:null,
-            keyman:keyman.value 
+            isKeyMan:isKeyMan.value 
         }
      )
         if(res.data.code==200){
@@ -81,10 +70,12 @@ const confirmEmail = ref([(v: string) => !!v || '이메일을 입력해주세요
 
 
 const formIsValid = computed(()=>{
-    return customerName.value && email.value && phone.value;
+    return customerName.value && email.value && phone.value && grade.value;
 })
 
-
+onMounted(()=>{
+    userName.value = localStorage.getItem("loginUserName");
+})
 
 </script>
 <template>
@@ -125,18 +116,18 @@ const formIsValid = computed(()=>{
         </v-col>
         <v-col cols="6">
             <v-label class="font-weight-medium mb-2">이메일</v-label><span class="require">*</span>
-            <v-text-field color="primary" v-model="email" variant="outlined" type="email" placeholder="john@gmail.com" required :rules="confirmEmail">
+            <v-text-field color="primary" v-model="email" variant="outlined" type="email" placeholder="sample@gmail.com" required :rules="confirmEmail">
             </v-text-field>
         </v-col>
 
         <v-col cols="6">
-            <v-label class="font-weight-medium mb-2">등급</v-label>
-            <v-select v-model="grade" :items="grades" single-line variant="outlined"></v-select>
+            <v-label class="font-weight-medium mb-2">등급</v-label><span class="require">*</span>
+            <v-select v-model="grade" :items="grades" single-line variant="outlined" required :rules="confirmGrade"></v-select>
         </v-col>
 
         <v-col cols="6">
             <v-label class="font-weight-medium mb-2">키맨여부</v-label>
-            <v-switch color="primary" :model-value="keyman" hide-details></v-switch>
+            <v-switch color="primary" v-model="isKeyMan" hide-details></v-switch>
         </v-col>
                  
         <v-col cols="6">

@@ -2,7 +2,7 @@
     <div class="container">
         
         <div class="filter_container">
-            <FilterCard/> 
+            <FilterCard @search="handleFilters"/> 
         </div>
     
         <div class="customer_container">
@@ -10,7 +10,6 @@
                 <div class="result_count">(검색결과: {{ dataSize }}건)</div>   
                 <v-btn variant="tonal" color="primary" to="/sales/customer-add">고객 추가</v-btn>
             </div>
-         
             <hr  class="divider"></hr>
                 <CustomerCard :customers="customers"/>
         </div>
@@ -26,14 +25,26 @@ import { computed, onMounted, ref } from 'vue';
 
 const customers = ref([]);
 const dataSize = computed(()=> customers.value.length);
+const filters = ref({
+  selectedItem: null,
+  searchQuery: null,
+  selectedKey: '전체',
+  personInCharge: null
+});
 
 onMounted(()=>{
-    fetchCustomers();
+  fetchCustomersByFilterAPI();
+  //fetchCustomers();
 })
+
+const handleFilters=(filterValues)=>{
+ //   console.log(filterValues.personInCharge);
+    filters.value = filterValues;
+    fetchCustomersByFilterAPI();
+}
 
 const fetchCustomers=async()=>{
     try{
-       // const res = await axios.get('http://localhost:8080/api/customers');
         const res = await api.get('/customers');
         if(res.data.code==200) {
             console.log(res.data.result);
@@ -43,7 +54,20 @@ const fetchCustomers=async()=>{
         console.log(`[ERROR 몌세지] : ${err}`);
     }
     
+}
 
+const fetchCustomersByFilterAPI = async()=>{
+
+    try{
+        const response = await api.post('/customers',filters.value);
+        console.log(response);
+        if(response.data.code==200){
+            customers.value = response.data.result;
+        }
+
+    }catch(err){
+        console.log(`[ERROR 몌세지] : ${err}`);
+    }
 }
 
 </script>
@@ -67,6 +91,7 @@ const fetchCustomers=async()=>{
     background-color: white;
     margin-right: 30px;
     width: 25%;
+    height: 100%;
 }
 
 .customer_container {

@@ -1,15 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref , computed} from 'vue';
-// common components
-
-//Components
 import CustomerAddCard from '@/components/customer/CustomerAddCard.vue';
 import pCustomerHistoryCard from '@/components/pcustomer/pCustomerHistoryCard.vue';
 import pCustomerUpdateForm from '@/components/pcustomer/pCustomerUpdateForm.vue';
 import HistoryModal from '@/components/pcustomer/HistoryModal.vue';
 import { useRoute } from 'vue-router';
 import api from '@/api/axiosinterceptor';
-
 
 interface History {
   id: number;
