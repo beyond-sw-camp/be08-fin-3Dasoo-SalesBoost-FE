@@ -1,6 +1,5 @@
 <template>
     <div class="container">
-
         <div class="customer_container">
             <v-card>
                 <v-card-title class="custom-card-title">
@@ -36,9 +35,9 @@
                                             <span class="font-weight-black custom-margin">정보</span>
                                         </v-col>
                                         <v-col>
-                                            <v-btn color="primary" @click="clearForm">신규</v-btn>
-                                            <v-btn color="primary">저장</v-btn>
-                                            <v-btn color="primary">삭제</v-btn>
+                                            <v-btn color="primary" @click="addItem">신규</v-btn>
+                                            <v-btn color="primary" @click="">저장</v-btn>
+                                            <v-btn color="primary" @click.stop="deleteItem(selected)">삭제</v-btn>
                                         </v-col>
                                     </v-row>
 
@@ -47,7 +46,7 @@
                                             <v-row class="align-center">
                                                 <v-col cols="4">
                                                     <span class="font-weight-black">상위 부서</span>
-                                                    <v-text-field dense :value="selected ? selected.parentDeptName : ''"></v-text-field>
+                                                    <v-text-field dense :value="selected ? selected.upperDeptName : ''"></v-text-field>
                                                 </v-col>
                                                 <v-col cols="4">
                                                     <span class="font-weight-black">부서 코드</span>
@@ -79,6 +78,68 @@
             </v-card>
         </div>
     </div>
+
+    <v-dialog v-model="dialogAdd" max-width="500px">
+    <v-card>
+        <v-card-title class="text-h5">Add Department</v-card-title>
+        <v-card-text>
+            <v-container>
+                <v-row>
+                    <v-col cols="12">
+                        <v-text-field
+                            label="부서 코드"
+                            v-model="department.deptCode"
+                            dense
+                        ></v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                        <v-text-field
+                            label="부서명"
+                            v-model="department.deptName"
+                            dense
+                        ></v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                        <v-text-field
+                            label="영문 부서명"
+                            v-model="department.engName"
+                            dense
+                        ></v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                        <v-text-field
+                            label="부서장"
+                            v-model="department.deptHead"
+                            dense
+                        ></v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                        <v-text-field
+                            label="상위 부서명"
+                            v-model="department.upperDeptName"
+                            dense
+                        ></v-text-field>
+                    </v-col>
+                </v-row>
+            </v-container>
+        </v-card-text>
+        <v-card-actions>
+            <v-btn color="primary" @click="saveDepartment">Save</v-btn>
+            <v-btn @click="dialogAdd = false">Cancel</v-btn>
+        </v-card-actions>
+    </v-card>
+</v-dialog>
+
+    <v-dialog v-model="dialogDelete" max-width="400px">
+        <v-card>
+            <v-card-title class="text-h5">Delete Confirmation</v-card-title>
+            <v-card-text>Are you sure you want to delete this item?</v-card-text>
+            <v-card-actions>
+                <v-btn color="error" @click="confirmDelete">Delete</v-btn>
+                <v-btn @click="dialogDelete = false">Cancel</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
 </template>
 
 <script>
@@ -96,6 +157,15 @@ export default {
         active: [],
         open: [],
         departments: [],
+        dialogDelete: false,
+        dialogAdd: false,
+        department: {
+            deptCode : '',
+            deptName : '',
+            engName : '',
+            deptHead : '',
+            upperDeptName : '',
+        },
     }),
 
     computed: {
@@ -134,7 +204,7 @@ export default {
     methods: {
         async fetchDepartments() {
             try {
-                const response = await api.get('/departments'); // api 인스턴스 사용
+                const response = await api.get('/departments');
                 const departments = response.data.result;
 
                 if (departments) {
@@ -145,7 +215,7 @@ export default {
                         deptCode: department.deptCode,
                         engName: department.engName,
                         deptHead: department.deptHead,
-                        parentDeptName: department.upperDeptName
+                        upperDeptName: department.upperDeptName
                     }));
                 }
             } catch (error) {
@@ -153,12 +223,57 @@ export default {
             }
         },
         clearForm() {
-            this.deptCode = '';
-            this.deptName = '';
-            this.engName = '';
-            this.deptHead = '';
+            this.department = {
+                deptCode: '',
+                deptName: '',
+                engName: '',
+                deptHead: '',
+                upperDeptName: '',
+            };
             this.active = [];
         },
+        
+        async confirmDelete() {
+            try {
+                this.dialogDelete = false;
+                const apiUrl = `/departments/${this.selected.no}`;
+                const response = await api.delete(apiUrl);
+                console.log('Delete successful:', response.data);
+
+                this.selected = {};
+                await this.fetchDepartments();
+            } catch (error) {
+                console.error('Error deleting item:', error.message || error);
+            }
+        },
+
+        async saveDepartment() {
+            try {
+                const response = await api.post('/departments', this.department);
+                console.log('부서 저장 성공:', response.data);
+
+                // 폼 초기화
+                this.clearForm();
+                this.dialogAdd = false;
+
+                // 부서 목록 갱신
+                await this.fetchDepartments();
+            } catch (error) {
+                console.error('부서 저장 중 오류 발생:', error);
+            }
+        },
+
+        // 항목 삭제
+        deleteItem(item) {
+            this.selectedItem = item;
+            this.dialogDelete = true;
+        },
+
+        addItem(){
+            this.clearForm();
+            this.dialogAdd = true;
+        }
+
     },
 
     mounted() {
