@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import api from '@/api/axiosinterceptor';
-import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
 
-
-const page = ref({ title: 'Process' });
 
 const headers1 = ref([
     { title: '서브 프로세스', align: 'start', key: 'subProcessName' },
@@ -162,8 +159,6 @@ onMounted(() => {
 });
 </script>
 <template>
-    <BaseBreadcrumb :title="page.title" />
-
     <v-row>
         <v-col cols="12">
             <UiParentCard title="Sales Process">
