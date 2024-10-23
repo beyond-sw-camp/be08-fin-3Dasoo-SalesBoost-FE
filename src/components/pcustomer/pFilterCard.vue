@@ -30,8 +30,8 @@ const emit = defineEmits(['search'])
 const selectedItem = ref();
 const searchQuery = ref(null); // 검색어
 const selectedContact = ref("전체"); // 접촉 상태
-const selectContact = ['미접촉','접촉시도','접촉중','접촉금지','고객전환']; 
-const items = ['전체','고객사명','고객명','전화번호','메일']
+const selectContact = ['전체','미접촉','접촉시도','접촉중','접촉금지','고객전환']; 
+const items = ['고객사명','고객명','전화번호','메일']
 
 const search = ()=>{
     // todo : 검색 조건 초기화

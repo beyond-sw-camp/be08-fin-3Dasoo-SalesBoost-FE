@@ -42,7 +42,7 @@ const updatePCustomerAPI=async(id: string | string[])=>{
             dept:dept.value?dept.value:null,
             position:position.value?position.value:null,
             cls:cls.value?cls.value:"", // 필수
-            contactStatus:contact.value?contact.value:null, // 필수
+            status:contact.value?contact.value:null, // 필수
             grade:grade.value?grade.value:null,
             phone:phone.value?phone.value:"", // 필수
             tel:tel.value?tel.value:null,
