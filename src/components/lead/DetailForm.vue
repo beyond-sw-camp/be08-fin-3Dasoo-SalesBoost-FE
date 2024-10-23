@@ -329,7 +329,20 @@ watch(
 watch(
     () => leadResponseDto.expSales,
     (newVal) => {
+        if (isMounted.value) {
+            leadResponseDto.expProfit = (newVal * leadResponseDto.expMargin) / 100;
+        }
         expSalesDisplay.value = formatNumber(newVal);
+    }
+);
+
+watch(
+    () => leadResponseDto.expMargin,
+    (newVal) => {
+        if (isMounted.value) {
+            leadResponseDto.expProfit = (newVal * leadResponseDto.expSales) / 100;
+        }
+        expMarginDisplay.value = formatNumber(newVal);
     }
 );
 
@@ -337,13 +350,6 @@ watch(
     () => leadResponseDto.expProfit,
     (newVal) => {
         expProfitDisplay.value = formatNumber(newVal);
-    }
-);
-
-watch(
-    () => leadResponseDto.expMargin,
-    (newVal) => {
-        expMarginDisplay.value = formatNumber(newVal);
     }
 );
 
