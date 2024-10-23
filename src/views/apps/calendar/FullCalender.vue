@@ -106,7 +106,7 @@ export default defineComponent({
       try {
         const response = await api.post('/calendars');
       } catch (e) {
-        console.error('캘린더 생성 중 오류 발생:', e);
+        console.error(e);
       }
     },
 
@@ -137,7 +137,6 @@ export default defineComponent({
       try {
         const response = await api.get('/calendars/user/data');
         const calendarData = response.data.result;
-        console.log('response',response.data.result.todos);
         this.calendarNo = response.data.result.calendarNo;
 
         const store = useCalendarStore();
@@ -173,7 +172,6 @@ export default defineComponent({
 
         store.setCalendarData([...todos, ...plans, ...acts]);
         this.applyFilter(store.filteredData);
-        console.log('필터',store.filteredData)
 
       } catch (e) {
         console.error(e);
@@ -199,8 +197,6 @@ export default defineComponent({
 
       try {
         const response = await api.post('/todos', setPrivateYn);
-        console.log('Todo 추가 데이터:', setPrivateYn); 
-        console.log('할 일 추가 성공:', response);
         const createdTodo = response.data.result;
         const calendarApi = this.$refs.calendar.getApi();
         calendarApi.addEvent({
@@ -233,7 +229,6 @@ export default defineComponent({
       };
       try {
         const response = await api.post('/plans', setPersonalYn);
-        console.log('일정 추가 성공:', response.data);
         const createdPlan = response.data.result;
         const calendarApi = this.$refs.calendar.getApi();
         const className = `${plan.planCls.toLowerCase()}_plan-event`;
@@ -268,7 +263,6 @@ export default defineComponent({
     },
 
   async updatePlan(updatedPlan) {
-    console.log('updatedPlan.planNo',updatedPlan)
     const calendarApi = this.$refs.calendar.getApi();
     const event = calendarApi.getEventById(updatedPlan.planNo);
 
@@ -335,13 +329,11 @@ export default defineComponent({
     async handleEventClick(clickInfo) {
       const eventId = clickInfo.event.id;    
       const eventClassNames = clickInfo.event.classNames;
-      console.log('eventClassNames,', eventClassNames)
       if (eventClassNames.some(className => className.includes('plan'))) {
         this.AddPlanModal = true;
         this.mode = 'edit';
         try {        
           const response = await api.get(`/plans/${eventId}`);  
-          console.log('get',response)      
           const planDetails = response.data.result;
           this.plan = {     
             planNo: planDetails.planNo,
@@ -434,7 +426,6 @@ export default defineComponent({
         const event = calendarApi.getEventById(planToDelete.planNo);
         if (event) {
           event.remove();
-          console.log('Event removed:', planToDelete.planNo);
         }
         this.closePlanModal();
         this.handleAlert({
