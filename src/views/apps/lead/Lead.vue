@@ -28,11 +28,21 @@ const processes = ref([
     { text: '계약', value: 5 }
 ]);
 
-const today = new Date();
-const startDate = ref(today.toISOString().substring(0, 8) + '01');
+// const today = new Date();
+// const prevMonth = ref(today.toISOString().substring(0, 8) + '01');
+// const nextMonth = new Date(today.setMonth(today.getMonth() + 2));
+// const startDate = ref(today.toISOString().substring(0, 8) + '01');
+// const endDate = ref(nextMonth.toISOString().substring(0, 10));
 
-const nextMonth = new Date(today.setMonth(today.getMonth() + 2));
-const endDate = ref(nextMonth.toISOString().substring(0, 10));
+const startDate = new Date();
+startDate.setMonth(startDate.getMonth() - 1);
+startDate.setDate(1);
+const searchStartDate = ref(startDate.toISOString().substring(0, 10));
+
+const endDate = new Date();
+endDate.setMonth(endDate.getMonth() + 2);
+endDate.setDate(0);
+const searchEndDate = ref(endDate.toISOString().substring(0, 10));
 
 const leads = ref([]);
 const dataSize = computed(() => leads.value.length);
@@ -49,8 +59,8 @@ const search = async () => {
             status: selectedStatus.value,
             subProcess: selectedProcess.value,
             //     unit: selectedUnit.value,
-            startDate: startDate.value,
-            endDate: endDate.value
+            startDate: searchStartDate.value,
+            endDate: searchEndDate.value
         });
 
         leads.value = response.data.result;
@@ -124,8 +134,8 @@ onMounted(() => {
                         item-value="value"
                         label="진행단계"
                     ></v-select>
-                    <v-text-field v-model="startDate" label="시작일자" type="date"></v-text-field>
-                    <v-text-field v-model="endDate" label="종료일자" type="date"></v-text-field>
+                    <v-text-field v-model="searchStartDate" label="시작일자" type="date"></v-text-field>
+                    <v-text-field v-model="searchEndDate" label="종료일자" type="date"></v-text-field>
                     <v-btn class="search_btn" variant="flat" color="primary" @click="search">검색</v-btn>
                 </v-card>
             </v-col>
