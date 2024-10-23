@@ -79,12 +79,12 @@ const saveHistoryAPI=async(id: string | string[])=>{
           
             <v-row>
               <v-col cols="12" sm="6" >
-                <v-label class="font-weight-medium">접촉일</v-label>
+                <v-label class="font-weight-medium">접촉일</v-label><span class="require">*</span>
                 <v-text-field color="primary" variant="outlined" v-model="date" type="date" :rules="confirmDate"></v-text-field>
               </v-col>
        
           <v-col cols="12" sm="6">     
-            <v-label class="font-weight-medium">접촉구분</v-label>
+            <v-label class="font-weight-medium">접촉구분</v-label><span class="require">*</span>
             <v-select v-model="contact" :items="['전화','메일','방문','온라인 미팅','채널톡','기타']" single-line variant="outlined" :rules="confirmContact"></v-select>
           </v-col>
 
@@ -109,3 +109,9 @@ const saveHistoryAPI=async(id: string | string[])=>{
     </v-dialog>
   </div>
 </template>
+
+<style>
+    .require{
+        color: red;
+    }
+  </style>

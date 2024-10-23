@@ -52,7 +52,7 @@ const updatePCustomerAPI=async(id: string | string[])=>{
             note:note.value?note.value:null,
         });
         console.log(response.data);
-        if(response.data.result.code ==200){
+        if(response.data.code ==200){
             alert(response.data.result);
             getCustomerInfoAPI(route.params.id);
         }
