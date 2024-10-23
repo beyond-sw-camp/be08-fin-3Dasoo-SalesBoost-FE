@@ -2,11 +2,11 @@
 import { CalendarEventIcon, CalendarIcon } from 'vue-tabler-icons';
 
 const props = defineProps({
-    yearTarget: Number,
-    yearResult: Number,
+    yearTarget: String,
+    yearResult: String,
     yearAchievement: Number,
-    monthTarget: Number,
-    monthResult: Number,
+    monthTarget: String,
+    monthResult: String,
     monthAchievement: Number
 });
 </script>

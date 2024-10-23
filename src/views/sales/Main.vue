@@ -29,11 +29,11 @@ const holdCount = ref(0);
 const planCount = ref(0);
 const completeCount = ref(0);
 const completePercent = ref(0);
-const yearTarget = ref(0);
-const yearResult = ref(0);
+const yearTarget = ref('0');
+const yearResult = ref('0');
 const yearAchievement = ref(0);
-const monthTarget = ref(0);
-const monthResult = ref(0);
+const monthTarget = ref('0');
+const monthResult = ref('0');
 const monthAchievement = ref(0);
 
 const fetchDept = async () => {
@@ -63,15 +63,19 @@ const fetchUser = async (deptNo) => {
     }
 };
 
+const formatNumber = (value) => {
+    return new Intl.NumberFormat().format(value);
+};
+
 const fetchData = async () => {
     try {
-        const [customerResponse, potenCustomerResponse, leadResponse, actResponse, salesResponse] = await Promise.all([
+        const [customerResponse, potenCustomerResponse, leadResponse, actResponse, salesResponse, targetSalesResponse] = await Promise.all([
             api.post('/customers/status/main', searchCond),
             api.post('/pcustomers/status/main', searchCond),
             api.post('/leads/status/main', searchCond),
-            api.post('/acts/status/main', searchCond)
-            // api.post('/targetsales/status/main',  searchCond )
-            // api.post('/sales/status/main',  searchCond )
+            api.post('/acts/status/main', searchCond),
+            api.post('/sales/status/main', searchCond),
+            api.post('/targetsales/status/main', searchCond)
         ]);
         customerCount.value = customerResponse.data.result;
         potenCustomerCount.value = potenCustomerResponse.data.result;
@@ -103,13 +107,32 @@ const fetchData = async () => {
         planCount.value = actResponse.data.planCount;
         completeCount.value = actResponse.data.completeCount;
         completePercent.value = actResponse.data.completePercent;
-        // // Sales data
-        // yearTarget.value = salesResponse.data.yearTarget;
-        // yearResult.value = salesResponse.data.yearResult;
-        // yearAchievement.value = salesResponse.data.yearAchievement;
-        // monthTarget.value = salesResponse.data.monthTarget;
-        // monthResult.value = salesResponse.data.monthResult;
-        // monthAchievement.value = salesResponse.data.monthAchievement;
+
+        if (targetSalesResponse.data.result.yearTargetSales > 0) {
+            yearTarget.value = formatNumber(targetSalesResponse.data.result.yearTargetSales);
+        } else {
+            yearTarget.value = '0';
+        }
+
+        if (targetSalesResponse.data.result.monthTargetSales > 0) {
+            monthTarget.value = formatNumber(targetSalesResponse.data.result.monthTargetSales);
+        } else {
+            monthTarget.value = '0';
+        }
+
+        if (salesResponse.data.result.yearSales > 0) {
+            yearResult.value = formatNumber(salesResponse.data.result.yearSales);
+        } else {
+            yearResult.value = '0';
+        }
+
+        if (salesResponse.data.result.monthSales > 0) {
+            monthResult.value = formatNumber(salesResponse.data.result.monthSales);
+        } else {
+            monthResult.value = '0';
+        }
+        yearAchievement.value = (salesResponse.data.result.yearSales * 100) / targetSalesResponse.data.result.yearTargetSales;
+        monthAchievement.value = (salesResponse.data.result.monthSales * 100) / targetSalesResponse.data.result.monthTargetSales;
     } catch (error) {
         console.error('Error fetching data:', error);
     }
@@ -141,7 +164,6 @@ onMounted(() => {
 <template>
     <v-container fluid>
         <v-row>
-            <!-- Left Side (검색 조건) -->
             <v-col cols="12" md="3">
                 <v-card elevation="0" class="pa-4">
                     <v-card-title class="title font-weight-bold">검색 조건</v-card-title>
