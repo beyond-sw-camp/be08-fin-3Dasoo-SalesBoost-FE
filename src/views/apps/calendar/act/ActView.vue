@@ -168,7 +168,8 @@ export default {
     const isEditMode = ref(false);
     const isComplete = ref(false);
     const act = ref({
-      leadNo: null,
+      leadNo: '',
+      calendarNo: '',
       name: '',
       cls: '',
       purpose: '',
@@ -184,7 +185,18 @@ export default {
       const actNo = route.params.actNo; // actNo가 있으면 수정 모드로 간주
       isEditMode.value = !!actNo; // actNo가 있으면 true, 없으면 false
       console.log('isEditMode',isEditMode.value)
+      getCalendarNo();
     });
+
+    const getCalendarNo = async () => {
+      try {
+        const response = await api.get('/calendars/user/data');
+        act.value.calendarNo = response.data.result.calendarNo;
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
     const selectLead = (lead) => {
       act.value.leadNo = lead.leadNo;
       act.value.leadName = lead.name;
@@ -197,13 +209,13 @@ export default {
         const response = await api.get('/leads');
         if (response.data.code === 200) {
           leads.value = response.data.result.map((lead) => ({
-            leadNo: lead.leadNo.toString(),
+            leadNo: lead.leadNo,
             name: lead.name,
             note: lead.note
           }));
         }
-      } catch (error) {
-        console.error('영업기회 목록 불러오기 실패:', error);
+      } catch (e) {
+        console.error(e);
       }
     };
 
@@ -243,7 +255,6 @@ export default {
 
     const submitForm = async () => {
       const isValid = form.value && await form.value.validate();
-
       if (isValid.valid) {
         loading.value = true;
         try {
@@ -384,7 +395,7 @@ export default {
       deleteAct,
       confirmDelete,
       cancleDelete,
-      showConfirmDialogs
+      showConfirmDialogs,
     };
   }
 };
