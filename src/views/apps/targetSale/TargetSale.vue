@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
 import api from '@/api/axiosinterceptor';
 
@@ -10,6 +10,14 @@ const showAlert = ref(false);
 const alertMessage = ref('');
 const alertColor = ref('');
 const canAddTargetSale = ref(false);
+const userNames = ref([]);
+const productNames = ref([]);
+
+const currentYear = new Date().getFullYear();
+const yearRange = ref([]);
+for (let i = currentYear - 2; i <= currentYear + 2; i++) {
+  yearRange.value.push(i);
+}
 
 const headers = ref([
   { title: '제품 이름', align: 'start', sortable: false, key: 'prodName' },
@@ -55,9 +63,35 @@ const groupDataByProduct = (data) => {
   return groupedData;
 };
 
+const fetchUsers = async () => {
+  try{
+    const response = await api.get('/users')
+    console.log(response);
+
+    userNames.value = response.data.result.map(user => user.userName);
+
+    console.log(userNames.value);
+  }catch(error){
+    console.error('Error:', error.message || error);
+  }
+}
+
+const fetchProducts = async () => {
+  try{
+    const response = await api.get('/admin/products')
+    console.log(response);
+
+    productNames.value = response.data.result.map(product => product.name);
+
+    console.log(ProductNames.value);
+  }catch{
+    console.error('Error:', error.message || error);
+  }
+}
+
 const fetchTargetSales = async () => {
   try {
-    const response = await api.get(`/targetsales/${searchSalesperson.value}`, {
+    const response = await api.get(`/admin/targetsales/${searchSalesperson.value}`, {
       params: {
         year: searchYear.value,
       },
@@ -74,7 +108,7 @@ const fetchTargetSales = async () => {
     } else {
       canAddTargetSale.value = false;
 
-      alertMessage.value = '존재하지 않는 회원입니다.';
+      alertMessage.value = '년도와 영업사원을 선택해주세요.';
       alertColor.value = 'error';
       showAlert.value = true;
       targetSales.value = [];
@@ -102,7 +136,7 @@ const openDialog = () => {
 
 const addTargetSale = async () => {
   try {
-    await api.post('/targetsales', newTargetSale.value);
+    await api.post('/admin/targetsales', newTargetSale.value);
     console.log('Target Sale Added successfully');
     dialog.value = false;
     fetchTargetSales();
@@ -125,6 +159,11 @@ const closeDialog = () => {
 const search = () => {
   fetchTargetSales();
 };
+
+onMounted(() => {
+  fetchUsers();
+  fetchProducts();
+});
 </script>
 
 <template>
@@ -133,22 +172,19 @@ const search = () => {
       <UiParentCard title="Target sales management">
         <v-row class="mb-5">
           <v-col cols="4" sm="4">
-            <v-text-field
+            <v-select
+              label="Select Year"
               v-model="searchYear"
-              append-inner-icon="mdi-calendar"
-              label="년도 검색"
-              single-line
+              :items="yearRange"
               hide-details
-            />
+            ></v-select>
           </v-col>
           <v-col cols="4" sm="4">
-            <v-text-field
+            <v-select
               v-model="searchSalesperson"
-              append-inner-icon="mdi-account"
-              label="영업사원명 검색"
-              single-line
-              hide-details
-            />
+              :items="userNames"
+              label="Select Salesperson"
+            ></v-select>
           </v-col>
           <v-col cols="4">
             <v-btn color="primary" @click="search">검색</v-btn>
@@ -212,7 +248,11 @@ const search = () => {
         <v-container>
           <v-row>
             <v-col cols="12">
-              <v-text-field v-model="newTargetSale.prodName" label="제품 이름" />
+              <v-select
+                v-model="newTargetSale.prodName"
+                :items="productNames"
+                label="Select product"
+              ></v-select>
             </v-col>
             <v-col cols="12">
               <v-text-field v-model="newTargetSale.sum" label="합계" type="number" />
