@@ -140,6 +140,7 @@ const addTargetSale = async () => {
     console.log('Target Sale Added successfully');
     dialog.value = false;
     fetchTargetSales();
+    closeDialog();
   } catch (error) {
     console.error('Error adding target sale:', error.message || error);
   }

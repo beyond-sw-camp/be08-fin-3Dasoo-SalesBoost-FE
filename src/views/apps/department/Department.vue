@@ -233,6 +233,7 @@ export default {
                 const departmentNames = response.data.result.map(department => department.name);
                 this.departmentNames = departmentNames;
 
+
                 if (departments) {
                     this.departments = departments.map(department => ({
                         no: department.no,

@@ -152,7 +152,9 @@ export default {
         
         async fetchProducts() {
             try {
+                console.log("조회");
                 const response = await api.get('/products');
+                console.log(response);
                 this.items = response.data.result;
             } catch (error) {
                 console.error('제품 정보를 가져오는 중 오류 발생:', error);
@@ -195,7 +197,7 @@ export default {
                 taxRate: 0,
                 price: 0
             };
-            this.errorMessage = ''; // 오류 메시지 초기화
+            this.errorMessage = '';
         },
 
         async saveProduct() {
@@ -213,7 +215,7 @@ export default {
                 alert('저장되었습니다.');
                 this.fetchProducts();
                 this.clearForm();
-                this.errorMessage = ''; // 성공적으로 저장한 경우 오류 메시지 초기화
+                this.errorMessage = '';
             } catch (error) {
                 console.error('저장 중 오류 발생:', error);
                 alert('저장 중 오류가 발생했습니다.');
