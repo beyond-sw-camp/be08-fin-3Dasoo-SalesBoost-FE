@@ -80,55 +80,62 @@
     </div>
 
     <v-dialog v-model="dialogAdd" max-width="500px">
-    <v-card>
-        <v-card-title class="text-h5">Add Department</v-card-title>
-        <v-card-text>
-            <v-container>
-                <v-row>
-                    <v-col cols="12">
-                        <v-text-field
-                            label="부서 코드"
-                            v-model="department.deptCode"
-                            dense
-                        ></v-text-field>
-                    </v-col>
-                    <v-col cols="12">
-                        <v-text-field
-                            label="부서명"
-                            v-model="department.deptName"
-                            dense
-                        ></v-text-field>
-                    </v-col>
-                    <v-col cols="12">
-                        <v-text-field
-                            label="영문 부서명"
-                            v-model="department.engName"
-                            dense
-                        ></v-text-field>
-                    </v-col>
-                    <v-col cols="12">
-                        <v-text-field
-                            label="부서장"
-                            v-model="department.deptHead"
-                            dense
-                        ></v-text-field>
-                    </v-col>
-                    <v-col cols="12">
-                        <v-text-field
-                            label="상위 부서명"
-                            v-model="department.upperDeptName"
-                            dense
-                        ></v-text-field>
-                    </v-col>
-                </v-row>
-            </v-container>
-        </v-card-text>
-        <v-card-actions>
-            <v-btn color="primary" @click="saveDepartment">Save</v-btn>
-            <v-btn @click="dialogAdd = false">Cancel</v-btn>
-        </v-card-actions>
-    </v-card>
-</v-dialog>
+        <v-card>
+            <v-card-title class="text-h5">Add Department</v-card-title>
+            <v-card-text>
+                <v-container>
+                    <v-row>
+                        <v-col cols="12">
+                            <v-text-field
+                                label="부서 코드"
+                                v-model="department.deptCode"
+                                dense
+                                :rules="[v => !!v || '부서 코드는 필수입니다.']"
+                                @input="validateForm"
+                            ></v-text-field>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-text-field
+                                label="부서명"
+                                v-model="department.deptName"
+                                dense
+                                :rules="[v => !!v || '부서명은 필수입니다.']"
+                                @input="validateForm"
+                            ></v-text-field>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-text-field
+                                label="영문 부서명"
+                                v-model="department.engName"
+                                dense
+                                :rules="[v => !!v || '영문 부서명은 필수입니다.']"
+                                @input="validateForm"
+                            ></v-text-field>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-select
+                                v-model="department.deptHead"
+                                :items="userNames"
+                                label="부서장"
+                            ></v-select>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-select
+                                v-model="department.upperDeptName"
+                                :items="departmentNames"
+                                label="상위 부서명"
+                            ></v-select>
+                        </v-col>
+                    </v-row>
+                </v-container>
+            </v-card-text>
+            <v-card-actions>
+                <v-btn :disabled="!formValid" color="primary" @click="saveDepartment">Save</v-btn>
+                <v-btn @click="dialogAdd = false">Cancel</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
 
     <v-dialog v-model="dialogDelete" max-width="400px">
         <v-card>
@@ -157,8 +164,11 @@ export default {
         active: [],
         open: [],
         departments: [],
+        departmentNames: [],
+        userNames: [],
         dialogDelete: false,
         dialogAdd: false,
+        formValid: false,
         department: {
             deptCode : '',
             deptName : '',
@@ -202,10 +212,26 @@ export default {
     },
 
     methods: {
+        async fetchusers(){
+            try{
+                const response = await api.get('/users')
+                console.log(response);
+
+                const userNames = response.data.result.map(user => user.userName);
+                this.userNames = userNames;
+
+                console.log(userNames);
+            } catch(error){
+                console.error("유저 목록을 가져오는 중 오류 발생:", error);
+            }
+        },
         async fetchDepartments() {
             try {
-                const response = await api.get('/departments');
+                const response = await api.get('/admin/departments');
                 const departments = response.data.result;
+
+                const departmentNames = response.data.result.map(department => department.name);
+                this.departmentNames = departmentNames;
 
                 if (departments) {
                     this.departments = departments.map(department => ({
@@ -232,11 +258,15 @@ export default {
             };
             this.active = [];
         },
+
+        validateForm() {
+            this.formValid = !!this.department.deptCode && !!this.department.deptName && !!this.department.engName;
+        },
         
         async confirmDelete() {
             try {
                 this.dialogDelete = false;
-                const apiUrl = `/departments/${this.selected.no}`;
+                const apiUrl = `/admin/departments/${this.selected.no}`;
                 const response = await api.delete(apiUrl);
                 console.log('Delete successful:', response.data);
 
@@ -249,7 +279,7 @@ export default {
 
         async saveDepartment() {
             try {
-                const response = await api.post('/departments', this.department);
+                const response = await api.post('/admin/departments', this.department);
                 console.log('부서 저장 성공:', response.data);
 
                 // 폼 초기화
@@ -272,12 +302,13 @@ export default {
         addItem(){
             this.clearForm();
             this.dialogAdd = true;
-        }
+        },
 
     },
 
     mounted() {
         this.fetchDepartments();
+        this.fetchusers();
     }
 };
 </script>
