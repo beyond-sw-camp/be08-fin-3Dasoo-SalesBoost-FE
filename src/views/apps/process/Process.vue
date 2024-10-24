@@ -1,66 +1,164 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import BaseBreadcrumb from '@/components/shared/BaseBreadcrumb.vue';
+import { ref, onMounted } from 'vue';
+import api from '@/api/axiosinterceptor';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
 
-// 페이지 제목
-const page = ref({ title: 'Process' });
 
-// 테이블 헤더1 (하위 프로세스)
 const headers1 = ref([
-    { title: '세부 코드', align: 'start', key: 'code' },
-    { title: '프로세스', align: 'start', key: 'name' },
-    { title: '진행 단계', align: 'start', key: 'step' },
-    { title: '성공 확률(%)', align: 'start', key: 'probability' },
-    { title: '상세', align: 'start', key: 'description' },
-    { title: '예상 소요 기간(일)', align: 'start', key: 'estimatedTime' },
+    { title: '서브 프로세스', align: 'start', key: 'subProcessName' },
+    { title: '진행 단계', align: 'start', key: 'progressStep' },
+    { title: '성공 확률(%)', align: 'start', key: 'successRate' },
+    { title: '내용', align: 'start', key: 'description' },
+    { title: '예상 소요 기간(일)', align: 'start', key: 'expectedDuration' },
+    { title: '액션', align: 'start' },
 ]);
 
-// 테이블 헤더2 (상위 프로세스)
 const headers2 = ref([
-    { title: '프로세스', align: 'start', key: 'name' },
+    { title: '프로세스', align: 'start', key: 'processName' },
     { title: '기본 프로세스', key: 'isDefault' },
     { title: '내용', key: 'description' },
-    { title: '예상 소요기간', key: 'estimatedTime' }
+    { title: '예상 소요기간', key: 'expectedDuration' },
+    { title: '액션', align: 'start' },
 ]);
 
 const dialog = ref(false);
-
-// 상위 프로세스 데이터
-const processes = ref([
-    { id: 1, name: '영업기회1', isDefault: 'True', description: 'test 프로세스1', estimatedTime: 20 },
-    { id: 2, name: '영업기회2', isDefault: 'False', description: 'test 프로세스2', estimatedTime: 25 },
-]);
-
-// 하위 프로세스 데이터
+const dialogDelete = ref(false);
+const processes = ref([]);
 const subProcesses = ref([]);
+const editedItem = ref(null);
+const dialogMode = ref('');
+const selectedProcess = ref(null);
 
-// 선택된 상위 프로세스 ID에 따라 하위 프로세스를 가져오는 함수
-function fetchSubProcesses(processId) {
-    const response = [
-        { processId: 1, code: '001', name: '기회 인지', step: '1단계', probability: 60, description: '세부 사항1', estimatedTime: 5 },
-        { processId: 1, code: '002', name: '제품 소개', step: '2단계', probability: 80, description: '세부 사항2', estimatedTime: 3 },
-        { processId: 2, code: '003', name: '계약 협상', step: '3단계', probability: 90, description: '세부 사항3', estimatedTime: 7 },
-    ];
-
-    subProcesses.value = response.filter(subProcess => subProcess.processId == processId);
-
-    console.log('Selected SubProcesses:', subProcesses.value);
-}
-
-function selectRow(process) {
-    console.log('Selected Process:', process);
-    if (process && process.id) {
-        fetchSubProcesses(process.id);
-    } else {
-        console.error('Invalid process object:', process);
+// 상위 프로세스를 API로 가져오는 함수
+async function fetchProcesses() {
+    try {
+        const response = await api.get('/processes');
+        processes.value = response.data.result;
+    } catch (error) {
+        console.error('Error fetching processes:', error.message || error);
     }
 }
+
+// 하위 프로세스를 API로 가져오는 함수
+async function fetchSubProcesses(processName) {
+    try {
+        const response = await api.get(`/subprocesses/${processName}`);
+        subProcesses.value = response.data.result;
+    } catch (error) {
+        console.error('Error fetching sub processes:', error.message || error);
+    }
+}
+
+// 행 클릭 시 하위 프로세스 로드 및 선택된 프로세스 저장
+function selectRow(process) {
+    if (process && process.processName) {
+        selectedProcess.value = process; // 선택된 상위 프로세스를 저장
+        fetchSubProcesses(process.processName);
+    }
+}
+
+// 상위 프로세스 추가 함수
+function addParentProcess() {
+    // 상위 프로세스 추가를 위한 기본 항목 설정
+    editedItem.value = {
+        processName: '',
+        isDefault: false,
+        description: '',
+        expectedDuration: '',
+    };
+    dialogMode.value = 'add-parent';
+    dialog.value = true;
+}
+
+// 하위 프로세스 추가 함수
+function addSubProcess() {
+    if (!selectedProcess.value) {
+        alert('상위 프로세스를 선택한 후 하위 프로세스를 추가하세요.');
+        return;
+    }
+
+    editedItem.value = {
+        processNo: selectedProcess.value.processNo,
+        subProcessName: '',
+        progressStep: '',
+        successRate: '',
+        description: '',
+        expectedDuration: '',
+    };
+    dialogMode.value = 'add-sub'; // 하위 프로세스 추가 모드
+    dialog.value = true;
+}
+
+// 상위 프로세스 저장 함수
+async function saveParentProcess() {
+    try {
+        if (dialogMode.value === 'add-parent') {
+            const response = await api.post(`/processes`, editedItem.value);
+            console.log('Parent process Add successful:', response.data);
+        }
+        dialog.value = false;
+        await fetchProcesses();
+    } catch (error) {
+        console.error('Error saving parent process:', error.message || error);
+    }
+}
+
+// 하위 프로세스 저장 함수
+async function saveSubProcess() {
+    try {
+        if (selectedProcess.value && selectedProcess.value.processNo) {
+            editedItem.value.processNo = selectedProcess.value.processNo;
+            const response = await api.post(`/subprocesses`, editedItem.value);
+            console.log('Subprocess Add successful:', response.data);
+
+            dialog.value = false;
+
+            await fetchSubProcesses(selectedProcess.value.processName);
+        } else {
+            console.error('No parent process selected for adding sub process.');
+            alert('상위 프로세스를 선택한 후 하위 프로세스를 추가하세요.');
+        }
+    } catch (error) {
+        console.error('Error saving sub process:', error.message || error);
+    }
+}
+
+// 항목 삭제
+function deleteItem(item, type) {
+    editedItem.value = { ...item };
+    dialogMode.value = `delete-${type}`;
+    dialogDelete.value = true;
+}
+
+// 항목 삭제 확정
+async function confirmDelete() {
+    try {
+        dialogDelete.value = false;
+        // Delete API 호출
+        const apiUrl = dialogMode.value.includes('parent')
+            ? `/processes/${editedItem.value.processNo}`
+            : `/subprocesses/${editedItem.value.subProcessNo}`;
+        const response = await api.delete(apiUrl);
+        console.log('Delete successful:', response.data);
+
+        editedItem.value = null;
+        
+        if (dialogMode.value.includes('sub')) {
+            await fetchSubProcesses(selectedProcess.value.processName);
+        } else {
+            await fetchProcesses();
+        }
+    } catch (error) {
+        console.error('Error deleting item:', error.message || error);
+    }
+}
+
+// 초기 데이터 로드
+onMounted(() => {
+    fetchProcesses();
+});
 </script>
-
 <template>
-    <BaseBreadcrumb :title="page.title" />
-
     <v-row>
         <v-col cols="12">
             <UiParentCard title="Sales Process">
@@ -68,51 +166,108 @@ function selectRow(process) {
                     class="border rounded-md"
                     :headers="headers2"
                     :items="processes"
-                    item-value="id"
+                    item-value="processNo"
                 >
                     <template v-slot:item="{ item }">
                         <tr @click="selectRow(item)">
-                            <td>{{ item.name }}</td>
+                            <td>{{ item.processName }}</td>
                             <td>{{ item.isDefault }}</td>
                             <td>{{ item.description }}</td>
-                            <td>{{ item.estimatedTime }}</td>
+                            <td>{{ item.expectedDuration }}</td>
+                            <td>
+                                <v-icon color="info" size="small" class="me-2" @click.stop="editItem(item, 'parent')">
+                                    mdi-pencil
+                                </v-icon>
+                                <v-icon color="error" size="small" @click.stop="deleteItem(item, 'parent')">
+                                    mdi-delete
+                                </v-icon>
+                            </td>
                         </tr>
                     </template>
                     <template v-slot:top>
                         <v-toolbar class="bg-lightsecondary" flat>
                             <v-toolbar-title>Process</v-toolbar-title>
                             <v-spacer></v-spacer>
-                            <v-btn color="primary"  variant="flat" dark>신규</v-btn>
-                            <v-btn color="primary"  variant="flat" dark>삭제</v-btn>
-                            <v-btn color="primary"  variant="flat" dark>저장</v-btn>
+                            <v-btn color="primary" variant="flat" dark @click="addParentProcess">Add New Parent Process</v-btn>
                         </v-toolbar>
                     </template>
                 </v-data-table>
 
-                <!-- Sub Process Table -->
-                <v-data-table 
-                    class="border rounded-md mt-6" 
-                    :headers="headers1" 
+                <v-data-table
+                    class="border rounded-md mt-6"
+                    :headers="headers1"
                     :items="subProcesses"
-                    :key="subProcesses"
                 >
+                    <template v-slot:item="{ item }">
+                        <tr>
+                            <td>{{ item.subProcessName }}</td>
+                            <td>{{ item.progressStep }}</td>
+                            <td>{{ item.successRate }}</td>
+                            <td>{{ item.description }}</td>
+                            <td>{{ item.expectedDuration }}</td>
+                            <td>
+                                <v-icon color="info" size="small" class="me-2" @click.stop="editItem(item, 'sub')">
+                                    mdi-pencil
+                                </v-icon>
+                                <v-icon color="error" size="small" @click.stop="deleteItem(item, 'sub')">
+                                    mdi-delete
+                                </v-icon>
+                            </td>
+                        </tr>
+                    </template>
                     <template v-slot:top>
                         <v-toolbar class="bg-lightsecondary" flat>
                             <v-toolbar-title>Sub Process</v-toolbar-title>
                             <v-spacer></v-spacer>
-                            <v-btn color="primary"  variant="flat" dark>신규</v-btn>
-                            <v-btn color="primary"  variant="flat" dark>삭제</v-btn>
-                            <v-btn color="primary"  variant="flat" dark>저장</v-btn>
+                            <v-btn color="primary" variant="flat" dark @click="addSubProcess">Add New Sub Process</v-btn>
                         </v-toolbar>
                     </template>
                 </v-data-table>
             </UiParentCard>
         </v-col>
     </v-row>
-</template>
 
-<style>
-.v-btn{
-    margin-left: 1rem;
-}
-</style>
+    <v-dialog v-model="dialog" max-width="500px">
+        <v-card>
+            <v-card-title class="text-h5">
+                {{ dialogMode.includes('edit') ? 'Edit Item' : dialogMode === 'add-parent' ? 'Add Parent Process' : 'Add Sub Process' }}
+            </v-card-title>
+            <v-card-text>
+                <v-container>
+                    <v-row v-if="dialogMode === 'add-parent'">
+                        <v-col cols="12">
+                            <v-text-field v-model="editedItem.processName" label="Process Name" />
+                            <v-text-field v-model="editedItem.description" label="Description" />
+                            <v-text-field v-model="editedItem.expectedDuration" label="Expected Duration" />
+                        </v-col>
+                    </v-row>
+                    <v-row v-else>
+                        <v-col cols="12">
+                            <v-text-field v-model="editedItem.subProcessName" label="Sub Process Name" />
+                            <v-text-field v-model="editedItem.progressStep" label="Progress Step" />
+                            <v-text-field v-model="editedItem.successRate" label="Success Rate (%)" />
+                            <v-text-field v-model="editedItem.description" label="Description" />
+                            <v-text-field v-model="editedItem.expectedDuration" label="Expected Duration" />
+                        </v-col>
+                    </v-row>
+                </v-container>
+            </v-card-text>
+            <v-card-actions>
+                <v-btn v-if="dialogMode === 'add-parent'" color="primary" @click="saveParentProcess">Save Parent Process</v-btn>
+                <v-btn v-else color="primary" @click="saveSubProcess">Save Sub Process</v-btn>
+                <v-btn @click="dialog = false">Cancel</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="dialogDelete" max-width="400px">
+        <v-card>
+            <v-card-title class="text-h5">Delete Confirmation</v-card-title>
+            <v-card-text>Are you sure you want to delete this item?</v-card-text>
+            <v-card-actions>
+                <v-btn color="error" @click="confirmDelete">Delete</v-btn>
+                <v-btn @click="dialogDelete = false">Cancel</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+</template>

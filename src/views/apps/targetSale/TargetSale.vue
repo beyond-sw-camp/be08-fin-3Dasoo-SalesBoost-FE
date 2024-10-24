@@ -1,234 +1,278 @@
 <script setup>
-import { computed, nextTick, ref, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import UiParentCard from '@/components/shared/UiParentCard.vue';
+import api from '@/api/axiosinterceptor';
 
-const dialog = ref(false)
-const dialogDelete = ref(false)
 const searchYear = ref('');
 const searchSalesperson = ref('');
+const targetSales = ref([]);
+const showAlert = ref(false);
+const alertMessage = ref('');
+const alertColor = ref('');
+const canAddTargetSale = ref(false);
+const userNames = ref([]);
+const productNames = ref([]);
+
+const currentYear = new Date().getFullYear();
+const yearRange = ref([]);
+for (let i = currentYear - 2; i <= currentYear + 2; i++) {
+  yearRange.value.push(i);
+}
+
 const headers = ref([
-    { title: '제품명', align: 'start', sortable: false, key: 'name' },
-    { title: '합계', key: 'total' },
-    { title: '01', key: 'month01' },
-    { title: '02', key: 'month02' },
-    { title: '03', key: 'month03' },
-    { title: '04', key: 'month04' },
-    { title: '05', key: 'month05' },
-    { title: '06', key: 'month06' },
-    { title: '07', key: 'month07' },
-    { title: '08', key: 'month08' },
-    { title: '09', key: 'month09' },
-    { title: '10', key: 'month10' },
-    { title: '11', key: 'month11' },
-    { title: '12', key: 'month12' },
-    { title: 'Actions', key: 'actions', sortable: false },
-])
-const desserts = ref([])
-const editedIndex = ref(-1)
-const editedItem = ref({
-    name: '',
-    total: 0,
-    month01: 0,
-    month02: 0,
-    month03: 0,
-    month04: 0,
-    month05: 0,
-    month06: 0,
-    month07: 0,
-    month08: 0,
-    month09: 0,
-    month10: 0,
-    month11: 0,
-    month12: 0,
-})
-const defaultItem = ref({
-    name: '',
-    total: 0,
-    month01: 0,
-    month02: 0,
-    month03: 0,
-    month04: 0,
-    month05: 0,
-    month06: 0,
-    month07: 0,
-    month08: 0,
-    month09: 0,
-    month10: 0,
-    month11: 0,
-    month12: 0,
-})
-const formTitle = computed(() => {
-    return editedIndex.value === -1 ? 'New Item' : 'Edit Item'
-})
-function initialize() {
-    desserts.value = [
-        { name: '제품 A', total: 1000, month01: 100, month02: 200, month03: 300, month04: 400, month05: 500, month06: 600, month07: 700, month08: 800, month09: 900, month10: 1000, month11: 1100, month12: 1200 },
-        { name: '제품 B', total: 2000, month01: 200, month02: 400, month03: 600, month04: 800, month05: 1000, month06: 1200, month07: 1400, month08: 1600, month09: 1800, month10: 2000, month11: 2200, month12: 2400 },
-        // ... 추가 데이터
-    ]
-}
-function editItem(item) {
-    editedIndex.value = desserts.value.indexOf(item)
-    editedItem.value = Object.assign({}, item)
-    dialog.value = true
-}
-function deleteItem(item) {
-    editedIndex.value = desserts.value.indexOf(item)
-    editedItem.value = Object.assign({}, item)
-    dialogDelete.value = true
-}
-function deleteItemConfirm() {
-    desserts.value.splice(editedIndex.value, 1)
-    closeDelete()
-}
-function close() {
-    dialog.value = false
-    nextTick(() => {
-        editedItem.value = Object.assign({}, defaultItem.value)
-        editedIndex.value = -1
-    })
-}
-function closeDelete() {
-    dialogDelete.value = false
-    nextTick(() => {
-        editedItem.value = Object.assign({}, defaultItem.value)
-        editedIndex.value = -1
-    })
-}
-function save() {
-    if (editedIndex.value > -1) {
-        Object.assign(desserts.value[editedIndex.value], editedItem.value)
-    } else {
-        desserts.value.push(editedItem.value)
+  { title: '제품 이름', align: 'start', sortable: false, key: 'prodName' },
+  { title: '합계', key: 'sum' },
+  { title: '01월', key: 'month01' },
+  { title: '02월', key: 'month02' },
+  { title: '03월', key: 'month03' },
+  { title: '04월', key: 'month04' },
+  { title: '05월', key: 'month05' },
+  { title: '06월', key: 'month06' },
+  { title: '07월', key: 'month07' },
+  { title: '08월', key: 'month08' },
+  { title: '09월', key: 'month09' },
+  { title: '10월', key: 'month10' },
+  { title: '11월', key: 'month11' },
+  { title: '12월', key: 'month12' },
+  { title: '액션', align: 'start' },
+]);
+
+const groupDataByProduct = (data) => {
+  const groupedData = [];
+  
+  data.forEach(item => {
+    let existingProduct = groupedData.find(prod => prod.prodName === item.prodName);
+    
+    if (!existingProduct) {
+      existingProduct = {
+        prodName: item.prodName,
+        month01: '', month02: '', month03: '', month04: '', 
+        month05: '', month06: '', month07: '', month08: '', 
+        month09: '', month10: '', month11: '', month12: '',
+        sum: 0
+      };
+      groupedData.push(existingProduct);
     }
-    close()
+
+    const monthKey = `month${String(item.month).padStart(2, '0')}`;
+    existingProduct[monthKey] = item.monthTarget;
+
+    existingProduct.sum += item.monthTarget;
+  });
+
+  return groupedData;
+};
+
+const fetchUsers = async () => {
+  try{
+    const response = await api.get('/users')
+    console.log(response);
+
+    userNames.value = response.data.result.map(user => user.userName);
+
+    console.log(userNames.value);
+  }catch(error){
+    console.error('Error:', error.message || error);
+  }
 }
-watch(dialog, val => {
-    val || close()
-})
-watch(dialogDelete, val => {
-    val || closeDelete()
-})
-initialize()
+
+const fetchProducts = async () => {
+  try{
+    const response = await api.get('/admin/products')
+    console.log(response);
+
+    productNames.value = response.data.result.map(product => product.name);
+
+    console.log(ProductNames.value);
+  }catch{
+    console.error('Error:', error.message || error);
+  }
+}
+
+const fetchTargetSales = async () => {
+  try {
+    const response = await api.get(`/admin/targetsales/${searchSalesperson.value}`, {
+      params: {
+        year: searchYear.value,
+      },
+    });
+
+    console.log(response.data.code);
+
+    if (response.data.code === 200) {
+      if (Array.isArray(response.data.result)) {
+        targetSales.value = groupDataByProduct(response.data.result);
+        showAlert.value = false;
+        canAddTargetSale.value = true;
+      }
+    } else {
+      canAddTargetSale.value = false;
+
+      alertMessage.value = '년도와 영업사원을 선택해주세요.';
+      alertColor.value = 'error';
+      showAlert.value = true;
+      targetSales.value = [];
+      canAddTargetSale.value = false;
+    }
+  } catch (error) {
+    console.error('Error adding target sale:', error.message || error);
+  }
+};
+
+const dialog = ref(false);
+const newTargetSale = ref({
+  userName: '',
+  prodName: '',
+  sum: 0,
+  year: '',
+  monthTargets: Array(12).fill(0),
+});
+
+const openDialog = () => {
+  newTargetSale.value.userName = searchSalesperson.value;
+  newTargetSale.value.year = searchYear.value;
+  dialog.value = true;
+};
+
+const addTargetSale = async () => {
+  try {
+    await api.post('/admin/targetsales', newTargetSale.value);
+    console.log('Target Sale Added successfully');
+    dialog.value = false;
+    fetchTargetSales();
+  } catch (error) {
+    console.error('Error adding target sale:', error.message || error);
+  }
+};
+
+const closeDialog = () => {
+  dialog.value = false;
+  newTargetSale.value = {
+    userName: '',
+    prodName: '',
+    sum: 0,
+    year: '',
+    monthTargets: Array(12).fill(0),
+  };
+};
+
+const search = () => {
+  fetchTargetSales();
+};
+
+onMounted(() => {
+  fetchUsers();
+  fetchProducts();
+});
 </script>
 
 <template>
-    <v-row>
-        <v-col cols="12">
-            <UiParentCard title="Target sales management">
-                <v-row class="mb-5">
-                    <v-col cols="6" sm="4">
-                        <v-text-field
-                            v-model="searchYear"
-                            append-inner-icon="mdi-calendar"
-                            label="년도 검색"
-                            single-line
-                            hide-details
-                        />
-                    </v-col>
-                    <v-col cols="6" sm="4">
-                        <v-text-field
-                            v-model="searchSalesperson"
-                            append-inner-icon="mdi-account"
-                            label="영업사원명 검색"
-                            single-line
-                            hide-details
-                        />
-                    </v-col>
-                </v-row>
+  <v-row>
+    <v-col cols="12">
+      <UiParentCard title="Target sales management">
+        <v-row class="mb-5">
+          <v-col cols="4" sm="4">
+            <v-select
+              label="Select Year"
+              v-model="searchYear"
+              :items="yearRange"
+              hide-details
+            ></v-select>
+          </v-col>
+          <v-col cols="4" sm="4">
+            <v-select
+              v-model="searchSalesperson"
+              :items="userNames"
+              label="Select Salesperson"
+            ></v-select>
+          </v-col>
+          <v-col cols="4">
+            <v-btn color="primary" @click="search">검색</v-btn>
+          </v-col>
+        </v-row>
 
-                <v-data-table class="border rounded-md" :headers="headers" :items="desserts">
-                    <template v-slot:top>
-                        <v-toolbar class="bg-lightsecondary" flat>
-                            <v-toolbar-title>Target Sale</v-toolbar-title>
-                            <v-spacer></v-spacer>
-                            <v-btn color="primary" variant="flat" dark @click="dialog = true">Add New Item</v-btn>
-                        </v-toolbar>
-                    </template>
-                    <template v-slot:item.actions="{ item }">
-                        <v-icon color="info" size="small" class="me-2" @click="editItem(item)">
-                            mdi-pencil
-                        </v-icon>
-                        <v-icon color="error" size="small" @click="deleteItem(item)">
-                            mdi-delete
-                        </v-icon>
-                    </template>
-                </v-data-table>
+        <v-alert v-if="showAlert" class="mb-3" :color="alertColor" variant="tonal">
+          {{ alertMessage }}
+        </v-alert>
 
-                <v-dialog v-model="dialog" max-width="500px">
-                    <v-card>
-                        <v-card-title class="pa-4 bg-secondary">
-                            <span class="text-h5">{{ formTitle }}</span>
-                        </v-card-title>
+        <v-data-table
+          class="border rounded-md" 
+          :headers="headers"
+          :items="targetSales">
+          <template v-slot:item="{ item }">
+            <tr>
+              <td>{{ item.prodName }}</td>
+              <td>{{ item.sum }}</td>
+              <td>{{ item.month01 }}</td>
+              <td>{{ item.month02 }}</td>
+              <td>{{ item.month03 }}</td>
+              <td>{{ item.month04 }}</td>
+              <td>{{ item.month05 }}</td>
+              <td>{{ item.month06 }}</td>
+              <td>{{ item.month07 }}</td>
+              <td>{{ item.month08 }}</td>
+              <td>{{ item.month09 }}</td>
+              <td>{{ item.month10 }}</td>
+              <td>{{ item.month11 }}</td>
+              <td>{{ item.month12 }}</td>
+              <td>
+                <v-icon color="info" size="small" class="me-2" @click.stop="">
+                  mdi-pencil
+                </v-icon>
+              </td>
+            </tr>
+          </template>
+          <template v-slot:top>
+            <v-toolbar class="bg-lightsecondary" flat>
+              <v-toolbar-title>Target Sale</v-toolbar-title>
+              <v-spacer></v-spacer>
+              <v-btn 
+                v-if="canAddTargetSale" 
+                color="primary" 
+                variant="flat" 
+                dark 
+                @click.stop="openDialog">
+                Add New TargetSale
+              </v-btn>
+            </v-toolbar>
+          </template>
+        </v-data-table>
+      </UiParentCard>
+    </v-col>
+  </v-row>
 
-                        <v-card-text>
-                            <v-container class="px-0">
-                                <v-row>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedItem.name" label="제품명"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedItem.total" label="합계"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedItem.month01" label="01"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedItem.month02" label="02"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedItem.month03" label="03"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedItem.month04" label="04"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedItem.month05" label="05"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedItem.month06" label="06"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedItem.month07" label="07"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedItem.month08" label="08"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedItem.month09" label="09"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedItem.month10" label="10"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedItem.month11" label="11"></v-text-field>
-                                    </v-col>
-                                    <v-col cols="12" sm="6" md="4">
-                                        <v-text-field v-model="editedItem.month12" label="12"></v-text-field>
-                                    </v-col>
-                                </v-row>
-                            </v-container>
-                        </v-card-text>
-
-                        <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
-                            <v-btn color="blue darken-1" text @click="save">Save</v-btn>
-                        </v-card-actions>
-                    </v-card>
-                </v-dialog>
-
-                <v-dialog v-model="dialogDelete" max-width="500px">
-                    <v-card>
-                        <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
-                        <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-                            <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
-                        </v-card-actions>
-                    </v-card>
-                </v-dialog>
-            </UiParentCard>
-        </v-col>
-    </v-row>
+  <v-dialog v-model="dialog" max-width="600px">
+    <v-card>
+      <v-card-title>New Target Sale</v-card-title>
+      <v-card-text>
+        <v-container>
+          <v-row>
+            <v-col cols="12">
+              <v-select
+                v-model="newTargetSale.prodName"
+                :items="productNames"
+                label="Select product"
+              ></v-select>
+            </v-col>
+            <v-col cols="12">
+              <v-text-field v-model="newTargetSale.sum" label="합계" type="number" />
+            </v-col>
+            <v-col cols="4" v-for="(month, index) in 12" :key="index">
+              <v-text-field v-model="newTargetSale.monthTargets[index]" :label="`${index + 1}월`" type="number" />
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn color="primary" @click="addTargetSale">Save</v-btn>
+        <v-btn @click="closeDialog">Cancel</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
+
+<style>
+.v-toolbar {
+  margin-bottom: 2rem;
+}
+</style>

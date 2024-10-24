@@ -1,23 +1,11 @@
-<script setup lang="ts">
+<script setup >
 import { onMounted, ref , computed} from 'vue';
-// common components
-
-//Components
 import CustomerAddCard from '@/components/customer/CustomerAddCard.vue';
 import pCustomerHistoryCard from '@/components/pcustomer/pCustomerHistoryCard.vue';
 import pCustomerUpdateForm from '@/components/pcustomer/pCustomerUpdateForm.vue';
 import HistoryModal from '@/components/pcustomer/HistoryModal.vue';
 import { useRoute } from 'vue-router';
 import api from '@/api/axiosinterceptor';
-
-
-interface History {
-  id: number;
-  contactDate: string;
-  cls: string;
-  content: string;
-  userName:string;
-}
 
 onMounted(()=>{
      getHistorysAPI(route.params.id);
@@ -27,7 +15,7 @@ const route = useRoute();
 const tab = ref(null);
 const page = ref({ title: '고객 정보' });
 const dialog=ref(false);
-const historys = ref<History[]>([]);
+const historys = ref([]);
 
 const openHistoryModal = ()=>{
      dialog.value = true // 접촉이력 창 열기
@@ -42,7 +30,7 @@ const saveHistory = ()=>{
      getHistorysAPI(route.params.id);
 }
 
-const getHistorysAPI=async(id: string | string[])=>{
+const getHistorysAPI=async(id)=>{
      try{
           const response = await api.get(`/pcustomers/${id}/history`);
 
@@ -57,6 +45,26 @@ const getHistorysAPI=async(id: string | string[])=>{
      }
 }
 
+const deleteHistory =(id)=>{
+     if(confirm("정말 삭제하시겠습니까?")){
+          deleteHistoryAPI(id);
+     }
+
+}
+
+const deleteHistoryAPI = async(id)=>{
+     try{
+          const response = await api.delete(`/pcustomers/history/${id}`);
+          console.log(response);
+          const msg = response.data.result;
+          alert(msg);
+          if(response.data.code==200){
+               getHistorysAPI(route.params.id);
+          }
+     }catch(err){
+          console.log(`[ERROR 몌세지] : ${err}`);
+     }
+}
 </script>
 
 <template>
@@ -79,7 +87,11 @@ const getHistorysAPI=async(id: string | string[])=>{
 
                <v-col cols="12" v-for="history in historys" :key="history.id">
                    <div>
-                    <div>{{ history.contactDate }} ({{ history.cls }}) - {{ history.userName }}</div>
+                    <div class="history_title">
+                         <div>{{ history.contactDate }} ({{ history.cls }}) - {{ history.userName }}</div>
+                         <div class="history_delete" @click="deleteHistory(history.id)">삭제</div>
+                    </div>
+                    
                     <hr/>
                     <div>{{ history.content }}</div>
                    </div>
@@ -100,6 +112,16 @@ const getHistorysAPI=async(id: string | string[])=>{
 }
 
 .history_plus {
+     cursor: pointer;
+}
+
+.history_title {
+     display: flex;
+     justify-content: space-between;
+}
+.history_delete{
+     color: red;
+     margin-right:10px;
      cursor: pointer;
 }
 </style>

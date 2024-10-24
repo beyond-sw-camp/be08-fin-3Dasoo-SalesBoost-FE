@@ -32,7 +32,7 @@ export default defineComponent({
       priorityOptions: ['높음', '중간', '낮음'],
       planClsOptions: ['개인', '전사', '제안', '견적','매출', '계약'],
       todo: {
-        calendarNo: 2,
+        calendarNo: null,
         title: '',
         todoCls: '',
         priority: '',
@@ -42,7 +42,7 @@ export default defineComponent({
         content: '',
       },
       plan: {
-        calendarNo: 2,
+        calendarNo: null,
         title: '',
         planCls: '',
         planDate: '',
@@ -76,9 +76,7 @@ export default defineComponent({
     };
   },
   created() {
-    this.fetchTodos();
-    this.fetchActs();
-    this.fetchPlans();
+    this.checkCalendarExists();
     const store = useCalendarStore();
     
     watch(() => store.filteredData, (newEvents) => {
@@ -87,10 +85,34 @@ export default defineComponent({
   },
 
   methods: {
+    // 캘린더 존재 여부 확인
+    async checkCalendarExists() {
+      try {
+        const response = await api.get('/calendars/user/exists');
+        const isCalendar = response.data.isSuccess;
+
+        if (isCalendar) {
+          await this.fetchCalendarData();
+        } else {
+          await this.createCalendar();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    },
+
+    // 새로운 캘린더 생성
+    async createCalendar() {
+      try {
+        const response = await api.post('/calendars');
+      } catch (e) {
+        console.error(e);
+      }
+    },
+
     // 필터
     applyFilter(filteredEvents) {
       const calendarApi = this.$refs.calendar.getApi();
-      console.log('이벤트 삭제!');
       calendarApi.removeAllEvents();
 
       filteredEvents.forEach(event => {
@@ -105,64 +127,56 @@ export default defineComponent({
         });
       });
     },
-    // 조회
-    async fetchActs() {
-      try {
-        const response = await api.get('/acts');
-        const acts = response.data.result;
-        const store = useCalendarStore();
-        store.setCalendarData(acts.map(act => ({
-          id: act.actNo,
-          title: act.name,
-          start: act.actDate + 'T' + act.startTime,
-          end: act.actDate + 'T' + act.endTime,
-          category: 'act',
-          allDay: false,
-        })));
-      } catch (e) {
-        console.error(e);
-      }
+    
+    mapPlanClsToCategory(planCls) {
+      return categoryMapping[planCls] || 'plan'; 
     },
-    async fetchTodos() {
+
+    // 조회
+    async fetchCalendarData() {
       try {
-        const response = await api.get('/todos');
-        const todos = response.data.result;
+        const response = await api.get('/calendars/user/data');
+        const calendarData = response.data.result;
+        this.calendarNo = response.data.result.calendarNo;
+
         const store = useCalendarStore();
-        store.setCalendarData(todos.map(todo => ({
+
+        const todos = calendarData.todos.map(todo => ({
           id: todo.todoNo,
           title: todo.title,
           start: todo.dueDate,
           category: 'todo',
           status: todo.status,
           allDay: true,
-        })));
+        }));
+
+        const plans = calendarData.plans.map(plan => ({
+          id: plan.planNo,
+          title: plan.title,
+          start: `${plan.planDate}T${plan.startTime}`,
+          end: `${plan.planDate}T${plan.endTime}`,
+          category: this.mapPlanClsToCategory(plan.planCls),
+          classNames: [`${plan.planCls.toLowerCase()}_plan-event`],
+          allDay: false,
+        }));
+
+        const acts = calendarData.acts.map(act => ({
+          id: act.actNo,
+          title: act.name,
+          start: `${act.actDate}T${act.startTime}`,
+          end: `${act.actDate}T${act.endTime}`,
+          category: 'act',
+          allDay: false,
+          classNames: ['act-event'],
+        }));
+
+        store.setCalendarData([...todos, ...plans, ...acts]);
+        this.applyFilter(store.filteredData);
+
       } catch (e) {
         console.error(e);
       }
     }, 
-
-  mapPlanClsToCategory(planCls) {
-    return categoryMapping[planCls] || 'plan'; 
-  },
-
-    async fetchPlans() {
-      try {
-        const response = await api.get('/plans');
-        const plans = response.data.result;
-        const store = useCalendarStore();
-        store.setCalendarData(plans.map(plan => ({
-          id: plan.planNo,
-          title: plan.title,
-          start: plan.planDate + 'T' + plan.startTime,
-          end: plan.planDate + 'T' + plan.endTime,
-          category: this.mapPlanClsToCategory(plan.planCls),
-          classNames: [`${plan.planCls.toLowerCase()}_plan-event`],
-          allDay: false,
-        })));
-      } catch (e) {
-        console.error(e);
-      }
-    },
     // 추가
     async addTodo() {
       if (!this.todo.title || !this.todo.todoCls || !this.todo.priority || !this.todo.dueDate || !this.todo.status) {
@@ -177,8 +191,10 @@ export default defineComponent({
       this.showAlert = false;
       const setPrivateYn = {
         ...this.todo,
+        calendarNo: this.calendarNo,
         privateYn: this.todo.privateYn ? 'Y' : 'N',
       };
+
       try {
         const response = await api.post('/todos', setPrivateYn);
         const createdTodo = response.data.result;
@@ -190,8 +206,8 @@ export default defineComponent({
           allDay: true,
           classNames: ['todo-event'],
         });
-        this.fetchTodos();
         this.closeTodoModal();
+        await this.fetchCalendarData();
       } catch (e) {
         console.error(e);
       }
@@ -207,8 +223,9 @@ export default defineComponent({
       this.mode = 'add';
       this.showAlert = false;
       const setPersonalYn = {
-        ...this.plan,
-        personalYn: this.plan.personalYn ? 'Y' : 'N',
+        ...plan,
+        calendarNo: this.calendarNo,
+        personalYn: plan.personalYn ? 'Y' : 'N',
       };
       try {
         const response = await api.post('/plans', setPersonalYn);
@@ -224,8 +241,8 @@ export default defineComponent({
           allDay: false,
           classNames: [className], 
         });
-      this.fetchPlans();
-      this.closePlanModal();
+        this.closePlanModal();
+        await this.fetchCalendarData();
     } catch (e) {
       console.error(e);
     }
@@ -246,7 +263,6 @@ export default defineComponent({
     },
 
   async updatePlan(updatedPlan) {
-    console.log('updatedPlan.planNo',updatedPlan)
     const calendarApi = this.$refs.calendar.getApi();
     const event = calendarApi.getEventById(updatedPlan.planNo);
 
@@ -275,7 +291,7 @@ export default defineComponent({
     clearTodoForm() {
       this.mode = 'add';
       this.todo = {
-        calendarNo: 2,
+        calendarNo: this.calendarNo,
         title: '',
         todoCls: '',
         priority: '',
@@ -288,7 +304,7 @@ export default defineComponent({
     clearPlanForm() {
       this.mode = 'add';
       this.plan = {
-        calendarNo: 2,  // 기본 값 설정
+        calendarNo: this.calendarNo,
         title: '',
         planCls: '',
         planDate: '',
@@ -313,13 +329,11 @@ export default defineComponent({
     async handleEventClick(clickInfo) {
       const eventId = clickInfo.event.id;    
       const eventClassNames = clickInfo.event.classNames;
-      console.log('eventClassNames,', eventClassNames)
       if (eventClassNames.some(className => className.includes('plan'))) {
         this.AddPlanModal = true;
         this.mode = 'edit';
         try {        
           const response = await api.get(`/plans/${eventId}`);  
-          console.log('get',response)      
           const planDetails = response.data.result;
           this.plan = {     
             planNo: planDetails.planNo,

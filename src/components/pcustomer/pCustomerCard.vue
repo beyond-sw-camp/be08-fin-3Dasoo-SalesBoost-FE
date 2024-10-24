@@ -31,13 +31,11 @@ const goToEditPage = (pcustomerId)=>{
                 <v-card elevation="10" class="card text-center" rounded="md" @click="goToEditPage(pcustomer.id)">
                     <v-card-item class="card_container">
                         <div class="title_container">
-                        
                             <div class="name_container">
                                     <div class="customer_name">{{ pcustomer.name }}</div> 
                                     <div class="customer_position"> <span v-if="pcustomer.company">( <i class="mr-2 mdi text-h5 mdi-domain"></i> {{ pcustomer.company }} )</span></div>
                             </div>
                         </div>
-
                         <div class="mt-4 info_container">
                         
                         <!-- <div>관리자 : <span>{{ pcustomer. }}</span> </div> -->
