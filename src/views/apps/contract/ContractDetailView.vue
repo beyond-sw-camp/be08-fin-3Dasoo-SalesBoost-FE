@@ -1,6 +1,6 @@
 
 <script>
-import axios from 'axios';
+import api from '@/api/axiosinterceptor';
 import ContractModal from './ContractModal.vue';
 
 export default {
@@ -47,7 +47,7 @@ export default {
     methods: {
         async fetchContracts() {
             try {
-                const response = await axios.get('http://localhost:8080/api/contract');
+                const response = await api.get('/contract');
                 this.contracts = response.data.result;
             } catch (error) {
                 console.error('계약 목록을 가져오는 데 실패했습니다:', error);
@@ -56,7 +56,7 @@ export default {
         async deleteContract(contractNo) {
             if (confirm('정말로 이 계약을 삭제하시겠습니까?')) {
                 try {
-                    await axios.delete(`http://localhost:8080/api/contract/${contractNo}`);
+                    await api.delete(`/contract/${contractNo}`);
                     this.fetchContracts();
                     alert('계약이 삭제되었습니다.');
                 } catch (error) {
@@ -100,9 +100,9 @@ export default {
         async saveContract(contract) {
             try {
                 if (contract.contractNo) {
-                    await axios.patch(`http://localhost:8080/api/contract/${contract.contractNo}`, contract);
+                    await api.patch(`/contract/${contract.contractNo}`, contract);
                 } else {
-                    await axios.post('http://localhost:8080/api/contract', contract);
+                    await api.post('/contract', contract);
                 }
                 this.fetchContracts(); 
                 this.closeModal();
@@ -113,6 +113,7 @@ export default {
     },
 };
 </script>
+
 
 <template>
     <div>
