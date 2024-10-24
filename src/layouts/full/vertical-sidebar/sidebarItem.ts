@@ -179,7 +179,19 @@ const sidebarItem: menu[] = [
             {
                 title: '매출 차트',
                 icon: ChartLineIcon,
-                to: '/apps/chart/sales'
+                to: '/',
+                children:[
+                    {
+                        title: '매출 현황 차트',
+                        icon: ChartAreaIcon,
+                        to: '/apps/chart/sales/status'
+                    },
+                    {
+                        title: '매출 예측 차트',
+                        icon: ChartAreaIcon,
+                        to: '/apps/chart/sales/pridictions'
+                    },
+                ]
             },
             {
                 title: '활동 차트',

@@ -592,6 +592,21 @@ const MainRoutes = {
             name: 'Tabler',
             path: '/icons/tabler',
             component: () => import('@/views/icons/TablerIcons.vue')
+        },
+        {
+            name: 'SalesChart',
+            path: '/apps/chart/sales',
+            component: () => import('@/views/apps/sales/SalesChartView.vue')
+        },
+        {
+            name: 'SalesStatusChart',
+            path: '/apps/chart/sales/status',
+            component: () => import('@/views/apps/sales/SalesStatusChartView.vue')
+        },
+        {
+            name: 'SalesPridictionsChart',
+            path: '/apps/chart/sales/pridictions',
+            component: () => import('@/views/apps/sales/SalesPredictionChartView.vue')
         }
     ]
 };
