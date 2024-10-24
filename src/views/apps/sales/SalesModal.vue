@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import api from '@/api/axiosinterceptor';
 
 export default {
   props: {
@@ -57,7 +57,6 @@ export default {
     },
   },
   watch: {
-    // supplyPrice, productCount, surtaxYn이 변경될 때마다 계산 실행
     'sale.supplyPrice': 'calculateTaxAndPrice',
     'sale.productCount': 'calculateTaxAndPrice',
     'sale.surtaxYn': 'calculateTaxAndPrice',
@@ -76,9 +75,9 @@ export default {
     async deleteSale() {
       if (confirm('정말로 이 매출을 삭제하시겠습니까?')) {
         try {
-          await axios.delete(`http://localhost:8080/api/sales/${this.sale.salesNo}`);
-          this.$emit('deleted', this.sale.salesNo); 
-          this.handleClose();
+          await api.delete(`sales/${this.sale.salesNo}`);
+          this.$emit('deleted', this.sale.salesNo);
+          this.handleClose(); // 삭제 후 창 닫기
         } catch (error) {
           console.error('매출 삭제에 실패했습니다:', error);
           alert('매출 삭제에 실패했습니다.');
@@ -93,18 +92,12 @@ export default {
       this.sale.tax = 0;
       this.sale.price = 0;
 
-      console.log('Supply Price:', supplyPrice);
-      console.log('Product Count:', productCount);
-      console.log('Surtax:', surtaxYn);
-
       if (surtaxYn === 'Y') {
         this.sale.tax = supplyPrice * 0.1; 
         this.sale.price = (supplyPrice + this.sale.tax) * productCount; 
       } else {
         this.sale.price = supplyPrice * productCount; 
       }
-      console.log('Tax:', this.sale.tax);
-      console.log('Price:', this.sale.price);
     },
   },
 };

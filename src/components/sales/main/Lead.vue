@@ -1,16 +1,16 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import api from '@/api/axiosinterceptor';
 
-const actData = ref([]);
+const leadData = ref([]);
 const loading = ref(true);
 const error = ref(null);
 
 const fetchData = async () => {
     try {
-        const response = await axios.get('http://localhost:8080/api/acts');
+        const response = await api.get('/leads');
 
-        actData.value = response.data.result;
+        leadData.value = response.data.result;
     } catch (error) {
         error.value = '데이터를 가져오는 중 오류가 발생했습니다.';
     } finally {
@@ -42,15 +42,15 @@ onMounted(() => {
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(act, actNo) in actData" :key="actNo" class="month-item">
+                <tr v-for="(lead, leadNo) in leadData" :key="leadNo" class="month-item">
                     <td>
                         <div class="d-flex align-left">
-                            <h6 class="text-h6">기회명</h6>
+                            <h6 class="text-h6">{{ lead.name }}</h6>
                         </div>
                     </td>
                     <td>
                         <div class="d-flex align-right">
-                            <h6 class="text-h6">고객명</h6>
+                            <h6 class="text-h6">{{ lead.customerName }}</h6>
                         </div>
                     </td>
                 </tr>

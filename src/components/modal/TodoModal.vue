@@ -27,7 +27,7 @@
 							<v-select v-model="todo.status" :items="statusOptions" label="상태*" :rules="[v => !!v || '상태를 선택하세요.']" required></v-select>
 						</v-col>
 						<v-col cols="12">
-							<v-switch color="primary" v-model="todo.privateYn" label="나만보기 여부"></v-switch>
+							<v-switch color="primary" v-model="isPrivate" label="나만보기 여부"></v-switch>
 						</v-col>
 						<v-col cols="12">
 							<v-text-field v-model="todo.content" label="내용"></v-text-field>
@@ -36,10 +36,13 @@
 					<small>*필수 입력</small>
 				</v-form>
 			</v-card-text>
+			<ConfirmDialogs :dialog="showConfirmDialogs" @agree="confirmDelete" @disagree="cancleDelete" />
 			<v-card-actions>
 				<v-spacer></v-spacer>
 				<v-btn color="close" @click="closeModal">Close</v-btn>
-				<v-btn color="success" variant="text" @click="addTodo" flat>Save</v-btn>
+				<v-btn v-if="mode === 'add'" color="success" variant="text" @click="addTodo" flat>Save</v-btn>
+				<v-btn v-else-if="mode === 'edit'" color="success" variant="text" @click="updateTodo" flat>Update</v-btn>
+				<v-btn v-if="mode === 'edit'" color="error" variant="text" @click="deleteTodo" flat>Delete</v-btn>
 			</v-card-actions>
 		</v-card>
 	</v-dialog>
@@ -47,33 +50,62 @@
 
 <script>
 import '@/views/apps/calendar/calendar.css'
+import ConfirmDialogs from './ConfirmDialogs.vue';
+import api from '@/api/axiosinterceptor';
 
 export default {
+	components: {
+		ConfirmDialogs,
+	},
 	props: {
 		AddTodoModal: Boolean,
 		todo: Object,
 		statusOptions: Array,
 		priorityOptions: Array,
+		mode: {
+			type: String,
+			default: 'add',
+		},
 	},
 	data() {
 		return {
       priorityOptions: ['높음', '중간', '낮음'],
 			showAlert: false,
 			showSuccessAlert: false,
+			showConfirmDialogs: false,
 			alertMessage: '',
 			alertType: '',
+			isPrivate: this.todo.privateYn === 'Y',
 		};
 	},
+	watch: {
+		isPrivate(newValue) {
+			this.todo.privateYn = newValue ? 'Y' : 'N';
+		},
+		'todo.privateYn': {
+			handler(newValue) {
+				this.isPrivate = newValue === 'Y';
+			},
+			immediate: true,
+		},
+	},
+	
 	methods: {
+    validateTodo() {
+      if (!this.todo.title || !this.todo.todoCls || !this.todo.priority || !this.todo.dueDate || !this.todo.status) {
+        this.showAlert = true;
+        this.alertMessage = '필수 필드를 입력해주세요';
+        setTimeout(() => {
+          this.showAlert = false;
+        }, 2000);
+        return false;
+      }
+      return true;
+    },
 
 		addTodo() {
-      if (!this.todo.title || !this.todo.todoCls || !this.todo.priority || !this.todo.dueDate || !this.todo.status) {
-					this.showAlert = true;
-					this.alertMessage = '필수 필드를 입력해주세요'
-				setTimeout(() => {
-					this.showAlert = false;
-				}, 2000);
-				return;
+      if (!this.validateTodo()) {
+        return;
 			}else{
 					this.$emit('show-alert', {
 						message: '저장이 완료되었습니다.',
@@ -81,6 +113,35 @@ export default {
 					});
 					this.$emit('add');
 			}
+		},
+		async updateTodo() {
+			if (!this.validateTodo()) {
+				return;
+			}
+
+			try {
+				const response = await api.patch(`/todos/${this.todo.todoNo}`, this.todo);
+				const updatedTodo = response.data.result;
+
+				this.$emit('update', updatedTodo);
+				this.$emit('show-alert', {
+					message: '수정이 완료되었습니다.',
+					type: 'success',
+				});
+				this.closeModal();
+			} catch (e) {
+				console.error(e);
+			}
+		},
+		deleteTodo(){
+			this.showConfirmDialogs = true;
+		},
+		confirmDelete(){
+			this.showConfirmDialogs = false;
+			this.$emit('delete', this.todo);
+		},
+		cancleDelete(){
+			this.showConfirmDialogs = false;
 		},
 		closeModal(){
 				this.$emit('close');

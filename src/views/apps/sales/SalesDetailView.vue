@@ -1,12 +1,69 @@
+<template>
+    <div>
+        <v-row>
+            <v-col>
+                <div>총 매출 개수: {{ totalItems }}개</div>
+            </v-col>
+            <v-col cols="12" class="text-right">
+                <v-btn color="primary" @click="openModal" flat>
+                    <v-icon class="mr-2">mdi-account</v-icon>매출 추가
+                </v-btn>
+            </v-col>
+        </v-row>
+
+        <div class="divider"></div>
+
+        <v-row>
+            <v-col v-for="(sale, index) in paginatedSales" :key="index" cols="12" md="6">
+                <v-card @click="openSalesInfo(sale)" class="sales-card">
+                    <v-card-title class="sales-title">{{ sale.salesCls }}</v-card-title>
+                    <v-card-subtitle class="sales-subtitle">매출 번호: {{ sale.salesNo }}</v-card-subtitle>
+                    <v-card-text class="sales-text">
+                        <div>수량: <span class="highlight">{{ sale.productCount }}</span></div>
+                        <div>합계 금액: <span class="highlight">{{ sale.price.toLocaleString() }} 원</span></div>
+                        <div>사업 유형: <span class="highlight">{{ sale.busiType }}</span></div>
+                        <div>계약 번호: <span class="highlight">{{ sale.contractNo }}</span></div>
+                    </v-card-text>
+                </v-card>
+            </v-col>
+            <v-col v-if="sales.length === 0" cols="12">
+                <v-alert type="info">데이터가 없습니다.</v-alert>
+            </v-col>
+        </v-row>
+
+        <v-row justify="center">
+            <v-btn v-if="currentPage > 1" @click="changePage(currentPage - 1)">이전</v-btn>
+
+            <!-- 페이지 번호는 최대 5개만 표시 -->
+            <v-btn v-for="page in visiblePages" :key="page" @click="changePage(page)" :color="page === currentPage ? 'primary' : 'default'">
+                {{ page }}
+            </v-btn>
+
+            <v-btn v-if="currentPage < totalPages" @click="changePage(currentPage + 1)">다음</v-btn>
+        </v-row>
+
+        <SalesModal
+            v-model="showModal"
+            :sale="editedSale"
+            @save="saveSale"
+            @close="closeModal"
+            @deleted="fetchSales"
+        />
+    </div>
+</template>
+
 <script>
-import axios from 'axios';
 import SalesModal from './SalesModal.vue';
+import api from '@/api/axiosinterceptor';
 
 export default {
     components: { SalesModal },
     data() {
         return {
-            sales: [],
+            sales: [], // 전체 매출 목록
+            currentPage: 1, // 현재 페이지
+            itemsPerPage: 10, // 페이지당 항목 수
+            totalItems: 0, // 전체 항목 수
             showModal: false,
             editedSale: {
                 salesNo: null,
@@ -30,30 +87,58 @@ export default {
     mounted() {
         this.fetchSales();
     },
+    computed: {
+        // 현재 페이지의 데이터 계산
+        paginatedSales() {
+            const start = (this.currentPage - 1) * this.itemsPerPage;
+            const end = start + this.itemsPerPage;
+            return this.sales.slice(start, end);
+        },
+        totalPages() {
+            return Math.ceil(this.totalItems / this.itemsPerPage);
+        },
+        visiblePages() {
+            let startPage = Math.max(1, this.currentPage - 2);
+            let endPage = Math.min(this.totalPages, this.currentPage + 2);
+            if (endPage - startPage < 4) {
+                if (startPage === 1) {
+                    endPage = Math.min(5, this.totalPages);
+                } else {
+                    startPage = Math.max(1, endPage - 4);
+                }
+            }
+            const pages = [];
+            for (let i = startPage; i <= endPage; i++) {
+                pages.push(i);
+            }
+            return pages;
+        }
+    },
     methods: {
-        async fetchSales() {
+    async fetchSales() {
             try {
-                const response = await axios.get('http://localhost:8080/api/sales');
-                this.sales = response.data.result;
+                const res = await api.get('/sales');
+                if (res && res.data && res.data.code == 200) {
+                    this.sales = res.data.result;
+                    this.totalItems = this.sales.length; // 전체 항목 수 업데이트
+                } else {
+                    console.error('올바른 응답 형식이 아닙니다:', res);
+                }
             } catch (error) {
                 console.error('매출 목록을 가져오는 데 실패했습니다:', error);
             }
         },
-        async deleteSale(salesNo) {
-            if (confirm('정말로 이 매출을 삭제하시겠습니까?')) {
-                try {
-                    await axios.delete(`http://localhost:8080/api/sales/${salesNo}`);
-                    this.fetchSales();
-                    alert('매출이 삭제되었습니다.');
-                } catch (error) {
-                    console.error('매출 삭제에 실패했습니다:', error);
-                    alert('매출 삭제에 실패했습니다.');
-                }
+        changePage(page) {
+            if (page >= 1 && page <= this.totalPages) {
+                this.currentPage = page;
             }
         },
-        editSale(sale) {
-            this.editedSale = { ...sale };
-            this.showModal = true;
+        openSalesInfo(sale) {
+            // 매출 정보를 클릭할 때 처리하는 함수
+            console.log('선택한 매출 정보:', sale);
+            // 필요한 경우 추가 작업 (예: 상세 정보를 모달로 보여주는 등)
+            this.editedSale = { ...sale };  // 클릭한 매출 정보를 수정할 수 있도록 할당
+            this.showModal = true;  // 모달을 열기
         },
         openModal() {
             this.editedSale = {
@@ -80,9 +165,9 @@ export default {
         async saveSale(sale) {
             try {
                 if (sale.salesNo) {
-                    await axios.patch(`http://localhost:8080/api/sales/${sale.salesNo}`, sale);
+                    await api.patch(`/sales/${sale.salesNo}`, sale);
                 } else {
-                    await axios.post('http://localhost:8080/api/sales', sale);
+                    await api.post('/sales', sale);
                 }
                 this.fetchSales();
                 this.closeModal();
@@ -90,54 +175,10 @@ export default {
                 console.error('매출 저장에 실패했습니다:', error);
             }
         },
-        openSalesInfo(sale) {
-            this.editedSale = { ...sale };
-            this.showModal = true; 
-        },
-    },
+    }
+
 };
 </script>
-
-<template>
-    <div>
-        <v-row>
-            <v-col><div >총 매출 개수: {{ sales.length }}개</div> </v-col>
-            <v-col cols="12" class="text-right">
-                <v-btn color="primary" @click="openModal" flat>
-                    <v-icon class="mr-2">mdi-account</v-icon>매출 추가
-                </v-btn>
-            </v-col>
-        </v-row>
-
-        <div class="divider"></div>
-
-        <v-row>
-            <v-col v-for="(sale, index) in sales" :key="index" cols="12" md="6">
-                <v-card @click="openSalesInfo(sale)" class="sales-card">
-                    <v-card-title class="sales-title">{{ sale.salesCls }}</v-card-title>
-                    <v-card-subtitle class="sales-subtitle">매출 번호: {{ sale.salesNo }}</v-card-subtitle>
-                    <v-card-text class="sales-text">
-                        <div>수량: <span class="highlight">{{ sale.productCount }}</span></div>
-                        <div>합계 금액: <span class="highlight">{{ sale.price.toLocaleString() }} 원</span></div>
-                        <div>사업 유형: <span class="highlight">{{ sale.busiType }}</span></div>
-                        <div>계약 번호: <span class="highlight">{{ sale.contractNo }}</span></div>
-                    </v-card-text>
-                </v-card>
-            </v-col>
-            <v-col v-if="sales.length === 0" cols="12">
-                <v-alert type="info">데이터가 없습니다.</v-alert>
-            </v-col>
-        </v-row>
-
-        <SalesModal
-            v-model="showModal"
-            :sale="editedSale"
-            @save="saveSale"
-            @close="closeModal"
-            @deleted="fetchSales" 
-        />
-    </div>
-</template>
 
 <style scoped>
 .sales-card {

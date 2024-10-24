@@ -3,8 +3,9 @@ import { computed, onMounted, ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import { mask } from 'maska';  
+import api from '@/api/axiosinterceptor';
 
-const userName = ref('김은경');
+const userName = ref('');
 const grades = ref(['S등급', 'A등급','B등급','C등급','D등급']);
 const customerName = ref('');
 const email = ref('');
@@ -15,15 +16,27 @@ const phone = ref('');
 const tel = ref('');
 const grade = ref('');
 const keyman = ref(false);
+const token = ref('');
 
 const router = useRouter();
+
+onMounted(()=>{
+    userName.value = localStorage.getItem('loginUserName')||'';
+    const storedToken = localStorage.getItem("accessToken")||'';
+    if(storedToken){
+        console.log(storedToken);
+        token.value = String(storedToken);
+        console.log(token.value);
+    }
+    
+})
 
 const registerCustomer = ()=>{
     registerAPI();
 }
 const registerAPI = async()=>{
     try{
-        const res = await axios.post('http://localhost:8080/api/customers',{
+        const res = await api.post('/customers/add',{
             name:customerName.value,
             company:company.value?company.value:null,
             dept:dept.value? dept.value:null,
@@ -33,14 +46,16 @@ const registerAPI = async()=>{
             email:email.value ? email.value:null,
             grade:grade.value ? grade.value:null,
             keyman:keyman.value 
-        })
+        }
+     )
         if(res.data.code==200){
             alert(res.data.result);
             router.push({
                 name: "Customer"
             });
-        }
-            
+        }else{
+            alert(res.data.result);
+        }  
     }catch(err){
         console.log(`[ERROR 몌세지] : ${err}`);
 
@@ -66,12 +81,11 @@ const confirmEmail = ref([(v: string) => !!v || '이메일을 입력해주세요
 
 
 const formIsValid = computed(()=>{
-    return customerName.value && email.value && grade.value && phone.value;
+    return customerName.value && email.value && phone.value;
 })
 
-onMounted(()=>{
-    userName.value = localStorage.getItem('')||'';
-})
+
+
 </script>
 <template>
     <v-row>
@@ -99,7 +113,7 @@ onMounted(()=>{
         </v-col>
 
         <v-col cols="6">
-            <v-label class="font-weight-medium mb-2">휴대폰 번호</v-label><span class="require">*</span>
+            <v-label class="font-weight-medium mb-2">휴대폰번호</v-label><span class="require">*</span>
             <v-text-field v-maska="'###-####-####'"  color="primary" v-model="phone" variant="outlined" type="text" placeholder="-를 제외하고 입력해주세요" :rules="confirmPhone">
             </v-text-field>
         </v-col>
@@ -116,8 +130,8 @@ onMounted(()=>{
         </v-col>
 
         <v-col cols="6">
-            <v-label class="font-weight-medium mb-2">등급</v-label><span class="require">*</span>
-            <v-select v-model="grade" :items="grades" single-line variant="outlined" :rules="confirmGrade"></v-select>
+            <v-label class="font-weight-medium mb-2">등급</v-label>
+            <v-select v-model="grade" :items="grades" single-line variant="outlined"></v-select>
         </v-col>
 
         <v-col cols="6">

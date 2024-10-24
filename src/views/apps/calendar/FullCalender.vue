@@ -4,11 +4,13 @@ import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import axios from 'axios';
 import TodoModal from '@/components/modal/TodoModal.vue';
 import PlanModal from '@/components/modal/PlanModal.vue';
 import './calendar.css';
 import { useCalendarStore } from '@/stores/apps/calendar/calendar';
+import api from '@/api/axiosinterceptor';
+import { reverseActStatus, actStatus } from '@/utils/ActStatusMappings';
+import {categoryMapping, reversePlanCls} from '@/utils/PlanMappings'
 
 export default defineComponent({
   components: {
@@ -30,7 +32,7 @@ export default defineComponent({
       priorityOptions: ['높음', '중간', '낮음'],
       planClsOptions: ['개인', '전사', '제안', '견적','매출', '계약'],
       todo: {
-        calendarNo: 1,
+        calendarNo: 2,
         title: '',
         todoCls: '',
         priority: '',
@@ -40,14 +42,18 @@ export default defineComponent({
         content: '',
       },
       plan: {
-        calendarNo: 1,
+        calendarNo: 2,
         title: '',
         planCls: '',
         planDate: '',
         startTime: '',
         endTime: '',
-        personalYn: 'N',
+        personalYn: 'Y',
         content: '',
+        planDetails : {
+          title: '',
+          note: '',
+        },
       },
       calendarOptions: {
         plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -81,6 +87,7 @@ export default defineComponent({
   },
 
   methods: {
+    // 필터
     applyFilter(filteredEvents) {
       const calendarApi = this.$refs.calendar.getApi();
       console.log('이벤트 삭제!');
@@ -98,9 +105,10 @@ export default defineComponent({
         });
       });
     },
+    // 조회
     async fetchActs() {
       try {
-        const response = await axios.get('http://localhost:8080/api/acts');
+        const response = await api.get('/acts');
         const acts = response.data.result;
         const store = useCalendarStore();
         store.setCalendarData(acts.map(act => ({
@@ -117,7 +125,7 @@ export default defineComponent({
     },
     async fetchTodos() {
       try {
-        const response = await axios.get('http://localhost:8080/api/todos');
+        const response = await api.get('/todos');
         const todos = response.data.result;
         const store = useCalendarStore();
         store.setCalendarData(todos.map(todo => ({
@@ -134,20 +142,12 @@ export default defineComponent({
     }, 
 
   mapPlanClsToCategory(planCls) {
-    const categoryMapping = {
-      'PERSONAL': 'personal_plan',
-      'COMPANY': 'company_plan',
-      'PROPOSAL': 'proposal_plan',
-      'ESTIMATE': 'estimate_plan',
-      'SALES': 'sales_plan',
-      'CONTRACT': 'contract_plan'
-    };
     return categoryMapping[planCls] || 'plan'; 
   },
 
     async fetchPlans() {
       try {
-        const response = await axios.get('http://localhost:8080/api/plans');
+        const response = await api.get('/plans');
         const plans = response.data.result;
         const store = useCalendarStore();
         store.setCalendarData(plans.map(plan => ({
@@ -163,6 +163,7 @@ export default defineComponent({
         console.error(e);
       }
     },
+    // 추가
     async addTodo() {
       if (!this.todo.title || !this.todo.todoCls || !this.todo.priority || !this.todo.dueDate || !this.todo.status) {
         this.showAlert = true;
@@ -172,13 +173,14 @@ export default defineComponent({
         return;
       }
 
+      this.mode = 'add';
       this.showAlert = false;
       const setPrivateYn = {
         ...this.todo,
         privateYn: this.todo.privateYn ? 'Y' : 'N',
       };
       try {
-        const response = await axios.post('http://localhost:8080/api/todos', setPrivateYn);
+        const response = await api.post('/todos', setPrivateYn);
         const createdTodo = response.data.result;
         const calendarApi = this.$refs.calendar.getApi();
         calendarApi.addEvent({
@@ -188,6 +190,7 @@ export default defineComponent({
           allDay: true,
           classNames: ['todo-event'],
         });
+        this.fetchTodos();
         this.closeTodoModal();
       } catch (e) {
         console.error(e);
@@ -201,13 +204,14 @@ export default defineComponent({
         }, 2000);
         return;
       }
+      this.mode = 'add';
       this.showAlert = false;
       const setPersonalYn = {
-        ...plan,
-        personalYn: plan.personalYn ? 'Y' : 'N',
+        ...this.plan,
+        personalYn: this.plan.personalYn ? 'Y' : 'N',
       };
       try {
-        const response = await axios.post('http://localhost:8080/api/plans', setPersonalYn);
+        const response = await api.post('/plans', setPersonalYn);
         const createdPlan = response.data.result;
         const calendarApi = this.$refs.calendar.getApi();
         const className = `${plan.planCls.toLowerCase()}_plan-event`;
@@ -220,11 +224,40 @@ export default defineComponent({
           allDay: false,
           classNames: [className], 
         });
+      this.fetchPlans();
       this.closePlanModal();
     } catch (e) {
       console.error(e);
     }
   },
+  
+  // 수정
+  async updateTodo(updatedTodo) {
+    const calendarApi = this.$refs.calendar.getApi();
+    const event = calendarApi.getEventById(updatedTodo.todoNo);
+
+    if (event) {
+      event.setProp('title', updatedTodo.title);
+      event.setStart(updatedTodo.dueDate);
+      event.setExtendedProp('todoCls', updatedTodo.todoCls);
+      event.setExtendedProp('priority', updatedTodo.priority);
+      event.setExtendedProp('status', updatedTodo.status);
+      }
+    },
+
+  async updatePlan(updatedPlan) {
+    console.log('updatedPlan.planNo',updatedPlan)
+    const calendarApi = this.$refs.calendar.getApi();
+    const event = calendarApi.getEventById(updatedPlan.planNo);
+
+    if (event) {
+      event.setProp('title', updatedPlan.title);
+      event.setStart(updatedPlan.dueDate);
+      event.setExtendedProp('planCls', updatedPlan.planCls);
+      }
+    },
+  
+  // 닫기 및 초기화
     closeTodoModal() {
       this.AddTodoModal = false;
       this.selectedOption = null;
@@ -240,8 +273,9 @@ export default defineComponent({
       }, 300);
     },
     clearTodoForm() {
+      this.mode = 'add';
       this.todo = {
-        calendarNo: 1,
+        calendarNo: 2,
         title: '',
         todoCls: '',
         priority: '',
@@ -252,8 +286,9 @@ export default defineComponent({
       };
     },
     clearPlanForm() {
-    this.plan = {
-        calendarNo: 1,
+      this.mode = 'add';
+      this.plan = {
+        calendarNo: 2,  // 기본 값 설정
         title: '',
         planCls: '',
         planDate: '',
@@ -262,8 +297,13 @@ export default defineComponent({
         personalYn: 'N',
         content: '',
       };
+      this.planDetails = {
+        title: '',
+        note: '',
+      };
+      this.isPersonal = false;
     },
-
+  // 클릭 이벤트
     handleDateSelect(selectInfo) {
       this.AddTodoModal = true;
       this.AddPlanModal = true;
@@ -273,21 +313,24 @@ export default defineComponent({
     async handleEventClick(clickInfo) {
       const eventId = clickInfo.event.id;    
       const eventClassNames = clickInfo.event.classNames;
-
+      console.log('eventClassNames,', eventClassNames)
       if (eventClassNames.some(className => className.includes('plan'))) {
         this.AddPlanModal = true;
+        this.mode = 'edit';
         try {        
-          const response = await axios.get(`http://localhost:8080/api/plans/${eventId}`);        
+          const response = await api.get(`/plans/${eventId}`);  
+          console.log('get',response)      
           const planDetails = response.data.result;
-          this.plan = {          
-            calendarNo: planDetails.calendarNo,          
+          this.plan = {     
+            planNo: planDetails.planNo,
+            calendarNo: planDetails.calendarNo,
             title: planDetails.title,
-            planCls: planDetails.planCls,
+            planCls: reversePlanCls[planDetails.planCls],
             planDate: planDetails.planDate,          
             startTime: planDetails.startTime,          
-            endTime: planDetails.endTime,         
-            personalYn: planDetails.personalYn,           
-            content: planDetails.content,        
+            endTime: planDetails.endTime,
+            personalYn: planDetails.personalYn,     
+            content: planDetails.content,
           };
           this.DetailPlanShow = false;
         } catch (e) {        
@@ -296,11 +339,13 @@ export default defineComponent({
       } 
       else if (eventClassNames.includes('todo-event')) {
         this.AddTodoModal = true;
+        this.mode = 'edit'; 
         try {        
-          const response = await axios.get(`http://localhost:8080/api/todos/${eventId}`);
+          const response = await api.get(`/todos/${eventId}`);
           const todoDetails = response.data.result;
 
-          this.todo = {          
+          this.todo = {
+            todoNo: todoDetails.todoNo,
             calendarNo: todoDetails.calendarNo,
             title: todoDetails.title,
             todoCls: todoDetails.todoCls,
@@ -315,6 +360,18 @@ export default defineComponent({
           console.error(e);      
         }
       }
+      else if (eventClassNames.includes('act-event')) {
+        const response = await api.get(`/acts/${eventId}`);
+        const actDetails = response.data.result;
+        const convertCls = reverseActStatus[actDetails.cls] || actDetails.cls;
+        const actNo = actDetails.actNo;
+
+        this.$router.push({
+          name: 'FormCustom',
+          params: { actNo },
+          query: { cls: convertCls }
+        });
+      }
     },
     handleEvents(events) {
       this.currentEvents = events;
@@ -328,7 +385,43 @@ export default defineComponent({
       setTimeout(() => {
         this.showSuccessAlert = false;
       }, 3000);
-    }
+    },
+    async deleteTodo(todoToDelete) {
+      try {
+        await api.delete(`/todos/${todoToDelete.todoNo}`);
+        const calendarApi = this.$refs.calendar.getApi();
+        
+        const event = calendarApi.getEventById(todoToDelete.todoNo);
+        if (event) {
+          event.remove();
+        }
+        this.closeTodoModal();
+        this.handleAlert({
+          message: '할 일이 삭제되었습니다.',
+          type: 'success',
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    async deletePlan(planToDelete) {
+      try {
+        await api.delete(`/plans/${planToDelete.planNo}`);
+        const calendarApi = this.$refs.calendar.getApi();
+        
+        const event = calendarApi.getEventById(planToDelete.planNo);
+        if (event) {
+          event.remove();
+        }
+        this.closePlanModal();
+        this.handleAlert({
+          message: '일정이 삭제되었습니다.',
+          type: 'success',
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    },
   },
   watch: {
     selectedOption(value) {
@@ -363,8 +456,13 @@ export default defineComponent({
         </template>
       </FullCalendar>
 
-      <TodoModal v-model="AddTodoModal" :todo="todo" :priorityOptions="priorityOptions" :statusOptions="statusOptions" @close="closeTodoModal" @add="addTodo" @show-alert="handleAlert"/>
-      <PlanModal v-model="AddPlanModal" :plan="plan" :planClsOptions="planClsOptions" :statusOptions="statusOptions" @close="closePlanModal" @add="addPlan" @show-alert="handleAlert"/>
+      <TodoModal v-model="AddTodoModal"
+        :todo="todo" :priorityOptions="priorityOptions" :statusOptions="statusOptions" :mode="mode"
+        @close="closeTodoModal" @add="addTodo" @delete="deleteTodo" @update="updateTodo" @show-alert="handleAlert"
+      />
+      <PlanModal v-model="AddPlanModal" 
+      :plan="plan" :planClsOptions="planClsOptions" :statusOptions="statusOptions" :mode="mode"
+      @close="closePlanModal" @add="addPlan" @delete="deletePlan" @update="updatePlan" @show-alert="handleAlert"/>
 
       <v-alert v-if="showSuccessAlert" type="success" variant="tonal" :class="['alert', alertType]">
         <h5 class="text-h6 text-capitalize">Success</h5>

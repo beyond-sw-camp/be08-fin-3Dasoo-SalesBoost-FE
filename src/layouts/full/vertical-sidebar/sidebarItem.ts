@@ -90,7 +90,7 @@ const sidebarItem: menu[] = [
     {
         title: '영업기회',
         // icon: CalendarIcon,
-        to: '/apps/calendar'
+        to: '/sales/lead'
     },
     {
         title: '고객',
@@ -105,17 +105,17 @@ const sidebarItem: menu[] = [
             {
                 title: '잠재고객',
                 icon: CircleDotIcon,
-                to: '/apps/blog/posts'
+                to: '/sales/prospect'
             },
             {
                 title: '제안',
                 icon: CircleDotIcon,
-                to: '/apps/blog/early-black-friday-amazon-deals-cheap-tvs-headphones'
+                to: '/proposals'
             },
             {
                 title: '견적',
                 icon: CircleDotIcon,
-                to: '/apps/blog/early-black-friday-amazon-deals-cheap-tvs-headphones'
+                to: '/estimates'
             },
             {
                 title: '계약',
@@ -127,6 +127,26 @@ const sidebarItem: menu[] = [
                 icon: CircleDotIcon,
                 to: '/apps/sales'
             },
+            {
+                title: '부서',
+                icon: CircleDotIcon,
+                to: '/sales/departments'
+            },
+            {
+                title: '제품',
+                icon: CircleDotIcon,
+                to: '/sales/products'
+            },
+            {
+                title: '프로세스',
+                icon: CircleDotIcon,
+                to: '/sales/processes'
+            },
+            {
+                title: '목표 매출',
+                icon: CircleDotIcon,
+                to: '/sales/targetsales'
+            }
         ]
     },
     {
@@ -145,9 +165,9 @@ const sidebarItem: menu[] = [
                 to: '/apps/blog/early-black-friday-amazon-deals-cheap-tvs-headphones'
             },
             {
-                title: '할일',
+                title: '영업활동',
                 icon: CircleDotIcon,
-                to: '/apps/blog/early-black-friday-amazon-deals-cheap-tvs-headphones'
+                to: '/apps/act/list'
             }
         ]
     },
@@ -159,7 +179,24 @@ const sidebarItem: menu[] = [
             {
                 title: '매출 차트',
                 icon: ChartLineIcon,
-                to: '/apps/chart/sales'
+                to: '/',
+                children:[
+                    {
+                        title: '매출 현황 차트',
+                        icon: ChartAreaIcon,
+                        to: '/apps/chart/sales/status'
+                    },
+                    {
+                        title: '매출 예측 차트',
+                        icon: ChartAreaIcon,
+                        to: '/apps/chart/sales/pridictions'
+                    },
+                ]
+            },
+            {
+                title: '활동 차트',
+                icon: ChartLineIcon,
+                to: '/apps/chart/act'
             },
         ]
     },
@@ -529,18 +566,6 @@ const sidebarItem: menu[] = [
         icon: EditCircleIcon,
         to: '/forms/editor'
     },
-    // {
-    //     title: 'Proposal List',
-    //     icon: FilesIcon,
-    //     to: '/proposals'
-    // },
-
-    {
-        title: '제안',
-        icon: FilesIcon,
-        to: '/proposals'
-    },
-
     { header: 'Widgets' },
     {
         title: 'Cards',

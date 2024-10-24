@@ -2,7 +2,7 @@
 import { ref,computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { Form } from 'vee-validate';
-import axios from 'axios';
+import baseApi from '@/api/baseapi';
 import { useRouter } from 'vue-router';
 
 const isEmployeeIdLogin = ref(false);
@@ -10,6 +10,7 @@ const password = ref('');
 const email = ref('');
 const employeeId = ref('');
 const router = useRouter();
+const authStore = useAuthStore();
 
 const passwordRules = ref([
     (v: string) => !!v || '비밀번호를 입력해주세요',
@@ -27,39 +28,41 @@ const formIsValid = computed(()=>{// 계산된 속성 사용
     }
 })
 
-
-
 const login =()=>{
     if(formIsValid.value){
         loginApi();
     }
-
 }
 
 const loginApi=async()=>{
     try{
-        const res = await axios.post('http://localhost:8080/api/users/login',{
+        const res = await baseApi.post('/users/login',{
             loginType: isEmployeeIdLogin.value ? 'employeeId':'email', // 로그인 방식 구분
             email: email.value ? email.value : null,
             employeeId : employeeId.value? employeeId.value : null,
             password: password.value 
-        })
+        },
+        {
+            withCredentials: true
+        }
+    )
         if(res.data.code==200){
             alert("로그인을 완료했습니다.");
             const result = res.data.result;
+            console.log(result);
+            authStore.setIsLogedIn();
             saveLocalStorage(result);
-            router.push("/");  // 로그인이 성공한 후 페이지 이동
-        
-            console.log('페이지 이동')
+            router.push("/");  
         }
     }catch(err) {
         console.log(err);
     }
+
 }
 const saveLocalStorage=(result:any)=>{
-        localStorage.setItem('loginUserName', JSON.stringify(result.name));
-        localStorage.setItem('loginUserEmail', JSON.stringify(result.email));
-        localStorage.setItem('loginUserToken', JSON.stringify(result.accessToken));
+        localStorage.setItem('loginUserName', result.name);
+        localStorage.setItem('loginUserEmail', result.email);
+        localStorage.setItem('accessToken',result.accessToken);
 }
 </script>
 
